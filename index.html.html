@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1% - Premium Futures Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a25;
+            --bg-card-hover: #222230;
+            --accent-cyan: #00d4ff;
+            --accent-purple: #a855f7;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --accent-orange: #f97316;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b7b;
+            --border-color: rgba(255,255,255,0.08);
+            --glow-cyan: 0 0 20px rgba(0,212,255,0.3);
+            --glow-purple: 0 0 20px rgba(168,85,247,0.3);
+            --glow-green: 0 0 20px rgba(16,185,129,0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 배경 효과 */
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(0,212,255,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(168,85,247,0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 60px;
+            background: rgba(10,10,15,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+        }
+
+        .menu-btn {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-secondary); font-size: 18px;
+            margin-right: 12px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+        }
+        .menu-btn:hover { background: var(--bg-card); color: var(--accent-cyan); }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .logo-icon {
+            width: 38px; height: 38px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', monospace;
+            font-weight: 800;
+            font-size: 10px;
+            color: white;
+            box-shadow: var(--glow-cyan);
+        }
+
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .logo-text span { color: var(--accent-cyan); }
+
+        .nav {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 30px;
+        }
+        .nav-item {
+            padding: 8px 14px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .nav-item:hover { background: var(--bg-card); color: var(--text-primary); }
+        .nav-item.active { color: var(--accent-cyan); }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .h-btn {
+            width: 36px; height: 36px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text-secondary); font-size: 16px;
+            border-radius: 8px;
+        }
+        .h-btn:hover { background: var(--bg-card); color: var(--accent-cyan); border-color: var(--accent-cyan); }
+
+        .btn-login {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: var(--glow-cyan);
+            transition: all 0.3s;
+        }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,212,255,0.5); }
+
+        /* Ticker Bar */
+        .ticker-bar {
+            position: fixed;
+            top: 60px; left: 0; right: 0;
+            height: 36px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            font-size: 13px;
+            gap: 20px;
+            z-index: 999;
+        }
+        .ticker-item { display: flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+        .ticker-item .sym { color: var(--text-primary); font-weight: 600; font-family: 'JetBrains Mono', monospace; }
+        .ticker-item .up { color: var(--accent-green); }
+        .ticker-item .down { color: var(--accent-red); }
+        .ticker-right { margin-left: auto; color: var(--text-muted); }
+        .ticker-right span { color: var(--accent-cyan); font-weight: 600; }
+
+        /* Layout */
+        .layout {
+            display: flex;
+            padding-top: 96px;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Sidebar Left */
+        .sidebar-left {
+            width: 280px;
+            background: rgba(18,18,26,0.8);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 96px; left: 0; bottom: 0;
+            border-right: 1px solid var(--border-color);
+            padding: 16px;
+            overflow-y: auto;
+        }
+
+        .sl-section { margin-bottom: 24px; }
+        .sl-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .sl-more { margin-left: auto; font-size: 11px; color: var(--text-muted); cursor: pointer; }
+        .sl-more:hover { color: var(--accent-cyan); }
+
+        .sl-news {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .sl-news:hover .sl-news-title { color: var(--accent-cyan); }
+        .sl-news-time { font-size: 10px; color: var(--accent-purple); font-weight: 600; margin-bottom: 4px; }
+        .sl-news-title { font-size: 13px; line-height: 1.4; color: var(--text-secondary); transition: color 0.2s; }
+
+        .sl-event {
+            padding: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .sl-event:hover { border-color: var(--accent-cyan); }
+        .sl-event-badge { font-size: 10px; color: var(--accent-cyan); font-weight: 600; margin-bottom: 4px; }
+        .sl-event-title { font-size: 13px; margin-bottom: 2px; }
+        .sl-event-date { font-size: 10px; color: var(--text-muted); }
+
+        /* Partner Card */
+        .partner-card {
+            background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(168,85,247,0.1));
+            border: 1px solid var(--accent-cyan);
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: var(--glow-cyan);
+        }
+        .partner-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+        .partner-logo { height: 24px; filter: brightness(1.2); }
+        .partner-name { font-weight: 700; font-size: 15px; }
+        .partner-tag { font-size: 10px; color: var(--accent-cyan); }
+        .partner-benefits { display: flex; gap: 12px; margin-bottom: 12px; }
+        .partner-benefit { flex: 1; text-align: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 8px; }
+        .partner-benefit-label { font-size: 10px; color: var(--text-muted); margin-bottom: 4px; }
+        .partner-benefit-value { font-size: 18px; font-weight: 700; color: var(--accent-cyan); font-family: 'Orbitron', monospace; }
+        .partner-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .partner-btn:hover { transform: translateY(-2px); box-shadow: var(--glow-cyan); }
+
+        /* Main */
+        .main {
+            flex: 1;
+            margin-left: 280px;
+            margin-right: 0;
+            padding: 20px;
+            transition: margin 0.3s;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, rgba(0,212,255,0.05), rgba(168,85,247,0.05));
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300d4ff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            opacity: 0.5;
+        }
+        .hero h1 {
+            font-family: 'Orbitron', monospace;
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        .hero h1 .accent { color: var(--accent-cyan); text-shadow: var(--glow-cyan); }
+        .hero .sub {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            position: relative;
+        }
+        .hero .sub span { color: var(--accent-purple); font-weight: 700; }
+        .hero-btns { display: flex; justify-content: center; gap: 12px; position: relative; }
+        .btn-primary {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: var(--glow-cyan);
+            transition: all 0.3s;
+        }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 0 40px rgba(0,212,255,0.5); }
+        .btn-secondary {
+            padding: 14px 32px;
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 10px;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-secondary:hover { background: rgba(0,212,255,0.1); }
+
+        /* Futures Grid */
+        .futures-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .futures-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .futures-item:hover { border-color: var(--accent-cyan); box-shadow: var(--glow-cyan); transform: translateY(-2px); }
+        .futures-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .futures-value { font-size: 22px; font-weight: 700; font-family: 'Orbitron', monospace; }
+        .futures-value.long { color: var(--accent-green); }
+        .futures-value.short { color: var(--accent-red); }
+        .futures-change { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+        /* Card */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .card:hover { border-color: rgba(0,212,255,0.3); }
+        .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .card-title { font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .card-more { font-size: 12px; color: var(--text-muted); cursor: pointer; }
+        .card-more:hover { color: var(--accent-cyan); }
+
+        /* News */
+        .news-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .news-item:last-child { border-bottom: none; }
+        .news-item:hover { padding-left: 8px; }
+        .news-item:hover .news-title { color: var(--accent-cyan); }
+        .news-time { font-size: 11px; color: var(--accent-purple); margin-bottom: 4px; font-family: 'JetBrains Mono', monospace; }
+        .news-title { font-size: 14px; line-height: 1.4; transition: color 0.2s; }
+
+        /* Exchange */
+        .ex-row {
+            display: flex;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.2s;
+        }
+        .ex-row:last-child { border-bottom: none; }
+        .ex-row:hover { background: rgba(0,212,255,0.05); margin: 0 -20px; padding: 14px 20px; }
+        .ex-logo {
+            height: 28px;
+            margin-right: 14px;
+            filter: brightness(1.1);
+        }
+        .ex-logo-box {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            margin-right: 14px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 11px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .ex-info { flex: 1; }
+        .ex-name { font-weight: 700; font-size: 15px; }
+        .ex-tag { font-size: 11px; color: var(--text-muted); }
+        .ex-rate { 
+            font-family: 'Orbitron', monospace; 
+            font-weight: 700; 
+            color: var(--accent-cyan); 
+            margin-right: 16px; 
+            font-size: 18px;
+            text-shadow: var(--glow-cyan);
+        }
+        .ex-btn {
+            padding: 8px 18px;
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            border-radius: 8px;
+            color: var(--accent-cyan);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .ex-btn:hover { background: var(--accent-cyan); color: var(--bg-primary); }
+
+        /* Featured Exchange */
+        .ex-row.featured {
+            background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(168,85,247,0.1));
+            border: 1px solid var(--accent-cyan);
+            border-radius: 12px;
+            margin-bottom: 8px;
+            padding: 16px;
+            box-shadow: var(--glow-cyan);
+        }
+        .ex-row.featured:hover { margin: 0 0 8px 0; }
+        .ex-featured-badge {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            margin-left: 8px;
+        }
+
+        /* Toggle Right Button */
+        .toggle-right {
+            position: fixed;
+            top: 104px;
+            right: 12px;
+            width: 36px; height: 36px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 14px;
+            z-index: 50;
+        }
+        .toggle-right:hover { background: var(--bg-card-hover); color: var(--accent-cyan); border-color: var(--accent-cyan); }
+
+        /* Sidebar Right */
+        .sidebar-right {
+            width: 260px;
+            background: rgba(18,18,26,0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            top: 96px; right: 0; bottom: 0;
+            border-left: 1px solid var(--border-color);
+            padding: 16px 0;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 40;
+        }
+        .sidebar-right.open { transform: translateX(0); }
+
+        .sr-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 20px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sr-head-title { font-size: 14px; font-weight: 700; color: var(--accent-cyan); }
+        .sr-close { cursor: pointer; color: var(--text-secondary); font-size: 20px; }
+        .sr-close:hover { color: var(--accent-cyan); }
+
+        .sr-section {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sr-section:last-child { border-bottom: none; }
+        .sr-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sr-item:hover { background: rgba(0,212,255,0.1); color: var(--text-primary); }
+        .sr-icon { font-size: 16px; width: 20px; text-align: center; }
+        .sr-badge {
+            margin-left: auto;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+        .sr-badge.hit { background: var(--accent-red); color: white; }
+        .sr-badge.must { background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple)); color: white; }
+        .sr-badge.new { background: var(--accent-green); color: white; }
+        .sr-title {
+            padding: 14px 20px 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Schedule */
+        .sr-schedule {
+            padding: 10px 20px;
+            display: flex;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .sr-schedule:hover { background: rgba(0,212,255,0.1); }
+        .sr-sch-date { text-align: center; min-width: 36px; }
+        .sr-sch-day { font-size: 16px; font-weight: 700; color: var(--accent-cyan); font-family: 'Orbitron', monospace; }
+        .sr-sch-dow { font-size: 9px; color: var(--text-muted); }
+        .sr-sch-info { flex: 1; }
+        .sr-sch-tag { font-size: 9px; color: var(--accent-purple); margin-bottom: 2px; }
+        .sr-sch-title { font-size: 12px; line-height: 1.3; }
+
+        /* Modal */
+        .modal-bg {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-bg.active { display: flex; }
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 16px;
+            padding: 24px;
+            width: 360px;
+            box-shadow: var(--glow-cyan);
+        }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-title { font-size: 18px; font-weight: 700; font-family: 'Orbitron', monospace; }
+        .modal-close { cursor: pointer; color: var(--text-secondary); font-size: 24px; }
+        .modal-close:hover { color: var(--accent-cyan); }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-input:focus { outline: none; border-color: var(--accent-cyan); box-shadow: var(--glow-cyan); }
+        .form-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 6px; display: block; }
+        .form-group { margin-bottom: 16px; }
+        .btn-login-big {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            box-shadow: var(--glow-cyan);
+            transition: all 0.3s;
+        }
+        .btn-login-big:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,212,255,0.5); }
+        .login-links { margin-top: 16px; font-size: 13px; color: var(--text-secondary); text-align: center; }
+        .login-links a { color: var(--accent-cyan); text-decoration: none; cursor: pointer; }
+        .login-links a:hover { text-decoration: underline; }
+
+        /* Language Modal */
+        .lang-btn {
+            padding: 12px 20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .lang-btn:hover { border-color: var(--accent-cyan); background: rgba(0,212,255,0.1); }
+        .lang-btn.active { border-color: var(--accent-cyan); box-shadow: var(--glow-cyan); }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: white;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: var(--glow-cyan);
+            opacity: 0;
+            transition: all 0.4s;
+            z-index: 3000;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .sidebar-left { display: none; }
+            .main { margin-left: 0; }
+        }
+        @media (max-width: 900px) {
+            .nav { display: none; }
+            .futures-grid { grid-template-columns: repeat(2, 1fr); }
+            .hero h1 { font-size: 28px; }
+        }
+        @media (max-width: 600px) {
+            .header { padding: 0 12px; }
+            .hero { padding: 30px 16px; }
+            .hero h1 { font-size: 22px; }
+            .hero-btns { flex-direction: column; }
+            .btn-primary, .btn-secondary { width: 100%; }
+            .futures-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .futures-item { padding: 12px; }
+            .futures-value { font-size: 18px; }
+            .ex-row { flex-wrap: wrap; gap: 10px; }
+            .ex-rate { margin-right: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-gradient"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="menu-btn" onclick="toggleRight()">☰</div>
+        <a class="logo" onclick="goHome()">
+            <div class="logo-icon">1%</div>
+            <div class="logo-text">1<span>%</span></div>
+        </a>
+        <nav class="nav">
+            <div class="nav-item active">뉴스</div>
+            <div class="nav-item">거래소</div>
+            <div class="nav-item">리워드</div>
+            <div class="nav-item">커뮤니티</div>
+            <div class="nav-item" style="color:var(--accent-cyan)">🎁 이벤트</div>
+        </nav>
+        <div class="header-right">
+            <button class="h-btn" onclick="openLang()">🌐</button>
+            <button class="h-btn">⚙️</button>
+            <button class="btn-login" onclick="openLogin()">로그인</button>
+        </div>
+    </header>
+
+    <!-- Ticker Bar -->
+    <div class="ticker-bar">
+        <div class="ticker-item"><span class="sym">BTC</span> $104,235 <span class="up">+2.14%</span></div>
+        <div class="ticker-item"><span class="sym">ETH</span> $3,312 <span class="up">+1.52%</span></div>
+        <div class="ticker-item"><span class="sym">SOL</span> $198.45 <span class="down">-0.82%</span></div>
+        <div class="ticker-item"><span class="sym">김프</span> 2.1%</div>
+        <div class="ticker-right">🎉 tra***** 님이 <span>$127.50 USDT</span> 리워드 수령</div>
+    </div>
+
+    <div class="layout">
+        <!-- Sidebar Left -->
+        <aside class="sidebar-left">
+            <div class="sl-section">
+                <div class="sl-title">🔥 실시간 뉴스 <span class="sl-more">더보기→</span></div>
+                <div class="sl-news"><div class="sl-news-time">HOT</div><div class="sl-news-title">비트코인 $100K 돌파, 신고점 경신</div></div>
+                <div class="sl-news"><div class="sl-news-time">HOT</div><div class="sl-news-title">이더리움 ETF 자금 유입 급증</div></div>
+                <div class="sl-news"><div class="sl-news-time">HOT</div><div class="sl-news-title">트럼프 취임 앞두고 시장 관망</div></div>
+            </div>
+
+            <div class="sl-section">
+                <div class="sl-title">🎁 거래소 이벤트 <span class="sl-more">더보기→</span></div>
+                <div class="sl-event"><div class="sl-event-badge">Bitunix</div><div class="sl-event-title">트레이딩 대회 $50K</div><div class="sl-event-date">상시 진행</div></div>
+                <div class="sl-event"><div class="sl-event-badge">Bitget</div><div class="sl-event-title">신규 가입 1.7M USDT</div><div class="sl-event-date">1/31까지</div></div>
+            </div>
+
+            <div class="sl-section">
+                <div class="sl-title">🤝 공식 파트너</div>
+                <div class="partner-card">
+                    <div class="partner-head">
+                        <img src="https://static.bitunix.com/web/bitunix-assets/portal/bitunix-dark-logo.BhRiIshn.svg" class="partner-logo">
+                        <div>
+                            <div class="partner-name">Bitunix</div>
+                            <div class="partner-tag">MAIN PARTNER</div>
+                        </div>
+                    </div>
+                    <div class="partner-benefits">
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">리워드</div>
+                            <div class="partner-benefit-value">85%</div>
+                        </div>
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">레버리지</div>
+                            <div class="partner-benefit-value">200x</div>
+                        </div>
+                    </div>
+                    <button class="partner-btn">가입하고 혜택받기</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main -->
+        <main class="main">
+            <section class="hero">
+                <h1>선물거래 <span class="accent">정보</span>와<br><span class="accent">리워드</span>를 한번에</h1>
+                <p class="sub">거래 리워드 최대 <span>85%</span>까지 돌려받기</p>
+                <div class="hero-btns">
+                    <button class="btn-primary" onclick="openRegister()">시작하기</button>
+                    <button class="btn-secondary">자세히 보기</button>
+                </div>
+            </section>
+
+            <!-- Futures Info -->
+            <div class="futures-grid">
+                <div class="futures-item">
+                    <div class="futures-label">BTC 펀딩비</div>
+                    <div class="futures-value long">+0.0125%</div>
+                    <div class="futures-change">롱 우세</div>
+                </div>
+                <div class="futures-item">
+                    <div class="futures-label">롱/숏 비율</div>
+                    <div class="futures-value">52/48</div>
+                    <div class="futures-change">롱 +4%</div>
+                </div>
+                <div class="futures-item">
+                    <div class="futures-label">청산 (24h)</div>
+                    <div class="futures-value short">$148M</div>
+                    <div class="futures-change">숏 61%</div>
+                </div>
+                <div class="futures-item">
+                    <div class="futures-label">OI 변화</div>
+                    <div class="futures-value long">+2.3%</div>
+                    <div class="futures-change">증가 추세</div>
+                </div>
+            </div>
+
+            <!-- News -->
+            <div class="card">
+                <div class="card-head">
+                    <h3 class="card-title">📰 뉴스</h3>
+                    <span class="card-more">더보기 →</span>
+                </div>
+                <div class="news-item"><div class="news-time">14:32</div><div class="news-title">비트코인, $105K 돌파 시도... 단기 저항선 주목</div></div>
+                <div class="news-item"><div class="news-time">13:45</div><div class="news-title">이더리움 펀딩비 급등, 롱 포지션 과열 신호</div></div>
+                <div class="news-item"><div class="news-time">12:18</div><div class="news-title">트럼프 취임 D-1, 암호화폐 정책 기대감 상승</div></div>
+                <div class="news-item"><div class="news-time">11:02</div><div class="news-title">고래 지갑, 24시간 내 3,000 BTC 이동</div></div>
+            </div>
+
+            <!-- Exchanges -->
+            <div class="card">
+                <div class="card-head">
+                    <h3 class="card-title">🏦 제휴 거래소</h3>
+                    <span class="card-more">전체보기 →</span>
+                </div>
+                <div class="ex-row featured">
+                    <img src="https://static.bitunix.com/web/bitunix-assets/portal/bitunix-dark-logo.BhRiIshn.svg" class="ex-logo">
+                    <div class="ex-info">
+                        <div class="ex-name">Bitunix <span class="ex-featured-badge">MAIN</span></div>
+                        <div class="ex-tag">최대 리워드 🔥 | 200x 레버리지</div>
+                    </div>
+                    <div class="ex-rate">85%</div>
+                    <button class="ex-btn" style="background:var(--accent-cyan);color:var(--bg-primary);">가입하기</button>
+                </div>
+                <div class="ex-row">
+                    <div class="ex-logo-box" style="background:rgba(0,240,255,0.1);color:#00F0FF;border-color:#00F0FF;">BG</div>
+                    <div class="ex-info"><div class="ex-name">Bitget</div><div class="ex-tag">최상위 거래소 ⭐</div></div>
+                    <div class="ex-rate">81%</div>
+                    <button class="ex-btn">가입하기</button>
+                </div>
+                <div class="ex-row">
+                    <div class="ex-logo-box">GT</div>
+                    <div class="ex-info"><div class="ex-name">Gate</div><div class="ex-tag">추천 👍</div></div>
+                    <div class="ex-rate">80%</div>
+                    <button class="ex-btn">가입하기</button>
+                </div>
+                <div class="ex-row">
+                    <div class="ex-logo-box" style="background:rgba(246,70,93,0.1);color:#F6465D;">BY</div>
+                    <div class="ex-info"><div class="ex-name">Bybit</div><div class="ex-tag">인기 거래소</div></div>
+                    <div class="ex-rate">70%</div>
+                    <button class="ex-btn">가입하기</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toggle Right Button -->
+    <div class="toggle-right" onclick="toggleRight()">☰</div>
+
+    <!-- Sidebar Right -->
+    <aside class="sidebar-right" id="sidebar-right">
+        <div class="sr-head">
+            <span class="sr-head-title">MENU</span>
+            <span class="sr-close" onclick="toggleRight()">×</span>
+        </div>
+
+        <div class="sr-section">
+            <div class="sr-item"><span class="sr-icon">📊</span> 대시보드</div>
+            <div class="sr-item"><span class="sr-icon">📝</span> 매매일지</div>
+            <div class="sr-item"><span class="sr-icon">🏦</span> 거래소 <span class="sr-badge hit">HIT</span></div>
+            <div class="sr-item"><span class="sr-icon">🧮</span> 리워드 계산기</div>
+        </div>
+
+        <div class="sr-section">
+            <div class="sr-title">안내</div>
+            <div class="sr-item"><span class="sr-icon">📖</span> 이용가이드 <span class="sr-badge must">필독</span></div>
+            <div class="sr-item"><span class="sr-icon">ℹ️</span> 서비스소개</div>
+            <div class="sr-item"><span class="sr-icon">❓</span> FAQ</div>
+        </div>
+
+        <div class="sr-section">
+            <div class="sr-title">커뮤니티</div>
+            <div class="sr-item"><span class="sr-icon">💬</span> 라운지 <span class="sr-badge new">NEW</span></div>
+            <div class="sr-item"><span class="sr-icon">👥</span> 친구초대</div>
+            <div class="sr-item"><span class="sr-icon">✈️</span> 텔레그램</div>
+        </div>
+
+        <div class="sr-section">
+            <div class="sr-title">📅 코인 주요 일정</div>
+            <div class="sr-schedule">
+                <div class="sr-sch-date"><div class="sr-sch-day">20</div><div class="sr-sch-dow">Mon</div></div>
+                <div class="sr-sch-info"><div class="sr-sch-tag">#주요이슈</div><div class="sr-sch-title">트럼프 대통령 취임식</div></div>
+            </div>
+            <div class="sr-schedule">
+                <div class="sr-sch-date"><div class="sr-sch-day">22</div><div class="sr-sch-dow">Wed</div></div>
+                <div class="sr-sch-info"><div class="sr-sch-tag">#프로젝트</div><div class="sr-sch-title">ARB 토큰 언락</div></div>
+            </div>
+            <div class="sr-schedule">
+                <div class="sr-sch-date"><div class="sr-sch-day">25</div><div class="sr-sch-dow">Sat</div></div>
+                <div class="sr-sch-info"><div class="sr-sch-tag">#거래소</div><div class="sr-sch-title">Bitunix 트레이딩 대회</div></div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Language Modal -->
+    <div class="modal-bg" id="lang-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="modal-title">Language</span>
+                <span class="modal-close" onclick="closeLang()">×</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button class="lang-btn" onclick="setLang('ko')">🇰🇷 한국어</button>
+                <button class="lang-btn active" onclick="setLang('en')">🇺🇸 English</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal-bg" id="login-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="modal-title">LOGIN</span>
+                <span class="modal-close" onclick="closeLogin()">×</span>
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">이메일</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="이메일" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">비밀번호</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="비밀번호" required>
+                </div>
+                <button type="submit" class="btn-login-big">로그인</button>
+            </form>
+            <div class="login-links">계정이 없으신가요? <a onclick="switchToRegister()">회원가입</a></div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal-bg" id="register-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="modal-title">SIGN UP</span>
+                <span class="modal-close" onclick="closeRegister()">×</span>
+            </div>
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label class="form-label">이름</label>
+                    <input type="text" class="form-input" id="registerName" placeholder="이름" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">이메일</label>
+                    <input type="email" class="form-input" id="registerEmail" placeholder="이메일" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">비밀번호</label>
+                    <input type="password" class="form-input" id="registerPassword" placeholder="비밀번호 (6자 이상)" minlength="6" required>
+                </div>
+                <div class="form-group" style="display:flex;align-items:flex-start;gap:10px;">
+                    <input type="checkbox" id="agreeTerms" required style="margin-top:3px;">
+                    <label for="agreeTerms" style="font-size:12px;color:var(--text-secondary);line-height:1.4;">
+                        I am not a resident of a restricted region and agree to the <a href="#" style="color:var(--accent-cyan);">Terms of Service</a>
+                    </label>
+                </div>
+                <button type="submit" class="btn-login-big">회원가입</button>
+            </form>
+            <div class="login-links">이미 계정이 있으신가요? <a onclick="switchToLogin()">로그인</a></div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // State
+        let currentUser = null;
+
+        // Navigation
+        function goHome() { location.reload(); }
+        function toggleRight() { document.getElementById('sidebar-right').classList.toggle('open'); }
+
+        // Language Modal
+        function openLang() { document.getElementById('lang-modal').classList.add('active'); }
+        function closeLang() { document.getElementById('lang-modal').classList.remove('active'); }
+        function setLang(lang) {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            showToast(lang === 'ko' ? '한국어로 변경되었습니다' : 'Changed to English');
+            closeLang();
+        }
+
+        // Login Modal
+        function openLogin() { document.getElementById('login-modal').classList.add('active'); }
+        function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
+
+        // Register Modal
+        function openRegister() { document.getElementById('register-modal').classList.add('active'); }
+        function closeRegister() { document.getElementById('register-modal').classList.remove('active'); }
+
+        // Switch Modals
+        function switchToRegister() { closeLogin(); setTimeout(openRegister, 200); }
+        function switchToLogin() { closeRegister(); setTimeout(openLogin, 200); }
+
+        // Handle Login
+        function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            currentUser = { email: email };
+            localStorage.setItem('pro_user', JSON.stringify(currentUser));
+            showToast('로그인 성공!');
+            closeLogin();
+            updateUI();
+        }
+
+        // Handle Register
+        function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            currentUser = { name: name, email: email };
+            localStorage.setItem('pro_user', JSON.stringify(currentUser));
+            showToast('회원가입 완료!');
+            closeRegister();
+            updateUI();
+        }
+
+        // Update UI after login
+        function updateUI() {
+            if (currentUser) {
+                document.querySelector('.btn-login').textContent = currentUser.name || currentUser.email.split('@')[0];
+                document.querySelector('.btn-login').onclick = handleLogout;
+            }
+        }
+
+        // Logout
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('pro_user');
+            document.querySelector('.btn-login').textContent = '로그인';
+            document.querySelector('.btn-login').onclick = openLogin;
+            showToast('로그아웃 되었습니다');
+        }
+
+        // Toast
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ESC key to close modals
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-bg').forEach(m => m.classList.remove('active'));
+            }
+        });
+
+        // Click outside modal to close
+        document.querySelectorAll('.modal-bg').forEach(m => {
+            m.addEventListener('click', e => { if(e.target === m) m.classList.remove('active'); });
+        });
+
+        // Load saved user
+        window.onload = function() {
+            const saved = localStorage.getItem('pro_user');
+            if (saved) {
+                currentUser = JSON.parse(saved);
+                updateUI();
+            }
+        };
+
+        // Update ticker prices
+        function updatePrices() {
+            const tickers = document.querySelectorAll('.ticker-item .sym');
+            // Simulated price updates
+        }
+        setInterval(updatePrices, 5000);
+    </script>
+</body>
+</html>
