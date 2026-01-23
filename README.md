@@ -1,0 +1,1167 @@
+[index_6.html](https://github.com/user-attachments/files/24832312/index_6.html)
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1% Trading - 1% 트레이더를 위한 선물거래 플랫폼</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00d4ff;
+            --accent-purple: #a855f7;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --accent-yellow: #f59e0b;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ===== 헤더 ===== */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: rgba(10,10,15,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+        }
+
+        .menu-btn {
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 20px;
+            border-radius: 8px;
+            margin-right: 16px;
+            transition: all 0.2s;
+            background: transparent;
+            border: none;
+        }
+        .menu-btn:hover { background: var(--bg-card); color: var(--accent-cyan); }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-right: 40px;
+        }
+        .logo-box {
+            width: 32px; height: 32px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Orbitron', monospace;
+            font-weight: 800;
+            font-size: 14px;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 4px;
+        }
+        .nav-item {
+            padding: 8px 14px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .nav-item:hover { color: var(--text-primary); background: var(--bg-card); }
+        .nav-item.event { color: var(--accent-yellow); }
+        .nav-item.event::before { content: '🎁 '; }
+
+        .header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header-reward {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        .header-reward span { color: var(--accent-cyan); font-weight: 600; }
+        .btn-login {
+            padding: 8px 20px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            color: white;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ===== 티커 ===== */
+        .ticker-bar {
+            position: fixed;
+            top: 56px; left: 0; right: 0;
+            height: 32px;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            gap: 24px;
+            font-size: 13px;
+            z-index: 999;
+        }
+        .ticker-item { display: flex; align-items: center; gap: 6px; }
+        .ticker-item .sym { font-weight: 600; color: var(--text-primary); }
+        .ticker-item .price { color: var(--text-secondary); }
+        .ticker-item .up { color: var(--accent-green); }
+        .ticker-item .down { color: var(--accent-red); }
+
+        /* ===== 레이아웃 ===== */
+        .layout {
+            margin-top: 88px;
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            min-height: calc(100vh - 88px);
+        }
+
+        /* ===== 왼쪽 사이드바 ===== */
+        .sidebar-left {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sl-section { 
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sl-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .sl-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .sl-more { font-size: 11px; color: var(--text-muted); cursor: pointer; }
+
+        .sl-news-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .sl-news-item:hover { color: var(--accent-cyan); }
+        .sl-news-tag {
+            font-size: 10px;
+            color: var(--accent-red);
+            margin-bottom: 4px;
+        }
+        .sl-news-title { font-size: 13px; line-height: 1.4; }
+
+        .sl-event {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+        .sl-event-badge {
+            font-size: 10px;
+            color: var(--accent-purple);
+            margin-bottom: 4px;
+        }
+        .sl-event-title { font-size: 13px; font-weight: 500; }
+        .sl-event-date { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+        /* 파트너 카드 */
+        .partner-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 12px;
+        }
+        .partner-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .partner-logo { height: 20px; }
+        .partner-name { font-weight: 600; font-size: 14px; }
+        .partner-tag { font-size: 10px; color: var(--accent-cyan); }
+        .partner-benefits { display: flex; gap: 10px; margin-bottom: 12px; }
+        .partner-benefit { flex: 1; text-align: center; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; }
+        .partner-benefit-label { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; }
+        .partner-benefit-value { font-size: 18px; font-weight: 700; color: var(--accent-cyan); font-family: 'Orbitron', monospace; }
+        .partner-btn {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 리워드 계산기 */
+        .reward-calc {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+        }
+        .calc-input-group {
+            margin-bottom: 12px;
+        }
+        .calc-input-group label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        .calc-input-group input,
+        .calc-input-group select {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .calc-input-group input:focus,
+        .calc-input-group select:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+        .calc-result {
+            text-align: center;
+            padding: 16px;
+            background: rgba(0,212,255,0.1);
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+        .calc-result-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .calc-result-value {
+            font-family: 'Orbitron', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+        .calc-result-sub {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .calc-result-sub span {
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+        .calc-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .calc-btn:hover {
+            opacity: 0.9;
+        }
+
+        /* ===== 메인 ===== */
+        .main {
+            padding: 20px 30px;
+            overflow-y: auto;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 50px 20px;
+            background: linear-gradient(180deg, rgba(0,212,255,0.05) 0%, transparent 100%);
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+        .hero h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .hero h1 .accent { color: var(--accent-cyan); }
+        .hero .sub {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+        .hero .sub span { color: var(--accent-cyan); font-weight: 600; }
+        .hero-btns { display: flex; justify-content: center; gap: 12px; }
+        .btn-primary {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .btn-secondary {
+            padding: 12px 28px;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        /* 선물 그리드 */
+        .futures-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .futures-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+        .futures-card .label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        .futures-card .value {
+            font-family: 'Orbitron', monospace;
+            font-size: 26px;
+            font-weight: 700;
+        }
+        .futures-card .value.green { color: var(--accent-green); }
+        .futures-card .value.red { color: var(--accent-red); }
+        .futures-card .sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+
+        /* 뉴스 + 제휴거래소 */
+        .content-section { margin-bottom: 24px; }
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .section-title { font-size: 16px; font-weight: 600; }
+        .section-more { font-size: 12px; color: var(--text-muted); cursor: pointer; }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .news-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 16px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+        .news-card:hover { border-color: var(--accent-cyan); }
+        .news-card .time { font-size: 11px; color: var(--accent-cyan); margin-bottom: 6px; }
+        .news-card .title { font-size: 14px; line-height: 1.4; }
+        .news-card .tag {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 2px 8px;
+            background: rgba(0,212,255,0.1);
+            border-radius: 4px;
+            font-size: 11px;
+            color: var(--accent-cyan);
+        }
+
+        /* 제휴 거래소 */
+        .exchange-list {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        .exchange-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .exchange-item:last-child { border-bottom: none; }
+        .exchange-item:hover { background: var(--bg-card-hover); }
+        .ex-logo {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 14px;
+        }
+        .ex-info { flex: 1; }
+        .ex-name { font-size: 14px; font-weight: 600; }
+        .ex-name .badge {
+            display: inline-block;
+            margin-left: 6px;
+            padding: 2px 6px;
+            background: var(--accent-cyan);
+            color: var(--bg-primary);
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 4px;
+        }
+        .ex-desc { font-size: 11px; color: var(--text-muted); }
+        .ex-rate {
+            font-family: 'Orbitron', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            margin-right: 16px;
+        }
+        .ex-btn {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ===== 오른쪽 사이드바 ===== */
+        .sidebar-right {
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sr-section { 
+            margin-bottom: 24px; 
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sr-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .sr-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sr-more {
+            margin-left: auto;
+            font-size: 11px;
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        /* 실시간 시세 */
+        .sr-coin-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sr-coin-item:last-child { border-bottom: none; }
+        .sr-coin-rank {
+            width: 20px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .sr-coin-icon {
+            width: 24px;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+        .sr-coin-name {
+            flex: 1;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .sr-coin-price {
+            font-family: 'Orbitron', monospace;
+            font-size: 12px;
+            margin-right: 8px;
+        }
+        .sr-coin-change {
+            font-size: 12px;
+            font-weight: 500;
+            width: 55px;
+            text-align: right;
+        }
+        .sr-coin-change.up { color: var(--accent-green); }
+        .sr-coin-change.down { color: var(--accent-red); }
+
+        /* 실시간 검색 */
+        .sr-search-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+        .sr-search-rank {
+            width: 20px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+        .sr-search-text { flex: 1; }
+
+        /* 일정 */
+        .sr-sch-item {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .sr-sch-item:last-child { border-bottom: none; }
+        .sr-sch-head {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .sr-sch-day {
+            font-family: 'Orbitron', monospace;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+        .sr-sch-dow {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .sr-sch-tag {
+            font-size: 10px;
+            color: var(--accent-purple);
+        }
+        .sr-sch-title {
+            font-size: 13px;
+        }
+
+        /* ===== 숨김 사이드바 (오른쪽 메뉴) ===== */
+        .hidden-sidebar {
+            position: fixed;
+            top: 0; right: -280px;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            z-index: 2000;
+            transition: right 0.3s ease;
+            padding-top: 56px;
+        }
+        .hidden-sidebar.open { right: 0; }
+        .hidden-sidebar-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1999;
+            display: none;
+        }
+        .hidden-sidebar-overlay.open { display: block; }
+
+        .hs-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .hs-title { font-size: 14px; font-weight: 600; color: var(--accent-cyan); }
+        .hs-close {
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 18px;
+            border-radius: 6px;
+        }
+        .hs-close:hover { background: var(--bg-card); }
+
+        .hs-content { padding: 16px 20px; }
+        .hs-section { margin-bottom: 24px; }
+        .hs-section-title {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        .hs-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .hs-menu-item:hover { background: var(--bg-card); }
+        .hs-menu-icon { font-size: 18px; }
+        .hs-menu-text { font-size: 14px; }
+        .hs-menu-badge {
+            margin-left: auto;
+            padding: 2px 8px;
+            background: var(--accent-red);
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        .hs-menu-badge.new { background: var(--accent-green); }
+        
+        .hs-schedule { margin-top: 8px; }
+        .hs-sch-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .hs-sch-item:last-child { border-bottom: none; }
+        .hs-sch-day {
+            font-family: 'Orbitron', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            min-width: 30px;
+        }
+        .hs-sch-info { flex: 1; }
+        .hs-sch-tag { display: block; font-size: 10px; color: var(--accent-purple); margin-bottom: 2px; }
+        .hs-sch-title { font-size: 13px; }
+
+        /* 열기 버튼 */
+        .open-sidebar-btn {
+            position: fixed;
+            top: 70px;
+            right: 0;
+            width: 32px;
+            height: 80px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        .open-sidebar-btn:hover { background: var(--bg-card-hover); color: var(--accent-cyan); }
+
+        /* ===== 푸터 ===== */
+        .footer {
+            grid-column: 1 / -1;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            padding: 30px;
+            text-align: center;
+        }
+        .footer-social {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .footer-social a {
+            width: 40px; height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 18px;
+        }
+        .footer-social a:hover { background: var(--accent-cyan); color: var(--bg-primary); }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 12px;
+            font-size: 12px;
+        }
+        .footer-links a { color: var(--text-secondary); text-decoration: none; }
+        .footer-copy { font-size: 11px; color: var(--text-muted); }
+
+        /* 반응형 */
+        @media (max-width: 1200px) {
+            .layout { grid-template-columns: 1fr; }
+            .sidebar-left, .sidebar-right { display: none; }
+            .futures-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <header class="header">
+        <button class="menu-btn">☰</button>
+        <div class="logo">
+            <div class="logo-box">1%</div>
+            <span class="logo-text">1% TRADING</span>
+        </div>
+        <nav class="nav-menu">
+            <div class="nav-item">뉴스</div>
+            <div class="nav-item">거래소</div>
+            <div class="nav-item">리워드</div>
+            <div class="nav-item">커뮤니티</div>
+            <div class="nav-item event">이벤트</div>
+        </nav>
+        <div class="header-right">
+            <div class="header-reward">🎉 tra**** 님이 <span>$127.50 USDT</span> 리워드 수령</div>
+            <button class="btn-login">로그인</button>
+        </div>
+    </header>
+
+    <!-- 티커 -->
+    <div class="ticker-bar">
+        <div class="ticker-item"><span class="sym">BTC</span><span class="price">$104,235</span><span class="up">+2.14%</span></div>
+        <div class="ticker-item"><span class="sym">ETH</span><span class="price">$3,312</span><span class="up">+1.52%</span></div>
+        <div class="ticker-item"><span class="sym">SOL</span><span class="price">$198.45</span><span class="down">-0.62%</span></div>
+        <div class="ticker-item"><span class="sym">김프</span><span class="up">2.1%</span></div>
+    </div>
+
+    <!-- 레이아웃 -->
+    <div class="layout">
+        <!-- 왼쪽 사이드바 -->
+        <aside class="sidebar-left">
+            <!-- 실시간 뉴스 -->
+            <div class="sl-section">
+                <div class="sl-title">🔴 실시간 뉴스 <span class="sl-more">더보기→</span></div>
+                <div class="sl-news-item">
+                    <div class="sl-news-tag">HOT</div>
+                    <div class="sl-news-title">비트코인 $100K 돌파, 신고점 경신</div>
+                </div>
+                <div class="sl-news-item">
+                    <div class="sl-news-tag">HOT</div>
+                    <div class="sl-news-title">이더리움 ETF 자금 유입 급증</div>
+                </div>
+                <div class="sl-news-item">
+                    <div class="sl-news-tag">HOT</div>
+                    <div class="sl-news-title">트럼프 취임 앞두고 시장 관망</div>
+                </div>
+            </div>
+
+            <!-- 거래소 이벤트 -->
+            <div class="sl-section">
+                <div class="sl-title">🎁 거래소 이벤트 <span class="sl-more">더보기→</span></div>
+                <div class="sl-event">
+                    <div class="sl-event-badge">Bitunix</div>
+                    <div class="sl-event-title">트레이딩 대회 $50K</div>
+                    <div class="sl-event-date">상시 진행</div>
+                </div>
+                <div class="sl-event">
+                    <div class="sl-event-badge">Bitget</div>
+                    <div class="sl-event-title">신규 가입 1.7M USDT</div>
+                    <div class="sl-event-date">1/31까지</div>
+                </div>
+            </div>
+
+            <!-- 공식 파트너 -->
+            <div class="sl-section">
+                <div class="sl-title">💎 공식 파트너</div>
+                <div class="partner-card">
+                    <div class="partner-head">
+                        <div class="partner-name">Bitunix</div>
+                        <div class="partner-tag">MAIN PARTNER</div>
+                    </div>
+                    <div class="partner-benefits">
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">리워드</div>
+                            <div class="partner-benefit-value">85%</div>
+                        </div>
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">레버리지</div>
+                            <div class="partner-benefit-value">200x</div>
+                        </div>
+                    </div>
+                    <button class="partner-btn" onclick="window.open('https://www.bitunix.com/register?vipCode=1percent')">가입하고 혜택받기</button>
+                </div>
+                <div class="partner-card">
+                    <div class="partner-head">
+                        <div class="partner-name">Bitget</div>
+                        <div class="partner-tag">⭐ PARTNER</div>
+                    </div>
+                    <div class="partner-benefits">
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">리워드</div>
+                            <div class="partner-benefit-value">81%</div>
+                        </div>
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">레버리지</div>
+                            <div class="partner-benefit-value">125x</div>
+                        </div>
+                    </div>
+                    <button class="partner-btn" onclick="window.open('https://www.bitget.com/referral/register?from=referral&clacCode=1percent')">가입하고 혜택받기</button>
+                </div>
+            </div>
+
+            <!-- 리워드 계산기 -->
+            <div class="sl-section">
+                <div class="sl-title">💰 내가 받을 리워드 <span class="sl-more">계산하기→</span></div>
+                <div class="reward-calc">
+                    <div class="calc-input-group">
+                        <label>월 거래량 (USDT)</label>
+                        <input type="number" id="tradeVolume" placeholder="100000" value="100000">
+                    </div>
+                    <div class="calc-input-group">
+                        <label>거래소 선택</label>
+                        <select id="exchangeSelect">
+                            <option value="85">Bitunix (85%)</option>
+                            <option value="81">Bitget (81%)</option>
+                            <option value="80">Gate (80%)</option>
+                        </select>
+                    </div>
+                    <div class="calc-result">
+                        <div class="calc-result-label">예상 월 리워드</div>
+                        <div class="calc-result-value" id="rewardResult">$42.50</div>
+                        <div class="calc-result-sub">연간 약 <span id="yearlyReward">$510</span> 예상</div>
+                    </div>
+                    <button class="calc-btn" onclick="calculateReward()">계산하기</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 메인 -->
+        <main class="main">
+            <!-- 히어로 -->
+            <section class="hero">
+                <h1><span class="accent">1% 트레이더</span>를 위한<br><span class="accent">선물거래 정보</span>와 <span class="accent">리워드</span>를 평생지원</h1>
+                <p class="sub">거래 리워드 최대 <span>85%</span>까지 돌려받기</p>
+                <div class="hero-btns">
+                    <button class="btn-primary">시작하기</button>
+                    <button class="btn-secondary">자세히 보기</button>
+                </div>
+            </section>
+
+            <!-- 선물 정보 -->
+            <div class="futures-grid">
+                <div class="futures-card">
+                    <div class="label">📈 BTC 펀딩비</div>
+                    <div class="value green">+0.0125%</div>
+                    <div class="sub">롱 우세</div>
+                </div>
+                <div class="futures-card">
+                    <div class="label">⚖️ 롱/숏 비율</div>
+                    <div class="value">52/48</div>
+                    <div class="sub">롱 +4%</div>
+                </div>
+                <div class="futures-card">
+                    <div class="label">💥 청산 (24h)</div>
+                    <div class="value red">$148M</div>
+                    <div class="sub">숏 61%</div>
+                </div>
+                <div class="futures-card">
+                    <div class="label">📊 OI 변화</div>
+                    <div class="value green">+2.3%</div>
+                    <div class="sub">증가 추세</div>
+                </div>
+            </div>
+
+            <!-- 뉴스 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">📰 뉴스</div>
+                    <div class="section-more">더보기 →</div>
+                </div>
+                <div class="news-grid">
+                    <div class="news-card">
+                        <div class="time">14:32</div>
+                        <div class="title">비트코인, $105K 돌파 시도... 단기 저항선 주목</div>
+                        <span class="tag">BTC</span>
+                    </div>
+                    <div class="news-card">
+                        <div class="time">13:45</div>
+                        <div class="title">이더리움 펀딩비 급등, 롱 포지션 과열 신호</div>
+                        <span class="tag">ETH</span>
+                    </div>
+                    <div class="news-card">
+                        <div class="time">12:18</div>
+                        <div class="title">트럼프 취임 D-1 암호화폐 정책 기대감 상승</div>
+                        <span class="tag">시장</span>
+                    </div>
+                    <div class="news-card">
+                        <div class="time">11:02</div>
+                        <div class="title">고래 지갑, 24시간 내 3,000 BTC 이동</div>
+                        <span class="tag">온체인</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 제휴 거래소 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">🏦 제휴 거래소</div>
+                    <div class="section-more">전체보기 →</div>
+                </div>
+                <div class="exchange-list">
+                    <div class="exchange-item">
+                        <div class="ex-logo">B</div>
+                        <div class="ex-info">
+                            <div class="ex-name">Bitunix <span class="badge">MAIN</span></div>
+                            <div class="ex-desc">최대 리워드 🔥 200x 레버리지</div>
+                        </div>
+                        <div class="ex-rate">85%</div>
+                        <button class="ex-btn">가입하기</button>
+                    </div>
+                    <div class="exchange-item">
+                        <div class="ex-logo">BG</div>
+                        <div class="ex-info">
+                            <div class="ex-name">Bitget ⭐</div>
+                            <div class="ex-desc">최상위 거래소</div>
+                        </div>
+                        <div class="ex-rate">81%</div>
+                        <button class="ex-btn">가입하기</button>
+                    </div>
+                    <div class="exchange-item">
+                        <div class="ex-logo">GT</div>
+                        <div class="ex-info">
+                            <div class="ex-name">Gate</div>
+                            <div class="ex-desc">추천 👍</div>
+                        </div>
+                        <div class="ex-rate">80%</div>
+                        <button class="ex-btn">가입하기</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- 오른쪽 사이드바 -->
+        <aside class="sidebar-right">
+            <!-- 실시간 시세 -->
+            <div class="sr-section">
+                <div class="sr-title">🔥 실시간 시세</div>
+                <div class="sr-coin-item">
+                    <span class="sr-coin-rank">1</span>
+                    <span class="sr-coin-icon">₿</span>
+                    <span class="sr-coin-name">BTC</span>
+                    <span class="sr-coin-price">89,039.1</span>
+                    <span class="sr-coin-change down">-0.54%</span>
+                </div>
+                <div class="sr-coin-item">
+                    <span class="sr-coin-rank">2</span>
+                    <span class="sr-coin-icon">Ξ</span>
+                    <span class="sr-coin-name">ETH</span>
+                    <span class="sr-coin-price">2,925.49</span>
+                    <span class="sr-coin-change down">-0.89%</span>
+                </div>
+                <div class="sr-coin-item">
+                    <span class="sr-coin-rank">3</span>
+                    <span class="sr-coin-icon">◎</span>
+                    <span class="sr-coin-name">SOL</span>
+                    <span class="sr-coin-price">127.31</span>
+                    <span class="sr-coin-change down">-0.84%</span>
+                </div>
+                <div class="sr-coin-item">
+                    <span class="sr-coin-rank">4</span>
+                    <span class="sr-coin-icon">✕</span>
+                    <span class="sr-coin-name">XRP</span>
+                    <span class="sr-coin-price">1.91</span>
+                    <span class="sr-coin-change down">-0.68%</span>
+                </div>
+                <div class="sr-coin-item">
+                    <span class="sr-coin-rank">5</span>
+                    <span class="sr-coin-icon">🐕</span>
+                    <span class="sr-coin-name">DOGE</span>
+                    <span class="sr-coin-price">0.1249</span>
+                    <span class="sr-coin-change up">+0.47%</span>
+                </div>
+            </div>
+
+            <!-- 실시간 검색 -->
+            <div class="sr-section">
+                <div class="sr-title">🔍 실시간 검색</div>
+                <div class="sr-search-item"><span class="sr-search-rank">1</span><span class="sr-search-text">BTC 현물 ETF</span></div>
+                <div class="sr-search-item"><span class="sr-search-rank">2</span><span class="sr-search-text">韓 BTC 거래대금 3위</span></div>
+                <div class="sr-search-item"><span class="sr-search-rank">3</span><span class="sr-search-text">코스피5000특위</span></div>
+                <div class="sr-search-item"><span class="sr-search-rank">4</span><span class="sr-search-text">ETH 현물 ETF</span></div>
+                <div class="sr-search-item"><span class="sr-search-rank">5</span><span class="sr-search-text">게임스탑</span></div>
+            </div>
+
+            <!-- 코인 주요 일정 -->
+            <div class="sr-section">
+                <div class="sr-title">📅 코인 주요 일정 <span class="sr-more">더보기→</span></div>
+                <div class="sr-sch-item">
+                    <div class="sr-sch-head">
+                        <span class="sr-sch-day">23</span>
+                        <span class="sr-sch-dow">금요일</span>
+                    </div>
+                    <div class="sr-sch-tag">#주요이슈</div>
+                    <div class="sr-sch-title">일본 금리결정</div>
+                </div>
+                <div class="sr-sch-item">
+                    <div class="sr-sch-head">
+                        <span class="sr-sch-day">25</span>
+                        <span class="sr-sch-dow">일요일</span>
+                    </div>
+                    <div class="sr-sch-tag">#프로젝트</div>
+                    <div class="sr-sch-title">H, 총 유통량의 4.57% 언락</div>
+                </div>
+                <div class="sr-sch-item">
+                    <div class="sr-sch-head">
+                        <span class="sr-sch-day">26</span>
+                        <span class="sr-sch-dow">월요일</span>
+                    </div>
+                    <div class="sr-sch-tag">#거래소</div>
+                    <div class="sr-sch-title">빗썸, EVZ 상장 폐지</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 푸터 -->
+        <footer class="footer">
+            <div class="footer-social">
+                <a href="https://t.me/officialpercent" target="_blank">📢</a>
+                <a href="#">𝕏</a>
+                <a href="#">📷</a>
+            </div>
+            <div class="footer-links">
+                <a href="#">이용약관</a>
+                <a href="#">개인정보처리방침</a>
+                <a href="#">서비스소개</a>
+                <a href="#">문의하기</a>
+            </div>
+            <div class="footer-copy">© 2025 1% Trading. All rights reserved.<br>투자의 책임은 본인에게 있습니다.</div>
+        </footer>
+    </div>
+
+    <!-- 숨김 사이드바 (오른쪽 메뉴) -->
+    <div class="hidden-sidebar-overlay" onclick="closeSidebar()"></div>
+    <div class="hidden-sidebar">
+        <div class="hs-header">
+            <span class="hs-title">MENU</span>
+            <span class="hs-close" onclick="closeSidebar()">✕</span>
+        </div>
+        <div class="hs-content">
+            <div class="hs-section">
+                <div class="hs-menu-item"><span class="hs-menu-icon">📊</span><span class="hs-menu-text">대시보드</span></div>
+                <div class="hs-menu-item"><span class="hs-menu-icon">📝</span><span class="hs-menu-text">매매일지</span></div>
+                <div class="hs-menu-item"><span class="hs-menu-icon">🏦</span><span class="hs-menu-text">거래소</span><span class="hs-menu-badge">HIT</span></div>
+                <div class="hs-menu-item"><span class="hs-menu-icon">💰</span><span class="hs-menu-text">리워드 계산기</span></div>
+            </div>
+            <div class="hs-section">
+                <div class="hs-section-title">안내</div>
+                <div class="hs-menu-item"><span class="hs-menu-icon">📖</span><span class="hs-menu-text">이용가이드</span><span class="hs-menu-badge new">필독</span></div>
+                <div class="hs-menu-item"><span class="hs-menu-icon">ℹ️</span><span class="hs-menu-text">서비스소개</span></div>
+                <div class="hs-menu-item"><span class="hs-menu-icon">❓</span><span class="hs-menu-text">FAQ</span></div>
+            </div>
+            <div class="hs-section">
+                <div class="hs-section-title">커뮤니티</div>
+                <div class="hs-menu-item"><span class="hs-menu-icon">💬</span><span class="hs-menu-text">라운지</span><span class="hs-menu-badge new">NEW</span></div>
+                <div class="hs-menu-item"><span class="hs-menu-icon">👥</span><span class="hs-menu-text">친구초대</span></div>
+                <div class="hs-menu-item"><span class="hs-menu-icon">✈️</span><span class="hs-menu-text">텔레그램</span></div>
+            </div>
+            <div class="hs-section">
+                <div class="hs-section-title">📅 코인 주요 일정</div>
+                <div class="hs-schedule">
+                    <div class="hs-sch-item">
+                        <span class="hs-sch-day">20</span>
+                        <div class="hs-sch-info">
+                            <span class="hs-sch-tag">#주요이슈</span>
+                            <span class="hs-sch-title">트럼프 대통령 취임식</span>
+                        </div>
+                    </div>
+                    <div class="hs-sch-item">
+                        <span class="hs-sch-day">22</span>
+                        <div class="hs-sch-info">
+                            <span class="hs-sch-tag">#프로젝트</span>
+                            <span class="hs-sch-title">ARB 토큰 언락</span>
+                        </div>
+                    </div>
+                    <div class="hs-sch-item">
+                        <span class="hs-sch-day">25</span>
+                        <div class="hs-sch-info">
+                            <span class="hs-sch-tag">#거래소</span>
+                            <span class="hs-sch-title">Bitunix 트레이딩 대회</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 열기 버튼 -->
+    <div class="open-sidebar-btn" onclick="openSidebar()">☰</div>
+
+    <script>
+        function openSidebar() {
+            document.querySelector('.hidden-sidebar').classList.add('open');
+            document.querySelector('.hidden-sidebar-overlay').classList.add('open');
+        }
+        function closeSidebar() {
+            document.querySelector('.hidden-sidebar').classList.remove('open');
+            document.querySelector('.hidden-sidebar-overlay').classList.remove('open');
+        }
+        
+        function calculateReward() {
+            const volume = parseFloat(document.getElementById('tradeVolume').value) || 0;
+            const rate = parseFloat(document.getElementById('exchangeSelect').value) / 100;
+            const feeRate = 0.001; // 0.1% 왕복 수수료 (0.05% x 2)
+            
+            const monthlyReward = volume * feeRate * rate;
+            const yearlyReward = monthlyReward * 12;
+            
+            document.getElementById('rewardResult').textContent = '$' + monthlyReward.toFixed(2);
+            document.getElementById('yearlyReward').textContent = '$' + yearlyReward.toFixed(0);
+        }
+        
+        // 초기 계산
+        calculateReward();
+    </script>
+</body>
+</html>
