@@ -53,7 +53,7 @@
             color: var(--text-secondary);
             font-size: 20px;
             border-radius: 8px;
-            margin-right: 16px;
+            margin-left: 12px;
             transition: all 0.2s;
             background: transparent;
             border: none;
@@ -114,7 +114,7 @@
             color: var(--text-secondary);
         }
         .header-reward span { color: var(--accent-cyan); font-weight: 600; }
-        .btn-login {
+        .btn-login, .btn-signup {
             padding: 8px 20px;
             background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
             border: none;
@@ -124,18 +124,7 @@
             font-weight: 600;
             cursor: pointer;
         }
-        .btn-login:hover { opacity: 0.9; }
-        .btn-signup {
-            padding: 8px 20px;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-        }
-        .btn-signup:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+        .btn-login:hover, .btn-signup:hover { opacity: 0.9; }
         
         /* 언어 선택 */
         .lang-selector {
@@ -475,84 +464,113 @@
         }
 
         /* 제휴 거래소 */
+        .exchange-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .ex-col-name { flex: 1; }
+        .ex-col-rate { width: 55px; text-align: center; }
+        .ex-col-fee { width: 55px; text-align: center; }
+        .ex-col-btn { width: 50px; }
+        
         .exchange-list {
             background: var(--bg-card);
-            border-radius: 12px;
+            border-radius: 0 0 12px 12px;
             border: 1px solid var(--border-color);
             overflow: hidden;
         }
         .exchange-item {
             display: flex;
             align-items: center;
-            padding: 14px 20px;
+            padding: 10px 16px;
             border-bottom: 1px solid var(--border-color);
         }
         .exchange-item:last-child { border-bottom: none; }
         .exchange-item:hover { background: var(--bg-card-hover); }
         .ex-logo {
-            width: 36px; height: 36px;
+            width: 32px; height: 32px;
             border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 12px;
-            font-size: 12px;
+            margin-right: 10px;
+            font-size: 10px;
             font-weight: 700;
         }
-        /* 거래소별 로고 색상 */
+        .ex-logo-img {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            margin-right: 10px;
+            object-fit: contain;
+        }
+        /* 거래소별 로고 색상 - 이미지 참고 */
         .ex-logo.binance { background: #f0b90b; color: #000; }
         .ex-logo.bitget { background: #00f0b5; color: #000; }
         .ex-logo.okx { background: #000; color: #fff; border: 1px solid #333; }
         .ex-logo.bybit { background: #f7a600; color: #000; }
-        .ex-logo.mexc { background: #00b897; color: #fff; }
-        .ex-logo.bingx { background: #2354e6; color: #fff; }
-        .ex-logo.gate { background: #17e6a1; color: #000; }
-        .ex-logo.bitunix { background: #00ff88; color: #000; }
+        .ex-logo.mexc { background: #1972e2; color: #fff; }
+        .ex-logo.bingx { background: #f7931a; color: #fff; }
+        .ex-logo.gate { background: #00d4aa; color: #000; }
+        .ex-logo.bitunix { background: #6366f1; color: #fff; }
         
-        .ex-info { flex: 1; }
-        .ex-name { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
         /* 거래소별 이름 색상 */
         .ex-name.binance { color: #f0b90b; }
         .ex-name.bitget { color: #00f0b5; }
         .ex-name.okx { color: #fff; }
         .ex-name.bybit { color: #f7a600; }
-        .ex-name.mexc { color: #00b897; }
-        .ex-name.bingx { color: #2354e6; }
-        .ex-name.gate { color: #17e6a1; }
-        .ex-name.bitunix { color: #00ff88; }
+        .ex-name.mexc { color: #1972e2; }
+        .ex-name.bingx { color: #f7931a; }
+        .ex-name.gate { color: #00d4aa; }
+        .ex-name.bitunix { color: #6366f1; }
         
         .ex-name .badge {
             display: inline-block;
-            padding: 2px 6px;
+            padding: 2px 4px;
             background: var(--accent-cyan);
             color: var(--bg-primary);
-            font-size: 10px;
+            font-size: 8px;
             font-weight: 700;
-            border-radius: 4px;
+            border-radius: 3px;
         }
-        .ex-desc { font-size: 11px; color: var(--text-muted); }
+        .ex-desc { font-size: 10px; color: var(--text-muted); }
         .ex-rate {
+            width: 55px;
+            text-align: center;
             font-family: 'Orbitron', monospace;
-            font-size: 18px;
+            font-size: 12px;
             font-weight: 700;
-            margin-right: 16px;
+        }
+        .ex-fee {
+            width: 55px;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
         }
         /* 거래소별 비율 색상 */
         .ex-rate.binance { color: #f0b90b; }
         .ex-rate.bitget { color: #00f0b5; }
         .ex-rate.okx { color: #fff; }
         .ex-rate.bybit { color: #f7a600; }
-        .ex-rate.mexc { color: #00b897; }
-        .ex-rate.bingx { color: #2354e6; }
-        .ex-rate.gate { color: #17e6a1; }
-        .ex-rate.bitunix { color: #00ff88; }
+        .ex-rate.mexc { color: #1972e2; }
+        .ex-rate.bingx { color: #f7931a; }
+        .ex-rate.gate { color: #00d4aa; }
+        .ex-rate.bitunix { color: #6366f1; }
         
         .ex-btn {
-            padding: 8px 16px;
+            width: 50px;
+            padding: 5px 8px;
             border: none;
             border-radius: 6px;
             color: #000;
-            font-size: 12px;
+            font-size: 10px;
             font-weight: 600;
             cursor: pointer;
         }
@@ -561,10 +579,16 @@
         .ex-btn.bitget { background: #00f0b5; }
         .ex-btn.okx { background: #fff; }
         .ex-btn.bybit { background: #f7a600; }
-        .ex-btn.mexc { background: #00b897; color: #fff; }
-        .ex-btn.bingx { background: #2354e6; color: #fff; }
-        .ex-btn.gate { background: #17e6a1; }
-        .ex-btn.bitunix { background: #00ff88; }
+        .ex-btn.mexc { background: #1972e2; color: #fff; }
+        .ex-btn.bingx { background: #f7931a; color: #fff; }
+        .ex-btn.gate { background: #00d4aa; }
+        .ex-btn.bitunix { background: #6366f1; color: #fff; }
+        
+        .ex-name .badge.hot { background: #ef4444; }
+        .ex-name .badge.best { background: #6366f1; }
+        
+        .ex-info { flex: 1; min-width: 0; }
+        .ex-name { font-size: 12px; font-weight: 600; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
 
         /* ===== 오른쪽 사이드바 ===== */
         .sidebar-right {
@@ -869,6 +893,7 @@
             
             <button class="btn-signup" onclick="openModal('signup')">회원가입</button>
             <button class="btn-login" onclick="openModal('login')">로그인</button>
+            <button class="menu-btn" onclick="openLeftSidebar()">☰</button>
         </div>
     </header>
 
@@ -926,12 +951,16 @@
                     </div>
                     <div class="partner-benefits">
                         <div class="partner-benefit">
-                            <div class="partner-benefit-label">리워드</div>
-                            <div class="partner-benefit-value">81%</div>
+                            <div class="partner-benefit-label">페이백</div>
+                            <div class="partner-benefit-value">90%</div>
                         </div>
                         <div class="partner-benefit">
-                            <div class="partner-benefit-label">레버리지</div>
-                            <div class="partner-benefit-value">125x</div>
+                            <div class="partner-benefit-label">지정가</div>
+                            <div class="partner-benefit-value">0.002%</div>
+                        </div>
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">시장가</div>
+                            <div class="partner-benefit-value">0.004%</div>
                         </div>
                     </div>
                     <button class="partner-btn" style="background: #00f0b5;" onclick="window.open('https://www.bitget.com/referral/register?from=referral&clacCode=1percent')">가입하고 혜택받기</button>
@@ -943,32 +972,40 @@
                     </div>
                     <div class="partner-benefits">
                         <div class="partner-benefit">
-                            <div class="partner-benefit-label">리워드</div>
-                            <div class="partner-benefit-value">--%</div>
+                            <div class="partner-benefit-label">페이백</div>
+                            <div class="partner-benefit-value">65%</div>
                         </div>
                         <div class="partner-benefit">
-                            <div class="partner-benefit-label">레버리지</div>
-                            <div class="partner-benefit-value">125x</div>
+                            <div class="partner-benefit-label">지정가</div>
+                            <div class="partner-benefit-value">0.007%</div>
+                        </div>
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">시장가</div>
+                            <div class="partner-benefit-value">0.018%</div>
                         </div>
                     </div>
                     <button class="partner-btn" style="background: #fff; color: #000;" onclick="window.open('https://www.okx.com/join/1percent')">가입하고 혜택받기</button>
                 </div>
                 <div class="partner-card">
                     <div class="partner-head">
-                        <div class="partner-name" style="color: #00ff88;">Bitunix</div>
-                        <div class="partner-tag">⭐ PARTNER</div>
+                        <div class="partner-name" style="color: #6366f1;">Bitunix</div>
+                        <div class="partner-tag">⭐ 최대 페이백</div>
                     </div>
                     <div class="partner-benefits">
                         <div class="partner-benefit">
-                            <div class="partner-benefit-label">리워드</div>
+                            <div class="partner-benefit-label">페이백</div>
                             <div class="partner-benefit-value">85%</div>
                         </div>
                         <div class="partner-benefit">
-                            <div class="partner-benefit-label">레버리지</div>
-                            <div class="partner-benefit-value">200x</div>
+                            <div class="partner-benefit-label">지정가</div>
+                            <div class="partner-benefit-value">0.003%</div>
+                        </div>
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">시장가</div>
+                            <div class="partner-benefit-value">0.009%</div>
                         </div>
                     </div>
-                    <button class="partner-btn" style="background: #00ff88;" onclick="window.open('https://www.bitunix.com/register?vipCode=1percent')">가입하고 혜택받기</button>
+                    <button class="partner-btn" style="background: #6366f1; color: #fff;" onclick="window.open('https://www.bitunix.com/register?vipCode=1percent')">가입하고 혜택받기</button>
                 </div>
             </div>
 
@@ -1074,86 +1111,102 @@
                     <div class="section-title">🏦 제휴 거래소</div>
                     <div class="section-more">전체보기 →</div>
                 </div>
+                <!-- 거래소 테이블 헤더 -->
+                <div class="exchange-header">
+                    <div class="ex-col-name">거래소</div>
+                    <div class="ex-col-rate">페이백%</div>
+                    <div class="ex-col-fee">지정가%</div>
+                    <div class="ex-col-fee">시장가%</div>
+                    <div class="ex-col-btn"></div>
+                </div>
                 <div class="exchange-list">
-                    <!-- Binance -->
-                    <div class="exchange-item">
-                        <div class="ex-logo binance">BN</div>
-                        <div class="ex-info">
-                            <div class="ex-name binance">Binance <span class="badge">MAIN</span></div>
-                            <div class="ex-desc">글로벌 TOP1 거래소 👑</div>
-                        </div>
-                        <div class="ex-rate binance">--%</div>
-                        <button class="ex-btn binance" onclick="window.open('https://www.binance.com/register?ref=1percent')">가입하기</button>
-                    </div>
                     <!-- Bitget -->
                     <div class="exchange-item">
                         <div class="ex-logo bitget">BG</div>
                         <div class="ex-info">
-                            <div class="ex-name bitget">Bitget <span class="badge">MAIN</span></div>
-                            <div class="ex-desc">글로벌 TOP5 거래소 🔥</div>
+                            <div class="ex-name bitget">Bitget <span class="badge hot">🔥 추천</span></div>
                         </div>
-                        <div class="ex-rate bitget">81%</div>
-                        <button class="ex-btn bitget" onclick="window.open('https://www.bitget.com/referral/register?from=referral&clacCode=1percent')">가입하기</button>
+                        <div class="ex-rate bitget">90%</div>
+                        <div class="ex-fee">0.002%</div>
+                        <div class="ex-fee">0.004%</div>
+                        <button class="ex-btn bitget" onclick="window.open('https://www.bitget.com/referral/register?from=referral&clacCode=1percent')">가입</button>
                     </div>
                     <!-- OKX -->
                     <div class="exchange-item">
                         <div class="ex-logo okx">OKX</div>
                         <div class="ex-info">
                             <div class="ex-name okx">OKX <span class="badge">MAIN</span></div>
-                            <div class="ex-desc">글로벌 TOP3 거래소 🔥</div>
                         </div>
-                        <div class="ex-rate okx">--%</div>
-                        <button class="ex-btn okx" onclick="window.open('https://www.okx.com/join/1percent')">가입하기</button>
+                        <div class="ex-rate okx">65%</div>
+                        <div class="ex-fee">0.007%</div>
+                        <div class="ex-fee">0.018%</div>
+                        <button class="ex-btn okx" onclick="window.open('https://www.okx.com/join/1percent')">가입</button>
                     </div>
-                    <!-- Bybit -->
+                    <!-- Binance -->
                     <div class="exchange-item">
-                        <div class="ex-logo bybit">BY</div>
+                        <div class="ex-logo binance">BN</div>
                         <div class="ex-info">
-                            <div class="ex-name bybit">Bybit</div>
-                            <div class="ex-desc">글로벌 TOP2 거래소</div>
+                            <div class="ex-name binance">Binance <span class="badge">MAIN</span></div>
                         </div>
-                        <div class="ex-rate bybit">--%</div>
-                        <button class="ex-btn bybit" onclick="window.open('https://www.bybit.com/invite?ref=1percent')">가입하기</button>
+                        <div class="ex-rate binance">40%</div>
+                        <div class="ex-fee">0.0096%</div>
+                        <div class="ex-fee">0.024%</div>
+                        <button class="ex-btn binance" onclick="window.open('https://www.binance.com/register?ref=1percent')">가입</button>
                     </div>
                     <!-- MEXC -->
                     <div class="exchange-item">
                         <div class="ex-logo mexc">MX</div>
                         <div class="ex-info">
                             <div class="ex-name mexc">MEXC</div>
-                            <div class="ex-desc">알트코인 특화 거래소</div>
                         </div>
-                        <div class="ex-rate mexc">--%</div>
-                        <button class="ex-btn mexc" onclick="window.open('https://www.mexc.com/register?inviteCode=1percent')">가입하기</button>
+                        <div class="ex-rate mexc">50%</div>
+                        <div class="ex-fee">0%</div>
+                        <div class="ex-fee">0.01%</div>
+                        <button class="ex-btn mexc" onclick="window.open('https://www.mexc.com/register?inviteCode=1percent')">가입</button>
                     </div>
                     <!-- BingX -->
                     <div class="exchange-item">
                         <div class="ex-logo bingx">BX</div>
                         <div class="ex-info">
                             <div class="ex-name bingx">BingX</div>
-                            <div class="ex-desc">카피트레이딩 특화</div>
                         </div>
-                        <div class="ex-rate bingx">--%</div>
-                        <button class="ex-btn bingx" onclick="window.open('https://www.bingx.com/invite/1percent')">가입하기</button>
+                        <div class="ex-rate bingx">60%</div>
+                        <div class="ex-fee">0.008%</div>
+                        <div class="ex-fee">0.02%</div>
+                        <button class="ex-btn bingx" onclick="window.open('https://www.bingx.com/invite/1percent')">가입</button>
                     </div>
                     <!-- Gate -->
                     <div class="exchange-item">
                         <div class="ex-logo gate">GT</div>
                         <div class="ex-info">
                             <div class="ex-name gate">Gate.io</div>
-                            <div class="ex-desc">다양한 알트코인 👍</div>
                         </div>
                         <div class="ex-rate gate">80%</div>
-                        <button class="ex-btn gate" onclick="window.open('https://www.gate.io/signup/1percent')">가입하기</button>
+                        <div class="ex-fee">0.004%</div>
+                        <div class="ex-fee">0.01%</div>
+                        <button class="ex-btn gate" onclick="window.open('https://www.gate.io/signup/1percent')">가입</button>
                     </div>
                     <!-- Bitunix -->
                     <div class="exchange-item">
                         <div class="ex-logo bitunix">BU</div>
                         <div class="ex-info">
-                            <div class="ex-name bitunix">Bitunix</div>
-                            <div class="ex-desc">200x 레버리지 🚀</div>
+                            <div class="ex-name bitunix">Bitunix <span class="badge best">최대 페이백</span></div>
                         </div>
                         <div class="ex-rate bitunix">85%</div>
-                        <button class="ex-btn bitunix" onclick="window.open('https://www.bitunix.com/register?vipCode=1percent')">가입하기</button>
+                        <div class="ex-fee">0.003%</div>
+                        <div class="ex-fee">0.009%</div>
+                        <button class="ex-btn bitunix" onclick="window.open('https://www.bitunix.com/register?vipCode=1percent')">가입</button>
+                    </div>
+                    <!-- Bybit -->
+                    <div class="exchange-item">
+                        <div class="ex-logo bybit">BY</div>
+                        <div class="ex-info">
+                            <div class="ex-name bybit">Bybit</div>
+                        </div>
+                        <div class="ex-rate bybit">--%</div>
+                        <div class="ex-fee">0.01%</div>
+                        <div class="ex-fee">0.03%</div>
+                        <button class="ex-btn bybit" onclick="window.open('https://www.bybit.com/invite?ref=1percent')">가입</button>
                     </div>
                 </div>
             </div>
