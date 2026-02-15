@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제휴 거래소 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #009985;
+            --accent-red: #dc2626;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: rgba(10,10,15,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-title {
+            margin-left: 16px;
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 24px 40px;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .page-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .page-header p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        .exchange-header {
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 12px 12px 0 0;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .ex-col-name { flex: 1; }
+        .ex-col-rate { width: 60px; text-align: center; }
+        .ex-col-fee { width: 60px; text-align: center; }
+        .ex-col-btn { width: 60px; }
+        .exchange-list {
+            background: var(--bg-card);
+            border-radius: 0 0 12px 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+        .exchange-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+        .exchange-item:last-child { border-bottom: none; }
+        .exchange-item:hover { background: var(--bg-card-hover); }
+        .ex-logo {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            margin-right: 12px;
+            font-size: 11px; font-weight: 700;
+        }
+        .ex-logo.bitget { background: #009985; color: #000; }
+        .ex-logo.okx { background: #000; color: #fff; border: 1px solid #333; }
+        .ex-logo.binance { background: #f0b90b; color: #000; }
+        .ex-logo.mexc { background: #1972e2; color: #fff; }
+        .ex-logo.bingx { background: #f7931a; color: #fff; }
+        .ex-logo.gate { background: #009985; color: #000; }
+        .ex-logo.bitunix { background: #6366f1; color: #fff; }
+        .ex-logo.bybit { background: #f7a600; color: #000; }
+        .ex-info { flex: 1; min-width: 0; }
+        .ex-name {
+            font-size: 14px; font-weight: 600;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .ex-name .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+        }
+        .ex-name .badge.hot { background: #dc2626; color: #fff; }
+        .ex-name .badge.new { background: var(--accent-cyan); color: #000; }
+        .ex-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .ex-rate {
+            width: 60px;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .ex-fee {
+            width: 60px;
+            text-align: center;
+            font-family: 'Orbitron', monospace;
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+        .ex-btn {
+            width: 60px;
+            padding: 7px 10px;
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+        .ex-btn.bitget { background: #009985; }
+        .ex-btn.gate { background: #009985; }
+        .ex-btn.disabled { background: #333 !important; color: #666 !important; cursor: not-allowed !important; }
+        .ex-name.bitget { color: #009985; }
+        .ex-name.gate { color: #009985; }
+        .ex-name.okx { color: #fff; }
+        .ex-name.binance { color: #f0b90b; }
+        .ex-name.bybit { color: #f7a600; }
+        .ex-name.mexc { color: #1972e2; }
+        .ex-name.bingx { color: #f7931a; }
+        .ex-name.bitunix { color: #6366f1; }
+        .ex-rate.bitget { color: #009985; }
+        .ex-rate.gate { color: #009985; }
+        .ex-rate.okx { color: #fff; }
+        .ex-rate.binance { color: #f0b90b; }
+        .ex-rate.bybit { color: #f7a600; }
+        .ex-rate.mexc { color: #1972e2; }
+        .ex-rate.bingx { color: #f7931a; }
+        .ex-rate.bitunix { color: #6366f1; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">← 돌아가기</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>🏦 제휴 거래소</h1>
+            <p>1% Trading PRO를 통해 가입하고 최대 85% 페이백을 받으세요</p>
+        </div>
+
+        <div class="exchange-header">
+            <div class="ex-col-name">거래소</div>
+            <div class="ex-col-rate">페이백%</div>
+            <div class="ex-col-fee">지정가%</div>
+            <div class="ex-col-fee">시장가%</div>
+            <div class="ex-col-btn"></div>
+        </div>
+        <div class="exchange-list">
+            <div class="exchange-item">
+                <div class="ex-logo bitget">BG</div>
+                <div class="ex-info">
+                    <div class="ex-name bitget">Bitget <span class="badge hot">🔥 추천</span></div>
+                    <div class="ex-desc">MAIN PARTNER</div>
+                </div>
+                <div class="ex-rate bitget">85%</div>
+                <div class="ex-fee">0.002%</div>
+                <div class="ex-fee">0.004%</div>
+                <button class="ex-btn bitget" onclick="window.open('https://www.bitget.com/referral/register?from=referral&clacCode=pkju')">가입</button>
+            </div>
+            <div class="exchange-item">
+                <div class="ex-logo gate">GT</div>
+                <div class="ex-info">
+                    <div class="ex-name gate">Gate.io</div>
+                </div>
+                <div class="ex-rate gate">80%</div>
+                <div class="ex-fee">0.004%</div>
+                <div class="ex-fee">0.01%</div>
+                <button class="ex-btn gate" onclick="window.open('https://www.gate.io/signup/1percent')">가입</button>
+            </div>
+            <div class="exchange-item" style="opacity:0.5;">
+                <div class="ex-logo okx">OKX</div>
+                <div class="ex-info">
+                    <div class="ex-name okx">OKX <span class="badge new">준비중</span></div>
+                </div>
+                <div class="ex-rate okx">--%</div>
+                <div class="ex-fee">0.007%</div>
+                <div class="ex-fee">0.018%</div>
+                <button class="ex-btn disabled">준비중</button>
+            </div>
+            <div class="exchange-item" style="opacity:0.5;">
+                <div class="ex-logo binance">BN</div>
+                <div class="ex-info">
+                    <div class="ex-name binance">Binance <span class="badge new">준비중</span></div>
+                </div>
+                <div class="ex-rate binance">--%</div>
+                <div class="ex-fee">0.0096%</div>
+                <div class="ex-fee">0.024%</div>
+                <button class="ex-btn disabled">준비중</button>
+            </div>
+            <div class="exchange-item" style="opacity:0.5;">
+                <div class="ex-logo bybit">BY</div>
+                <div class="ex-info">
+                    <div class="ex-name bybit">Bybit <span class="badge new">준비중</span></div>
+                </div>
+                <div class="ex-rate bybit">--%</div>
+                <div class="ex-fee">0.01%</div>
+                <div class="ex-fee">0.03%</div>
+                <button class="ex-btn disabled">준비중</button>
+            </div>
+            <div class="exchange-item" style="opacity:0.5;">
+                <div class="ex-logo mexc">MX</div>
+                <div class="ex-info">
+                    <div class="ex-name mexc">MEXC <span class="badge new">준비중</span></div>
+                </div>
+                <div class="ex-rate mexc">--%</div>
+                <div class="ex-fee">0%</div>
+                <div class="ex-fee">0.01%</div>
+                <button class="ex-btn disabled">준비중</button>
+            </div>
+            <div class="exchange-item" style="opacity:0.5;">
+                <div class="ex-logo bingx">BX</div>
+                <div class="ex-info">
+                    <div class="ex-name bingx">BingX <span class="badge new">준비중</span></div>
+                </div>
+                <div class="ex-rate bingx">--%</div>
+                <div class="ex-fee">0.008%</div>
+                <div class="ex-fee">0.02%</div>
+                <button class="ex-btn disabled">준비중</button>
+            </div>
+            <div class="exchange-item" style="opacity:0.5;">
+                <div class="ex-logo bitunix">BU</div>
+                <div class="ex-info">
+                    <div class="ex-name bitunix">Bitunix <span class="badge new">준비중</span></div>
+                </div>
+                <div class="ex-rate bitunix">--%</div>
+                <div class="ex-fee">0.003%</div>
+                <div class="ex-fee">0.009%</div>
+                <button class="ex-btn disabled">준비중</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

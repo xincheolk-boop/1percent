@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #009985;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 24px; z-index: 1000;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-title {
+            margin-left: 16px; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .container { max-width: 700px; margin: 0 auto; padding: 80px 24px 40px; }
+        .page-header { text-align: center; margin-bottom: 32px; }
+        .page-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .page-header p { font-size: 14px; color: var(--text-secondary); }
+        .faq-list { display: flex; flex-direction: column; gap: 8px; }
+        .faq-item {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; overflow: hidden;
+        }
+        .faq-q {
+            padding: 18px 20px; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: background 0.2s;
+        }
+        .faq-q:hover { background: var(--bg-card-hover); }
+        .faq-q-text { font-size: 14px; font-weight: 600; }
+        .faq-arrow { font-size: 12px; color: var(--text-muted); transition: transform 0.3s; }
+        .faq-item.open .faq-arrow { transform: rotate(180deg); }
+        .faq-a {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+        }
+        .faq-item.open .faq-a { max-height: 300px; }
+        .faq-a-inner {
+            padding: 0 20px 18px; font-size: 13px; color: var(--text-secondary);
+            line-height: 1.7; border-top: 1px solid var(--border-color); padding-top: 14px;
+        }
+        .faq-a-inner a { color: var(--accent-cyan); text-decoration: none; }
+        .faq-a-inner a:hover { text-decoration: underline; }
+        .contact-box {
+            margin-top: 32px; padding: 24px; text-align: center;
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;
+        }
+        .contact-box p { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; }
+        .contact-btn {
+            display: inline-block; padding: 10px 24px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #000; font-size: 13px; font-weight: 700;
+            border-radius: 8px; text-decoration: none; transition: all 0.2s;
+        }
+        .contact-btn:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">&larr; 돌아가기</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>❓ 자주 묻는 질문</h1>
+            <p>궁금한 점이 있으시면 아래를 확인해주세요</p>
+        </div>
+
+        <div class="faq-list">
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                    <span class="faq-q-text">Reward(리워드)가 무엇인가요?</span>
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-a"><div class="faq-a-inner">
+                    선물 거래 시 발생하는 수수료의 일부를 돌려받는 것을 Reward(리워드)라고 합니다. 1% Trading의 전용 레퍼럴 링크를 통해 거래소에 가입하면, 거래할 때마다 수수료의 최대 85%를 돌려받을 수 있습니다.
+                </div></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                    <span class="faq-q-text">어떤 거래소를 지원하나요?</span>
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-a"><div class="faq-a-inner">
+                    현재 <strong>Bitget</strong>(85% Reward)과 <strong>Gate.io</strong>(80% Reward)를 공식 지원하고 있습니다. OKX, Binance, Bybit, MEXC, BingX, Bitunix 등은 순차적으로 추가될 예정입니다. 자세한 내용은 <a href="exchanges.html">제휴 거래소</a> 페이지를 확인하세요.
+                </div></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                    <span class="faq-q-text">이미 가입한 거래소도 Reward를 받을 수 있나요?</span>
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-a"><div class="faq-a-inner">
+                    레퍼럴 코드는 신규 가입 시에만 적용됩니다. 이미 가입한 계정에는 적용할 수 없습니다. 단, 새로운 이메일로 재가입이 가능한 거래소의 경우 새 계정을 만들어 사용할 수 있습니다.
+                </div></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                    <span class="faq-q-text">Reward는 어떻게 받나요?</span>
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-a"><div class="faq-a-inner">
+                    거래소에서 발생한 수수료의 Reward분이 주 단위로 정산됩니다. 정산된 금액은 거래소 계정으로 직접 입금되며, 텔레그램을 통해 정산 알림을 받으실 수 있습니다.
+                </div></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                    <span class="faq-q-text">UID는 어디서 확인하나요?</span>
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-a"><div class="faq-a-inner">
+                    거래소 앱 또는 웹사이트에 로그인한 후, 프로필/계정 설정 메뉴에서 UID(사용자 고유 번호)를 확인할 수 있습니다. 거래소마다 위치가 다를 수 있으며, 자세한 방법은 <a href="guide.html">이용 가이드</a>를 참고하세요.
+                </div></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                    <span class="faq-q-text">현물 거래도 Reward 대상인가요?</span>
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-a"><div class="faq-a-inner">
+                    현재 1% Trading의 Reward 프로그램은 <strong>선물(Futures) 거래</strong>에만 적용됩니다. 현물 거래는 Reward 대상이 아닙니다.
+                </div></div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-q" onclick="toggleFaq(this)">
+                    <span class="faq-q-text">1% Trading을 이용하면 추가 비용이 있나요?</span>
+                    <span class="faq-arrow">▼</span>
+                </div>
+                <div class="faq-a"><div class="faq-a-inner">
+                    아닙니다. 1% Trading 이용은 <strong>완전 무료</strong>입니다. 별도의 비용이나 수수료가 발생하지 않으며, 기존 거래소 수수료에서 일정 비율을 돌려받는 구조입니다.
+                </div></div>
+            </div>
+        </div>
+
+        <div class="contact-box">
+            <p>원하는 답변을 찾지 못하셨나요?</p>
+            <a href="https://t.me/officialpercent" target="_blank" class="contact-btn">✈️ 텔레그램으로 문의하기</a>
+        </div>
+    </div>
+
+    <script>
+        function toggleFaq(el) {
+            el.closest('.faq-item').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

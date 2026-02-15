@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy / 개인정보처리방침 - 1% Trading PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --bg-surface: #111118;
+            --text: #d1d5db;
+            --text-heading: #e5e7eb;
+            --text-muted: #6b7280;
+            --border: rgba(255,255,255,0.06);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', 'Noto Sans KR', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            line-height: 1.7;
+        }
+
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 52px;
+            background: rgba(10,10,15,0.95);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 100;
+        }
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .top-bar a.home-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .top-bar a.home-link:hover { color: var(--text); }
+        .top-bar .site-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-heading);
+            letter-spacing: -0.3px;
+        }
+        .lang-toggle {
+            display: flex;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .lang-toggle button {
+            padding: 5px 14px;
+            font-size: 12px;
+            font-weight: 500;
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .lang-toggle button.active {
+            background: rgba(255,255,255,0.08);
+            color: var(--text-heading);
+        }
+        .lang-toggle button:hover { color: var(--text); }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 76px 24px 60px;
+        }
+
+        .doc-header {
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+        .doc-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-heading);
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        .doc-meta {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        .article { margin-bottom: 36px; }
+        .article h2 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 10px;
+            letter-spacing: -0.3px;
+        }
+        .article p {
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+        .article ul {
+            padding-left: 18px;
+            margin-top: 6px;
+        }
+        .article li {
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+        .article li strong {
+            color: var(--text-heading);
+        }
+        .contact-box {
+            padding: 14px 18px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-top: 8px;
+            font-size: 13px;
+        }
+
+        .footer-bar {
+            text-align: center;
+            padding: 24px 20px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        .footer-bar a { color: var(--text-muted); text-decoration: none; }
+        .footer-bar a:hover { color: var(--text); }
+
+        .lang-ko, .lang-en { display: none; }
+        .lang-ko.active, .lang-en.active { display: block; }
+
+        @media (max-width: 768px) {
+            .container { padding: 64px 16px 40px; }
+            .doc-title { font-size: 20px; }
+            .top-bar { padding: 0 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <span class="site-name">1% TRADING PRO</span>
+            <a class="home-link" href="index.html">← Back</a>
+        </div>
+        <div class="lang-toggle">
+            <button class="active" onclick="switchPrivacyLang('ko')">KO</button>
+            <button onclick="switchPrivacyLang('en')">EN</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- ==================== 한국어 ==================== -->
+        <div class="lang-ko active">
+            <div class="doc-header">
+                <h1 class="doc-title">개인정보 처리방침</h1>
+                <div class="doc-meta">
+                    시행일: 2025년 2월 1일<br>
+                    최종 수정일: 2025년 2월 1일
+                </div>
+            </div>
+
+            <div class="article">
+                <p>해외에 설립된 1% TRADING PRO 운영사(이하 "회사", "당사")는 1% TRADING PRO 서비스(이하 "서비스") 이용 시 귀하의 개인정보를 수집, 저장, 사용, 공유 및/또는 보호하는 방법과 이유, 그리고 관련 불만 사항을 신속하고 원만하게 해결하기 위한 다음과 같은 개인정보 처리방침을 수립합니다.</p>
+            </div>
+
+            <div class="article">
+                <h2>1. 수집하는 개인정보 항목</h2>
+                <p>당사는 서비스 이용 중 다음 개인정보를 수집 및 처리합니다. 만 16세 미만의 미성년자의 개인정보는 처리하지 않습니다.</p>
+                <ul>
+                    <li><strong>(a) 회원 가입 시(필수):</strong> 이메일 주소 및 비밀번호</li>
+                    <li><strong>(b) 파트너 거래소 UID 연결 시(필수):</strong> 거래소 이름, UID, 선물 거래 내역(날짜, 거래량)</li>
+                    <li><strong>(c) 페이백 서비스 이용 시(필수):</strong> 거래소명, UID, 선물 거래 내역(날짜, 거래량)</li>
+                    <li><strong>(d) 자동 수집 정보:</strong> IP 주소, 브라우저 종류, 사용 언어, 이용 내역(방문 기록, 페이백/수수료 적립·신청·출금 내역), 기기 정보, 쿠키</li>
+                    <li><strong>(e) 설문/피드백 시:</strong> 상기 필수 항목 및 해당 설문에 필요한 기타 항목</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>2. 개인정보 처리 및 보존 기간</h2>
+                <p>당사는 서비스 탈퇴 또는 자격 상실 시 지체 없이 개인정보를 삭제·파기합니다. 단, 다음의 경우 예외적으로 보존합니다.</p>
+                <ul>
+                    <li>(a) 관련 법규 위반 조사 진행 중인 경우, 조사 완료 시까지</li>
+                    <li>(b) 미지급 채무가 있는 경우, 변제 완료 시까지</li>
+                    <li>(c) 재구독 방지를 위해 서비스 종료 시까지 이메일 주소 보관</li>
+                    <li>(d) 페이백/커미션 내역은 5년간 보관 (UID 등 식별정보는 마스킹 처리)</li>
+                    <li>(e) 관련 법률에서 보존 기간을 명시한 경우 해당 법률에 따름</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>3. 개인정보 이용 목적</h2>
+                <ul>
+                    <li><strong>(a) 회원 관리:</strong> 가입 확인, 자격 유지, 무단 이용 방지, 공지 제공</li>
+                    <li><strong>(b) 사기·자금 손실 예방:</strong> 서비스 오용 감지, 계정 보호</li>
+                    <li><strong>(c) 서비스 제공:</strong> 서비스 운영 및 제공</li>
+                    <li><strong>(d) 커뮤니케이션:</strong> 보안 문제, 업데이트, 거래 관련 정보 안내</li>
+                    <li><strong>(e) 고객 지원:</strong> 문의·분쟁 해결</li>
+                    <li><strong>(f) 보안:</strong> 접근 확인, 스팸 대응, 보안 법규 준수</li>
+                    <li><strong>(g) 서비스 개선:</strong> 콘텐츠 맞춤화, 추가 기능 개발</li>
+                    <li><strong>(h) 마케팅:</strong> 활동 안내, 프로모션 제공 (이메일·문자)</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>4. 제3자 제공</h2>
+                <p>당사는 사용자 동의가 있거나 관련 법규에서 허용하는 경우를 제외하고 개인정보를 제3자에게 제공하지 않습니다.</p>
+            </div>
+
+            <div class="article">
+                <h2>5. 수집 목적 범위 내 이용 및 제공</h2>
+                <p>회사는 최초 수집 목적과 합리적으로 관련된 범위 내에서 다음 기준을 고려하여 동의 없이 이용하거나 제3자에게 제공할 수 있습니다.</p>
+                <ul>
+                    <li>(a) 최초 수집 목적과의 관련성</li>
+                    <li>(b) 추가 이용·제공의 예측 가능성</li>
+                    <li>(c) 이용자 이익의 부당 침해 여부</li>
+                    <li>(d) 가명화·암호화 등 안전 조치 여부</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>6. 쿠키</h2>
+                <p>(a) 당사는 접속 빈도, 방문 시간, 이용 패턴 등을 수집하여 서비스 개선, 맞춤형 서비스 및 광고 제공에 사용합니다.</p>
+                <p>(b) 사용자는 쿠키 설치를 거부할 수 있으나, 일부 서비스 이용에 제한이 있을 수 있습니다.</p>
+            </div>
+
+            <div class="article">
+                <h2>7. 개인정보 파기</h2>
+                <p>(a) 보유 기간 만료 또는 목적 달성 시 지체 없이 파기합니다.</p>
+                <p>(b) 전자 파일은 복제 불가능한 기술적 방법으로, 종이 문서는 파쇄 또는 소각하여 파기합니다.</p>
+            </div>
+
+            <div class="article">
+                <h2>8. 보호 조치</h2>
+                <ul>
+                    <li>(a) 관리적 조치: 내부 관리 계획, 직원 교육</li>
+                    <li>(b) 기술적 조치: 해킹 방지, 암호화, 접근 권한 관리, 접근 기록 보관</li>
+                    <li>(c) 물리적 조치: 서버실·데이터 저장실 접근 통제</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>9. 이용자 권리</h2>
+                <ul>
+                    <li>(a) 개인정보 열람, 정정, 삭제, 처리 중지를 청구할 수 있습니다.</li>
+                    <li>(b) 법정대리인 또는 위임인을 통해 권리를 행사할 수 있습니다.</li>
+                    <li>(c) 제10조 담당 부서로 이메일을 보내 권리를 행사할 수 있습니다.</li>
+                    <li>(d) 동의 철회 시 서비스 이용이 제한될 수 있습니다.</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>10. 담당 부서</h2>
+                <div class="contact-box">
+                    부서: Security Team<br>
+                    연락처: support@1percentpro.io
+                </div>
+            </div>
+
+            <div class="article">
+                <h2>11. EU 이용자 추가 조항</h2>
+                <ul>
+                    <li>(a) EU 거주자에게 적용되며, 본 방침의 나머지 조항보다 우선합니다.</li>
+                    <li>(b) 개인정보를 EU 외부로 이전 시 GDPR에 따른 보호 조치를 취합니다.</li>
+                    <li>(c) GDPR에 따른 권리: 접근·정정·이의제기권, 삭제권, 처리제한권, 이동권, 동의 철회권</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>12. 방침 개정</h2>
+                <p>개정 시 효력 발생일 최소 7일 전 통지합니다. 중대한 변경은 최소 30일 전 통지합니다.</p>
+            </div>
+        </div>
+
+        <!-- ==================== English ==================== -->
+        <div class="lang-en">
+            <div class="doc-header">
+                <h1 class="doc-title">Privacy Policy</h1>
+                <div class="doc-meta">
+                    Effective Date: February 1, 2025<br>
+                    Last Updated: February 1, 2025
+                </div>
+            </div>
+
+            <div class="article">
+                <p>The operator of 1% TRADING PRO, incorporated overseas (hereinafter "Company", "we", "us", or "our"), establishes the following Privacy Policy to explain how and why we collect, store, use, share, and/or protect your personal information when you use the 1% TRADING PRO service (hereinafter "Service").</p>
+            </div>
+
+            <div class="article">
+                <h2>1. Information We Collect</h2>
+                <p>We collect and process the following personal information during your use of the Service. We do not process personal information of minors under 16 years of age.</p>
+                <ul>
+                    <li><strong>(a) Registration (Required):</strong> Email address and password</li>
+                    <li><strong>(b) Exchange UID Linking (Required):</strong> Exchange name, UID, futures trading history (date, volume)</li>
+                    <li><strong>(c) Reward Service (Required):</strong> Exchange name, UID, futures trading history (date, volume)</li>
+                    <li><strong>(d) Automatically Collected:</strong> IP address, browser type, language, usage records (visit logs, reward/fee accumulation, withdrawal history), device information, cookies</li>
+                    <li><strong>(e) Surveys/Feedback:</strong> Required items above and additional items necessary for the survey or feedback</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>2. Retention Period</h2>
+                <p>We delete and destroy your personal information without delay upon withdrawal or loss of user status. Exceptions:</p>
+                <ul>
+                    <li>(a) Under investigation for regulatory violations: retained until investigation is completed</li>
+                    <li>(b) Outstanding debts: retained until settlement</li>
+                    <li>(c) Email address retained until service termination to prevent duplicate registration</li>
+                    <li>(d) Reward/commission records retained for 5 years (identifiable information masked)</li>
+                    <li>(e) As required by applicable law</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>3. Purpose of Use</h2>
+                <ul>
+                    <li><strong>(a) Member Management:</strong> Registration verification, qualification maintenance, unauthorized use prevention, notifications</li>
+                    <li><strong>(b) Fraud Prevention:</strong> Detecting and preventing service misuse, protecting accounts</li>
+                    <li><strong>(c) Service Provision:</strong> Operating and providing the Service</li>
+                    <li><strong>(d) Communication:</strong> Security issues, updates, and transaction-related information</li>
+                    <li><strong>(e) Customer Support:</strong> Resolving inquiries and disputes</li>
+                    <li><strong>(f) Security:</strong> Access verification, anti-spam, regulatory compliance</li>
+                    <li><strong>(g) Service Improvement:</strong> Content customization, feature development</li>
+                    <li><strong>(h) Marketing:</strong> Promotional communications via email or text message</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>4. Disclosure to Third Parties</h2>
+                <p>We do not provide personal information to third parties except with user consent or as permitted by applicable law.</p>
+            </div>
+
+            <div class="article">
+                <h2>5. Use Within Scope of Collection Purpose</h2>
+                <p>We may use or provide personal information without consent within a scope reasonably related to the original collection purpose, considering:</p>
+                <ul>
+                    <li>(a) Relevance to the original purpose</li>
+                    <li>(b) Predictability of additional use or provision</li>
+                    <li>(c) Whether it unfairly infringes user interests</li>
+                    <li>(d) Whether appropriate safeguards such as pseudonymization or encryption have been applied</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>6. Cookies</h2>
+                <p>(a) We collect access frequency, visit times, and usage patterns via cookies for service improvement, personalized services, and advertising.</p>
+                <p>(b) Users may refuse cookie installation, but some services may be limited.</p>
+            </div>
+
+            <div class="article">
+                <h2>7. Destruction of Personal Information</h2>
+                <p>(a) We destroy personal information without delay when the retention period expires or the purpose of processing is achieved.</p>
+                <p>(b) Electronic files are destroyed using non-reproducible technical methods. Paper documents are shredded or incinerated.</p>
+            </div>
+
+            <div class="article">
+                <h2>8. Protective Measures</h2>
+                <ul>
+                    <li>(a) Administrative: Internal management plans, employee training</li>
+                    <li>(b) Technical: Anti-hacking, encryption, access control, access log management</li>
+                    <li>(c) Physical: Access control for server rooms and data storage facilities</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>9. User Rights</h2>
+                <ul>
+                    <li>(a) You may request access, correction, deletion, or suspension of processing of your personal information at any time.</li>
+                    <li>(b) You may exercise these rights through a legal representative or authorized agent.</li>
+                    <li>(c) Contact the department specified in Article 10 via email to exercise your rights.</li>
+                    <li>(d) Withdrawal of consent may restrict your use of the Service.</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>10. Contact</h2>
+                <div class="contact-box">
+                    Department: Security Team<br>
+                    Email: support@1percentpro.io
+                </div>
+            </div>
+
+            <div class="article">
+                <h2>11. Additional Provisions for EU Users</h2>
+                <ul>
+                    <li>(a) This article applies only to EU residents and takes precedence over the rest of this Policy where applicable.</li>
+                    <li>(b) We take appropriate safeguards under GDPR when transferring personal information outside the EU.</li>
+                    <li>(c) GDPR rights: right of access/rectification/objection, right to erasure, right to restriction, right to data portability, right to withdraw consent</li>
+                </ul>
+            </div>
+
+            <div class="article">
+                <h2>12. Amendments</h2>
+                <p>We will notify you at least 7 days before any amendments take effect. For material changes affecting your rights, we will provide at least 30 days' prior notice.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bar">
+        <p>&copy; 2025 1% Trading PRO. All rights reserved.</p>
+        <p style="margin-top: 8px;">
+            <a href="index.html">Home</a> &nbsp;|&nbsp;
+            <a href="privacy.html">Privacy Policy</a> &nbsp;|&nbsp;
+            <a href="https://t.me/officialpercent" target="_blank">Contact</a>
+        </p>
+    </div>
+
+    <script>
+        function switchPrivacyLang(lang) {
+            document.querySelectorAll('.lang-toggle button').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.lang-ko, .lang-en').forEach(el => el.classList.remove('active'));
+            if (lang === 'en') {
+                document.querySelectorAll('.lang-toggle button')[1].classList.add('active');
+                document.querySelector('.lang-en').classList.add('active');
+                document.documentElement.lang = 'en';
+            } else {
+                document.querySelectorAll('.lang-toggle button')[0].classList.add('active');
+                document.querySelector('.lang-ko').classList.add('active');
+                document.documentElement.lang = 'ko';
+            }
+        }
+    </script>
+</body>
+</html>

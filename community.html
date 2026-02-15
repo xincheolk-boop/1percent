@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>커뮤니티 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #009985;
+            --accent-red: #dc2626;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 24px; z-index: 1000;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-title {
+            margin-left: 16px; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 80px 24px 40px; }
+        .page-header { text-align: center; margin-bottom: 32px; }
+        .page-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .page-header p { font-size: 14px; color: var(--text-secondary); }
+        .tabs {
+            display: flex; gap: 8px; margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 12px;
+        }
+        .tab {
+            padding: 8px 16px; border-radius: 8px; font-size: 13px;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+        }
+        .tab.active { background: var(--bg-card); color: var(--accent-cyan); font-weight: 600; }
+        .tab:hover { color: var(--text-primary); }
+        .post-list { display: flex; flex-direction: column; gap: 2px; }
+        .post-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            padding: 16px 20px;
+            display: flex; align-items: center; gap: 12px;
+            transition: all 0.2s; cursor: pointer;
+        }
+        .post-item:first-child { border-radius: 12px 12px 0 0; }
+        .post-item:last-child { border-radius: 0 0 12px 12px; }
+        .post-item:hover { background: var(--bg-card-hover); }
+        .post-category {
+            padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;
+            min-width: 48px; text-align: center;
+        }
+        .post-category.free { background: rgba(0,184,217,0.15); color: var(--accent-cyan); }
+        .post-category.analysis { background: rgba(147,51,234,0.15); color: var(--accent-purple); }
+        .post-category.qa { background: rgba(0,153,133,0.15); color: var(--accent-green); }
+        .post-category.notice { background: rgba(220,38,38,0.15); color: var(--accent-red); }
+        .post-info { flex: 1; min-width: 0; }
+        .post-title-row { display: flex; align-items: center; gap: 6px; }
+        .post-title { font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .post-comment-count { font-size: 11px; color: var(--accent-cyan); }
+        .post-meta { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+        .post-views { font-size: 12px; color: var(--text-muted); min-width: 50px; text-align: right; }
+        .tg-banner {
+            margin-top: 32px; padding: 24px;
+            background: linear-gradient(135deg, rgba(0,184,217,0.1), rgba(147,51,234,0.1));
+            border: 1px solid rgba(0,184,217,0.2); border-radius: 12px;
+            text-align: center;
+        }
+        .tg-banner h3 { font-size: 16px; margin-bottom: 8px; }
+        .tg-banner p { font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; }
+        .tg-btn {
+            display: inline-block; padding: 10px 24px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #000; font-size: 13px; font-weight: 700;
+            border-radius: 8px; text-decoration: none; transition: all 0.2s;
+        }
+        .tg-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">&larr; 돌아가기</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>💬 커뮤니티</h1>
+            <p>트레이더들과 소통하고 정보를 공유하세요</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active">인기글</div>
+            <div class="tab">최신글</div>
+            <div class="tab">분석/전략</div>
+            <div class="tab">Q&A</div>
+        </div>
+
+        <div class="post-list">
+            <div class="post-item">
+                <span class="post-category notice">공지</span>
+                <div class="post-info">
+                    <div class="post-title-row">
+                        <span class="post-title">1% Trading PRO 커뮤니티 이용 안내</span>
+                        <span class="post-comment-count">[12]</span>
+                    </div>
+                    <div class="post-meta">운영팀 · 2025.02.15</div>
+                </div>
+                <div class="post-views">조회 1,842</div>
+            </div>
+            <div class="post-item">
+                <span class="post-category analysis">분석</span>
+                <div class="post-info">
+                    <div class="post-title-row">
+                        <span class="post-title">BTC 일봉 분석 - 10만불 돌파 시나리오</span>
+                        <span class="post-comment-count">[28]</span>
+                    </div>
+                    <div class="post-meta">CryptoKing · 2025.02.15</div>
+                </div>
+                <div class="post-views">조회 956</div>
+            </div>
+            <div class="post-item">
+                <span class="post-category free">자유</span>
+                <div class="post-info">
+                    <div class="post-title-row">
+                        <span class="post-title">Bitget 85% Reward 실제 후기 (스크린샷 첨부)</span>
+                        <span class="post-comment-count">[45]</span>
+                    </div>
+                    <div class="post-meta">트레이더Kim · 2025.02.14</div>
+                </div>
+                <div class="post-views">조회 2,341</div>
+            </div>
+            <div class="post-item">
+                <span class="post-category qa">Q&A</span>
+                <div class="post-info">
+                    <div class="post-title-row">
+                        <span class="post-title">UID 연동은 어떻게 하나요?</span>
+                        <span class="post-comment-count">[8]</span>
+                    </div>
+                    <div class="post-meta">초보트레이더 · 2025.02.14</div>
+                </div>
+                <div class="post-views">조회 423</div>
+            </div>
+            <div class="post-item">
+                <span class="post-category analysis">분석</span>
+                <div class="post-info">
+                    <div class="post-title-row">
+                        <span class="post-title">ETH/BTC 차트로 보는 알트 시즌 타이밍</span>
+                        <span class="post-comment-count">[19]</span>
+                    </div>
+                    <div class="post-meta">ChartMaster · 2025.02.14</div>
+                </div>
+                <div class="post-views">조회 734</div>
+            </div>
+            <div class="post-item">
+                <span class="post-category free">자유</span>
+                <div class="post-info">
+                    <div class="post-title-row">
+                        <span class="post-title">Gate.io vs Bitget 수수료 비교 정리</span>
+                        <span class="post-comment-count">[33]</span>
+                    </div>
+                    <div class="post-meta">FeeHunter · 2025.02.13</div>
+                </div>
+                <div class="post-views">조회 1,567</div>
+            </div>
+            <div class="post-item">
+                <span class="post-category qa">Q&A</span>
+                <div class="post-info">
+                    <div class="post-title-row">
+                        <span class="post-title">Reward 정산 주기가 어떻게 되나요?</span>
+                        <span class="post-comment-count">[5]</span>
+                    </div>
+                    <div class="post-meta">NewUser123 · 2025.02.13</div>
+                </div>
+                <div class="post-views">조회 298</div>
+            </div>
+        </div>
+
+        <div class="tg-banner">
+            <h3>실시간 소통은 텔레그램에서!</h3>
+            <p>최신 시장 분석, 이벤트 소식, 실시간 채팅을 텔레그램에서 만나보세요</p>
+            <a href="https://t.me/officialpercent" target="_blank" class="tg-btn">✈️ 텔레그램 참여하기</a>
+        </div>
+    </div>
+</body>
+</html>

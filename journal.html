@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매매일지 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #009985;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 24px; z-index: 1000;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-title {
+            margin-left: 16px; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .container { max-width: 600px; margin: 0 auto; padding: 80px 24px 40px; }
+        .login-prompt {
+            text-align: center; padding: 60px 24px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+        .login-icon { font-size: 48px; margin-bottom: 16px; }
+        .login-prompt h2 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+        .login-prompt p { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.6; }
+        .feature-preview {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+            margin-bottom: 28px; text-align: left;
+        }
+        .feature-item {
+            background: var(--bg-primary); border-radius: 10px; padding: 16px;
+        }
+        .feature-item .icon { font-size: 20px; margin-bottom: 6px; }
+        .feature-item .label { font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+        .feature-item .desc { font-size: 11px; color: var(--text-muted); }
+        .login-btn {
+            display: inline-block; padding: 12px 32px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #000; font-size: 14px; font-weight: 700;
+            border-radius: 8px; text-decoration: none; border: none;
+            cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }
+        .login-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .login-sub { font-size: 12px; color: var(--text-muted); margin-top: 12px; }
+        .login-sub a { color: var(--accent-cyan); text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">&larr; 돌아가기</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="login-prompt">
+            <div class="login-icon">📝</div>
+            <h2>매매일지</h2>
+            <p>나의 거래를 기록하고 분석하세요.<br>로그인 후 이용 가능합니다.</p>
+
+            <div class="feature-preview">
+                <div class="feature-item">
+                    <div class="icon">📊</div>
+                    <div class="label">거래 기록</div>
+                    <div class="desc">진입/청산 자동 기록</div>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">📈</div>
+                    <div class="label">수익 분석</div>
+                    <div class="desc">일별/월별 수익률</div>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">🏷️</div>
+                    <div class="label">태그 관리</div>
+                    <div class="desc">전략별 분류</div>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">💰</div>
+                    <div class="label">Reward 내역</div>
+                    <div class="desc">Reward 정산 확인</div>
+                </div>
+            </div>
+
+            <button class="login-btn" onclick="alert('로그인 기능은 곧 오픈 예정입니다!\n텔레그램에서 최신 소식을 받아보세요.')">로그인하고 시작하기</button>
+            <div class="login-sub">아직 계정이 없으신가요? <a href="exchanges.html">거래소 가입</a>부터 시작하세요</div>
+        </div>
+    </div>
+</body>
+</html>

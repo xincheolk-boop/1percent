@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이벤트 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #009985;
+            --accent-red: #dc2626;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 24px; z-index: 1000;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-title {
+            margin-left: 16px; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 80px 24px 40px; }
+        .page-header { text-align: center; margin-bottom: 32px; }
+        .page-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .page-header p { font-size: 14px; color: var(--text-secondary); }
+        .tabs {
+            display: flex; gap: 8px; margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 12px;
+        }
+        .tab {
+            padding: 8px 16px; border-radius: 8px; font-size: 13px;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+        }
+        .tab.active { background: var(--bg-card); color: var(--accent-cyan); font-weight: 600; }
+        .tab:hover { color: var(--text-primary); }
+        .section-title {
+            font-size: 18px; font-weight: 700; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .section-title .badge {
+            font-size: 10px; padding: 3px 8px; border-radius: 4px;
+            font-weight: 700;
+        }
+        .badge.live { background: var(--accent-red); color: #fff; }
+        .badge.hot { background: var(--accent-purple); color: #fff; }
+        .event-grid { display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
+        .event-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 20px; transition: all 0.2s; cursor: pointer;
+        }
+        .event-card:hover { background: var(--bg-card-hover); border-color: rgba(255,255,255,0.15); }
+        .event-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .event-exchange {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .event-logo {
+            width: 28px; height: 28px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700;
+        }
+        .event-logo.bitget { background: #009985; color: #000; }
+        .event-logo.gate { background: #009985; color: #000; }
+        .event-logo.okx { background: #000; color: #fff; border: 1px solid #333; }
+        .event-logo.binance { background: #f0b90b; color: #000; }
+        .event-exchange-name { font-size: 13px; font-weight: 600; }
+        .event-status {
+            font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 700;
+        }
+        .event-status.active { background: rgba(0,153,133,0.15); color: var(--accent-green); }
+        .event-status.upcoming { background: rgba(0,184,217,0.15); color: var(--accent-cyan); }
+        .event-status.ended { background: rgba(107,114,128,0.15); color: var(--text-muted); }
+        .event-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+        .event-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.5; }
+        .event-info { display: flex; gap: 16px; font-size: 12px; color: var(--text-muted); }
+        .event-prize { color: var(--accent-cyan); font-weight: 600; }
+        .comp-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 20px; transition: all 0.2s; cursor: pointer;
+            position: relative; overflow: hidden;
+        }
+        .comp-card:hover { background: var(--bg-card-hover); border-color: rgba(255,255,255,0.15); }
+        .comp-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+        }
+        .comp-rank { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+        .comp-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+        .comp-details { display: flex; gap: 20px; font-size: 12px; color: var(--text-secondary); }
+        .comp-prize-amount {
+            font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700;
+            color: var(--accent-cyan);
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">&larr; 돌아가기</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>🎁 이벤트 &amp; 대회</h1>
+            <p>파트너 거래소의 최신 이벤트와 트레이딩 대회 정보</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active">전체</div>
+            <div class="tab">진행중</div>
+            <div class="tab">예정</div>
+            <div class="tab">종료</div>
+        </div>
+
+        <div class="section-title">🎁 파트너 이벤트 <span class="badge live">LIVE</span></div>
+        <div class="event-grid">
+            <div class="event-card">
+                <div class="event-top">
+                    <div class="event-exchange">
+                        <div class="event-logo bitget">BG</div>
+                        <span class="event-exchange-name">Bitget</span>
+                    </div>
+                    <span class="event-status active">진행중</span>
+                </div>
+                <div class="event-title">신규 가입 보너스 $100 USDT 지급</div>
+                <div class="event-desc">1% Trading을 통해 Bitget에 가입하면 $100 USDT 보너스를 지급합니다. 선물 거래 시작에 필요한 시드머니를 무료로 받아보세요.</div>
+                <div class="event-info">
+                    <span>기간: 상시</span>
+                    <span class="event-prize">보상: $100 USDT</span>
+                </div>
+            </div>
+            <div class="event-card">
+                <div class="event-top">
+                    <div class="event-exchange">
+                        <div class="event-logo bitget">BG</div>
+                        <span class="event-exchange-name">Bitget</span>
+                    </div>
+                    <span class="event-status active">진행중</span>
+                </div>
+                <div class="event-title">선물 거래 수수료 85% Reward</div>
+                <div class="event-desc">1% Trading 전용 레퍼럴을 통해 가입 시 선물 거래 수수료의 85%를 돌려받습니다. 업계 최고 수준의 Reward율입니다.</div>
+                <div class="event-info">
+                    <span>기간: 상시</span>
+                    <span class="event-prize">Reward: 85%</span>
+                </div>
+            </div>
+            <div class="event-card">
+                <div class="event-top">
+                    <div class="event-exchange">
+                        <div class="event-logo gate">GT</div>
+                        <span class="event-exchange-name">Gate.io</span>
+                    </div>
+                    <span class="event-status active">진행중</span>
+                </div>
+                <div class="event-title">Gate.io 신규 가입 수수료 80% Reward</div>
+                <div class="event-desc">Gate.io에서 1% Trading 레퍼럴로 가입하면 선물 거래 수수료의 80%를 Reward 받을 수 있습니다.</div>
+                <div class="event-info">
+                    <span>기간: 상시</span>
+                    <span class="event-prize">Reward: 80%</span>
+                </div>
+            </div>
+            <div class="event-card">
+                <div class="event-top">
+                    <div class="event-exchange">
+                        <div class="event-logo bitget">BG</div>
+                        <span class="event-exchange-name">Bitget</span>
+                    </div>
+                    <span class="event-status upcoming">예정</span>
+                </div>
+                <div class="event-title">월간 거래왕 시상식 - 2월</div>
+                <div class="event-desc">2월 한 달간 가장 많은 거래량을 기록한 상위 10명에게 특별 보너스를 지급합니다.</div>
+                <div class="event-info">
+                    <span>기간: 2025.02.01 ~ 02.28</span>
+                    <span class="event-prize">총 상금: $5,000</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title">🏆 트레이딩 대회 <span class="badge hot">HOT</span></div>
+        <div class="event-grid">
+            <div class="comp-card">
+                <div class="comp-rank">주최: Bitget x 1% Trading</div>
+                <div class="comp-title">BTC/USDT 수익률 대회 Season 3</div>
+                <div class="comp-details">
+                    <span>기간: 2025.02.10 ~ 03.10</span>
+                    <span>참가자: 342명</span>
+                </div>
+                <div style="margin-top: 10px;">
+                    <span class="comp-prize-amount">총 상금 $10,000 USDT</span>
+                </div>
+            </div>
+            <div class="comp-card">
+                <div class="comp-rank">주최: Gate.io x 1% Trading</div>
+                <div class="comp-title">알트코인 선물 트레이딩 챌린지</div>
+                <div class="comp-details">
+                    <span>기간: 2025.03.01 ~ 03.31</span>
+                    <span>참가자: 모집중</span>
+                </div>
+                <div style="margin-top: 10px;">
+                    <span class="comp-prize-amount">총 상금 $5,000 USDT</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이용약관 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-card: #16161f;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 24px; z-index: 1000;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-title {
+            margin-left: 16px; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .container { max-width: 700px; margin: 0 auto; padding: 80px 24px 40px; }
+        .page-header { text-align: center; margin-bottom: 32px; }
+        .page-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .page-header p { font-size: 13px; color: var(--text-muted); }
+        .article {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 24px; margin-bottom: 16px;
+        }
+        .article h2 { font-size: 15px; font-weight: 700; margin-bottom: 12px; color: var(--accent-cyan); }
+        .article p, .article li {
+            font-size: 13px; color: var(--text-secondary); line-height: 1.8;
+        }
+        .article ul { padding-left: 20px; margin-top: 8px; }
+        .article li { margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">&larr; 돌아가기</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>이용약관</h1>
+            <p>최종 수정일: 2025년 2월 15일</p>
+        </div>
+
+        <div class="article">
+            <h2>제1조 (목적)</h2>
+            <p>본 약관은 1% Trading PRO(이하 "서비스")의 이용에 관한 기본적인 사항을 규정함을 목적으로 합니다.</p>
+        </div>
+
+        <div class="article">
+            <h2>제2조 (정의)</h2>
+            <ul>
+                <li><strong>"서비스"</strong>란 1% Trading PRO가 제공하는 암호화폐 거래소 수수료 Reward 서비스를 말합니다.</li>
+                <li><strong>"이용자"</strong>란 본 서비스에 접속하여 약관에 따라 서비스를 이용하는 자를 말합니다.</li>
+                <li><strong>"Reward"</strong>란 제휴 거래소를 통해 발생한 거래 수수료의 일정 비율을 이용자에게 돌려주는 것을 의미합니다.</li>
+            </ul>
+        </div>
+
+        <div class="article">
+            <h2>제3조 (서비스 내용)</h2>
+            <p>서비스는 다음과 같은 기능을 제공합니다:</p>
+            <ul>
+                <li>제휴 거래소 레퍼럴 가입 안내</li>
+                <li>거래 수수료 Reward 정산 및 지급</li>
+                <li>거래소별 수수료 비교 정보 제공</li>
+                <li>리워드 계산기 등 부가 서비스</li>
+            </ul>
+        </div>
+
+        <div class="article">
+            <h2>제4조 (Reward 정책)</h2>
+            <ul>
+                <li>Reward율은 거래소와의 제휴 조건에 따라 변동될 수 있습니다.</li>
+                <li>Reward는 선물(Futures) 거래에만 적용됩니다.</li>
+                <li>정산 주기는 주 단위이며, 거래소 사정에 따라 변동될 수 있습니다.</li>
+                <li>비정상적인 거래(자전거래 등)는 Reward 지급 대상에서 제외됩니다.</li>
+            </ul>
+        </div>
+
+        <div class="article">
+            <h2>제5조 (이용자 의무)</h2>
+            <ul>
+                <li>이용자는 정확한 정보를 제공해야 하며, 허위 정보 제공 시 서비스 이용이 제한될 수 있습니다.</li>
+                <li>이용자는 타인의 정보를 도용하여 서비스를 이용해서는 안 됩니다.</li>
+                <li>서비스의 정상적 운영을 방해하는 행위를 해서는 안 됩니다.</li>
+            </ul>
+        </div>
+
+        <div class="article">
+            <h2>제6조 (면책)</h2>
+            <ul>
+                <li>서비스는 거래소의 거래 서비스 자체를 제공하지 않으며, 거래로 인한 손실에 대해 책임을 지지 않습니다.</li>
+                <li>거래소의 정책 변경, 서비스 중단 등으로 인한 Reward 변동에 대해 책임을 지지 않습니다.</li>
+                <li>투자에 대한 모든 책임은 이용자 본인에게 있습니다.</li>
+            </ul>
+        </div>
+
+        <div class="article">
+            <h2>제7조 (약관 변경)</h2>
+            <p>본 약관은 서비스의 정책에 따라 변경될 수 있으며, 변경 시 서비스 내 공지를 통해 안내합니다. 변경된 약관은 공지 후 7일이 경과한 시점부터 효력이 발생합니다.</p>
+        </div>
+    </div>
+</body>
+</html>

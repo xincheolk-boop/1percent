@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뉴스 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #009985;
+            --accent-red: #dc2626;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .top-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: rgba(10,10,15,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            z-index: 1000;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-title {
+            margin-left: 16px;
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 80px 24px 40px;
+        }
+        .page-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .page-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .page-header p { font-size: 14px; color: var(--text-secondary); }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+        .tab {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab.active { background: var(--bg-card); color: var(--accent-cyan); font-weight: 600; }
+        .tab:hover { color: var(--text-primary); }
+        .news-list { display: flex; flex-direction: column; gap: 16px; }
+        .news-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .news-item:hover { background: var(--bg-card-hover); border-color: rgba(255,255,255,0.15); }
+        .news-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .news-tag {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+        }
+        .news-tag.market { background: rgba(0,184,217,0.15); color: var(--accent-cyan); }
+        .news-tag.exchange { background: rgba(0,153,133,0.15); color: var(--accent-green); }
+        .news-tag.regulation { background: rgba(220,38,38,0.15); color: var(--accent-red); }
+        .news-tag.defi { background: rgba(147,51,234,0.15); color: var(--accent-purple); }
+        .news-date { font-size: 11px; color: var(--text-muted); }
+        .news-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; line-height: 1.5; }
+        .news-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+        .live-badge {
+            display: inline-block;
+            width: 8px; height: 8px;
+            background: var(--accent-red);
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            margin-right: 4px;
+        }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">&larr; 돌아가기</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1><span class="live-badge"></span> 실시간 뉴스</h1>
+            <p>암호화폐 시장의 최신 소식을 빠르게 전달합니다</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active">전체</div>
+            <div class="tab">시장분석</div>
+            <div class="tab">거래소</div>
+            <div class="tab">규제</div>
+            <div class="tab">DeFi</div>
+        </div>
+
+        <div class="news-list">
+            <div class="news-item">
+                <div class="news-meta">
+                    <span class="news-tag market">시장분석</span>
+                    <span class="news-date">2025.02.15 14:32</span>
+                </div>
+                <div class="news-title">비트코인 $98,000 돌파, 10만 달러 목전</div>
+                <div class="news-desc">비트코인이 강한 매수세에 힘입어 $98,000을 돌파했다. 기관 투자자들의 ETF 유입이 지속되면서 10만 달러 돌파에 대한 기대감이 높아지고 있다.</div>
+            </div>
+            <div class="news-item">
+                <div class="news-meta">
+                    <span class="news-tag exchange">거래소</span>
+                    <span class="news-date">2025.02.15 13:15</span>
+                </div>
+                <div class="news-title">Bitget, 2025년 1분기 거래량 역대 최고 기록</div>
+                <div class="news-desc">글로벌 암호화폐 거래소 Bitget이 2025년 1분기 선물 거래량에서 역대 최고치를 경신했다고 발표했다.</div>
+            </div>
+            <div class="news-item">
+                <div class="news-meta">
+                    <span class="news-tag regulation">규제</span>
+                    <span class="news-date">2025.02.15 11:48</span>
+                </div>
+                <div class="news-title">미 SEC, 암호화폐 규제 프레임워크 초안 공개</div>
+                <div class="news-desc">미국 증권거래위원회(SEC)가 암호화폐 산업에 대한 새로운 규제 프레임워크 초안을 공개했다. 업계는 이를 긍정적 신호로 해석하고 있다.</div>
+            </div>
+            <div class="news-item">
+                <div class="news-meta">
+                    <span class="news-tag defi">DeFi</span>
+                    <span class="news-date">2025.02.15 10:22</span>
+                </div>
+                <div class="news-title">이더리움 L2 TVL $50B 돌파, Arbitrum 선두 유지</div>
+                <div class="news-desc">이더리움 레이어2 솔루션의 총 예치 자산(TVL)이 500억 달러를 돌파했다. Arbitrum이 여전히 선두를 유지하고 있으며, Base가 빠르게 성장 중이다.</div>
+            </div>
+            <div class="news-item">
+                <div class="news-meta">
+                    <span class="news-tag market">시장분석</span>
+                    <span class="news-date">2025.02.15 09:05</span>
+                </div>
+                <div class="news-title">알트코인 시즌 신호? 도미넌스 하락세 지속</div>
+                <div class="news-desc">비트코인 도미넌스가 52%대로 하락하면서 알트코인 시즌에 대한 기대감이 커지고 있다. SOL, AVAX, LINK 등 주요 알트코인이 강세를 보이고 있다.</div>
+            </div>
+            <div class="news-item">
+                <div class="news-meta">
+                    <span class="news-tag exchange">거래소</span>
+                    <span class="news-date">2025.02.14 22:30</span>
+                </div>
+                <div class="news-title">Gate.io, 신규 선물 페어 20종 추가 상장</div>
+                <div class="news-desc">Gate.io가 AI, RWA, GameFi 관련 토큰 20종에 대한 선물 거래를 새롭게 지원한다고 발표했다.</div>
+            </div>
+            <div class="news-item">
+                <div class="news-meta">
+                    <span class="news-tag market">시장분석</span>
+                    <span class="news-date">2025.02.14 18:45</span>
+                </div>
+                <div class="news-title">기관 투자자 BTC 매수 가속화, 주간 $2.1B 유입</div>
+                <div class="news-desc">비트코인 현물 ETF로의 자금 유입이 주간 21억 달러를 기록하며 사상 최고치를 경신했다. BlackRock의 IBIT이 유입을 주도하고 있다.</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

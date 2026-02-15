@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서비스소개 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #009985;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 24px; z-index: 1000;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-title {
+            margin-left: 16px; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .container { max-width: 700px; margin: 0 auto; padding: 80px 24px 40px; }
+        .hero-section { text-align: center; margin-bottom: 48px; }
+        .hero-section h1 {
+            font-size: 28px; font-weight: 800; margin-bottom: 12px; line-height: 1.4;
+        }
+        .hero-gradient {
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero-section p { font-size: 15px; color: var(--text-secondary); line-height: 1.7; }
+        .stat-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 48px;
+        }
+        .stat-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 24px; text-align: center;
+        }
+        .stat-value {
+            font-family: 'Orbitron', monospace; font-size: 24px; font-weight: 800;
+            margin-bottom: 6px;
+        }
+        .stat-value.cyan { color: var(--accent-cyan); }
+        .stat-value.purple { color: var(--accent-purple); }
+        .stat-value.green { color: var(--accent-green); }
+        .stat-label { font-size: 12px; color: var(--text-muted); }
+        .section { margin-bottom: 40px; }
+        .section h2 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+        .feature-grid { display: flex; flex-direction: column; gap: 12px; }
+        .feature-item {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; padding: 20px;
+            display: flex; gap: 16px; align-items: flex-start;
+        }
+        .feature-icon { font-size: 24px; min-width: 32px; text-align: center; }
+        .feature-text h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+        .feature-text p { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+        .process-flow {
+            display: flex; align-items: center; justify-content: center;
+            gap: 12px; flex-wrap: wrap; margin-top: 8px;
+        }
+        .process-step {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 10px; padding: 16px 20px; text-align: center; min-width: 120px;
+        }
+        .process-step .icon { font-size: 24px; margin-bottom: 6px; }
+        .process-step .label { font-size: 13px; font-weight: 600; }
+        .process-arrow { font-size: 18px; color: var(--text-muted); }
+        .cta-section {
+            text-align: center; padding: 32px;
+            background: linear-gradient(135deg, rgba(0,184,217,0.08), rgba(147,51,234,0.08));
+            border: 1px solid rgba(0,184,217,0.15); border-radius: 16px;
+        }
+        .cta-section h2 { font-size: 18px; margin-bottom: 8px; }
+        .cta-section p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+        .cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        .cta-btn-primary {
+            padding: 12px 28px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            color: #000; font-size: 14px; font-weight: 700;
+            border-radius: 8px; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn-secondary {
+            padding: 12px 28px;
+            background: transparent; border: 1px solid var(--border-color);
+            color: var(--text-primary); font-size: 14px; font-weight: 600;
+            border-radius: 8px; text-decoration: none; transition: all 0.2s;
+        }
+        .cta-btn-primary:hover, .cta-btn-secondary:hover { opacity: 0.9; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">&larr; 돌아가기</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="hero-section">
+            <h1>거래할수록 돌려받는<br><span class="hero-gradient">수수료 Reward 플랫폼</span></h1>
+            <p>1% Trading PRO는 글로벌 암호화폐 거래소와 제휴하여,<br>
+            선물 거래 수수료의 최대 85%를 트레이더에게 돌려드립니다.</p>
+        </div>
+
+        <div class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-value cyan">85%</div>
+                <div class="stat-label">최대 Reward율</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value purple">8+</div>
+                <div class="stat-label">제휴 거래소</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value green">0원</div>
+                <div class="stat-label">이용 수수료</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>이용 프로세스</h2>
+            <div class="process-flow">
+                <div class="process-step">
+                    <div class="icon">📝</div>
+                    <div class="label">거래소 가입</div>
+                </div>
+                <span class="process-arrow">→</span>
+                <div class="process-step">
+                    <div class="icon">🔗</div>
+                    <div class="label">UID 연동</div>
+                </div>
+                <span class="process-arrow">→</span>
+                <div class="process-step">
+                    <div class="icon">📊</div>
+                    <div class="label">거래</div>
+                </div>
+                <span class="process-arrow">→</span>
+                <div class="process-step">
+                    <div class="icon">💰</div>
+                    <div class="label">Reward 수령</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>핵심 특징</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <span class="feature-icon">💸</span>
+                    <div class="feature-text">
+                        <h3>업계 최고 Reward율</h3>
+                        <p>Bitget 85%, Gate.io 80% 등 시장 최고 수준의 Reward율을 제공합니다.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">⚡</span>
+                    <div class="feature-text">
+                        <h3>빠른 정산</h3>
+                        <p>주 단위로 자동 정산되며, 텔레그램 알림을 통해 실시간으로 확인 가능합니다.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🛡️</span>
+                    <div class="feature-text">
+                        <h3>투명한 운영</h3>
+                        <p>모든 거래 내역과 Reward 정산은 투명하게 공개되며 검증 가능합니다.</p>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🌍</span>
+                    <div class="feature-text">
+                        <h3>글로벌 서비스</h3>
+                        <p>한국어, 영어, 중국어, 일본어, 베트남어 등 다국어를 지원합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cta-section">
+            <h2>지금 바로 시작하세요</h2>
+            <p>가입 후 거래만 하면 자동으로 Reward를 받을 수 있습니다</p>
+            <div class="cta-buttons">
+                <a href="exchanges.html" class="cta-btn-primary">거래소 가입하기</a>
+                <a href="guide.html" class="cta-btn-secondary">이용 가이드 보기</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

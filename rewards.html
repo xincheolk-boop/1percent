@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>리워드 계산기 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #009985;
+            --accent-red: #dc2626;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 24px; z-index: 1000;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-title {
+            margin-left: 16px; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .container { max-width: 600px; margin: 0 auto; padding: 80px 24px 40px; }
+        .page-header { text-align: center; margin-bottom: 32px; }
+        .page-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+        .page-header p { font-size: 14px; color: var(--text-secondary); }
+        .calc-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 28px; margin-bottom: 24px;
+        }
+        .calc-group { margin-bottom: 20px; }
+        .calc-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+        .calc-select, .calc-input {
+            width: 100%; padding: 12px 16px;
+            background: var(--bg-primary); border: 1px solid var(--border-color);
+            border-radius: 10px; color: var(--text-primary);
+            font-size: 14px; font-family: inherit; outline: none;
+            transition: border-color 0.2s;
+        }
+        .calc-select:focus, .calc-input:focus { border-color: var(--accent-cyan); }
+        .calc-select option { background: var(--bg-primary); }
+        .calc-row { display: flex; gap: 12px; }
+        .calc-row .calc-group { flex: 1; }
+        .calc-btn {
+            width: 100%; padding: 14px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none; border-radius: 10px;
+            color: #000; font-size: 15px; font-weight: 700;
+            cursor: pointer; transition: all 0.2s; font-family: inherit;
+        }
+        .calc-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .result-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 16px; padding: 28px; text-align: center;
+            display: none;
+        }
+        .result-card.show { display: block; }
+        .result-label { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+        .result-value {
+            font-family: 'Orbitron', monospace; font-size: 32px; font-weight: 800;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+        .result-sub { font-size: 13px; color: var(--text-secondary); }
+        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+        .result-item {
+            background: var(--bg-primary); border-radius: 10px; padding: 16px; text-align: center;
+        }
+        .result-item-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
+        .result-item-value { font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700; }
+        .result-item-value.cyan { color: var(--accent-cyan); }
+        .result-item-value.purple { color: var(--accent-purple); }
+        .result-item-value.green { color: var(--accent-green); }
+        .result-item-value.red { color: var(--accent-red); }
+        .info-box {
+            margin-top: 24px; padding: 20px;
+            background: rgba(0,184,217,0.05); border: 1px solid rgba(0,184,217,0.15);
+            border-radius: 12px;
+        }
+        .info-box h3 { font-size: 14px; margin-bottom: 12px; color: var(--accent-cyan); }
+        .info-box ul { list-style: none; }
+        .info-box li {
+            font-size: 13px; color: var(--text-secondary); padding: 6px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .info-box li:last-child { border-bottom: none; }
+        .info-box li strong { color: var(--text-primary); }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">&larr; 돌아가기</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>💰 리워드 계산기</h1>
+            <p>나의 거래량으로 예상 Reward를 계산해보세요</p>
+        </div>
+
+        <div class="calc-card">
+            <div class="calc-group">
+                <div class="calc-label">거래소 선택</div>
+                <select class="calc-select" id="calcExchange" onchange="updateCalc()">
+                    <option value="bitget">Bitget (85% Reward)</option>
+                    <option value="gate">Gate.io (80% Reward)</option>
+                </select>
+            </div>
+            <div class="calc-row">
+                <div class="calc-group">
+                    <div class="calc-label">일 평균 거래량 (USDT)</div>
+                    <input type="number" class="calc-input" id="calcVolume" placeholder="10000" value="10000" oninput="updateCalc()">
+                </div>
+                <div class="calc-group">
+                    <div class="calc-label">주문 유형</div>
+                    <select class="calc-select" id="calcOrderType" onchange="updateCalc()">
+                        <option value="maker">지정가 (Maker)</option>
+                        <option value="taker">시장가 (Taker)</option>
+                        <option value="mixed">혼합 (50:50)</option>
+                    </select>
+                </div>
+            </div>
+            <button class="calc-btn" onclick="showResult()">Reward 계산하기</button>
+        </div>
+
+        <div class="result-card" id="resultCard">
+            <div class="result-label">예상 월간 Reward</div>
+            <div class="result-value" id="monthlyReward">$0.00</div>
+            <div class="result-sub" id="resultDesc">Bitget 85% Reward 기준</div>
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-item-label">일간 수수료</div>
+                    <div class="result-item-value cyan" id="dailyFee">$0.00</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-item-label">일간 Reward</div>
+                    <div class="result-item-value green" id="dailyReward">$0.00</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-item-label">월간 수수료</div>
+                    <div class="result-item-value purple" id="monthlyFee">$0.00</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-item-label">연간 Reward</div>
+                    <div class="result-item-value red" id="yearlyReward">$0.00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3>거래소별 수수료 & Reward율</h3>
+            <ul>
+                <li><strong>Bitget</strong> — 지정가 0.002% / 시장가 0.004% — <strong>Reward 85%</strong></li>
+                <li><strong>Gate.io</strong> — 지정가 0.004% / 시장가 0.01% — <strong>Reward 80%</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const feeData = {
+            bitget: { maker: 0.00002, taker: 0.00004, reward: 0.85, name: 'Bitget', rate: '85%' },
+            gate:   { maker: 0.00004, taker: 0.0001,  reward: 0.80, name: 'Gate.io', rate: '80%' }
+        };
+
+        function updateCalc() {
+            const card = document.getElementById('resultCard');
+            if (card.classList.contains('show')) showResult();
+        }
+
+        function showResult() {
+            const exchange = document.getElementById('calcExchange').value;
+            const volume = parseFloat(document.getElementById('calcVolume').value) || 0;
+            const orderType = document.getElementById('calcOrderType').value;
+            const data = feeData[exchange];
+
+            let feeRate;
+            if (orderType === 'maker') feeRate = data.maker;
+            else if (orderType === 'taker') feeRate = data.taker;
+            else feeRate = (data.maker + data.taker) / 2;
+
+            const dailyFee = volume * feeRate;
+            const dailyRwd = dailyFee * data.reward;
+            const monthlyFee = dailyFee * 30;
+            const monthlyRwd = dailyRwd * 30;
+            const yearlyRwd = dailyRwd * 365;
+
+            document.getElementById('dailyFee').textContent = '$' + dailyFee.toFixed(2);
+            document.getElementById('dailyReward').textContent = '$' + dailyRwd.toFixed(2);
+            document.getElementById('monthlyFee').textContent = '$' + monthlyFee.toFixed(2);
+            document.getElementById('monthlyReward').textContent = '$' + monthlyRwd.toFixed(2);
+            document.getElementById('yearlyReward').textContent = '$' + yearlyRwd.toFixed(2);
+            document.getElementById('resultDesc').textContent = data.name + ' ' + data.rate + ' Reward 기준';
+
+            document.getElementById('resultCard').classList.add('show');
+        }
+    </script>
+</body>
+</html>
