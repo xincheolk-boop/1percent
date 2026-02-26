@@ -506,6 +506,46 @@
         .futures-card .value.red { color: var(--accent-red); text-shadow: 0 0 8px rgba(220,38,38,0.5); }
         .futures-card .sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
 
+        /* ===== 명예의 전당 ===== */
+        .hof-grid { display: flex; flex-direction: column; gap: 8px; }
+        .hof-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; transition: background 0.2s;
+        }
+        .hof-item:hover { background: var(--bg-card-hover); }
+        .hof-item.top1 { border-color: rgba(255,215,0,0.35); background: rgba(255,215,0,0.04); }
+        .hof-item.top2 { border-color: rgba(192,192,192,0.3); background: rgba(192,192,192,0.03); }
+        .hof-item.top3 { border-color: rgba(205,127,50,0.3); background: rgba(205,127,50,0.03); }
+        .hof-rank {
+            font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700;
+            width: 28px; text-align: center; flex-shrink: 0;
+        }
+        .hof-rank.r1 { color: #FFD700; }
+        .hof-rank.r2 { color: #C0C0C0; }
+        .hof-rank.r3 { color: #CD7F32; }
+        .hof-rank.rn { color: var(--text-muted); }
+        .hof-avatar {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 700; color: #000; flex-shrink: 0;
+        }
+        .hof-info { flex: 1; min-width: 0; }
+        .hof-name { font-size: 13px; font-weight: 600; }
+        .hof-ex { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .hof-reward {
+            font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700;
+            color: var(--accent-cyan); text-align: right;
+        }
+        .hof-reward small { display: block; font-size: 9px; color: var(--text-muted); font-family: inherit; font-weight: 400; margin-top: 2px; }
+        .hof-notice {
+            margin-top: 12px; padding: 10px 14px;
+            background: rgba(0,184,217,0.05); border: 1px solid rgba(0,184,217,0.12);
+            border-radius: 8px; font-size: 11px; color: var(--text-muted); text-align: center;
+        }
+
         /* 뉴스 + 제휴거래소 */
         .content-section { margin-bottom: 24px; }
         .section-header {
@@ -1180,7 +1220,7 @@
                         <div class="ex-info">
                             <div class="ex-name okx">OKX <span class="badge new">NEW</span></div>
                         </div>
-                        <div class="ex-rate okx">80%</div>
+                        <div class="ex-rate okx">50%</div>
                         <div class="ex-fee">0.004%</div>
                         <div class="ex-fee">0.01%</div>
                         <button class="ex-btn okx" onclick="window.open('https://okx.com/join/84293762')">가입</button>
@@ -1191,7 +1231,7 @@
                         <div class="ex-info">
                             <div class="ex-name gate">Gate.io</div>
                         </div>
-                        <div class="ex-rate gate">80%</div>
+                        <div class="ex-rate gate">70%</div>
                         <div class="ex-fee">0.004%</div>
                         <div class="ex-fee">0.01%</div>
                         <button class="ex-btn gate" onclick="window.open('https://www.gate.com/share/VQQVVAOMBG')">가입</button>
@@ -1205,7 +1245,7 @@
                         <div class="ex-rate bybit">--%</div>
                         <div class="ex-fee">0.01%</div>
                         <div class="ex-fee">0.03%</div>
-                        <button class="ex-btn bybit" onclick="window.open('https://www.bybit.com/register')">가입</button>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled>준비중</button>
                     </div>
                     <!-- Binance -->
                     <div class="exchange-item">
@@ -1216,7 +1256,7 @@
                         <div class="ex-rate binance">--%</div>
                         <div class="ex-fee">0.0096%</div>
                         <div class="ex-fee">0.024%</div>
-                        <button class="ex-btn binance" onclick="window.open('https://www.binance.com/register')">가입</button>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled>준비중</button>
                     </div>
                     <!-- MEXC -->
                     <div class="exchange-item">
@@ -1227,7 +1267,7 @@
                         <div class="ex-rate mexc">--%</div>
                         <div class="ex-fee">0%</div>
                         <div class="ex-fee">0.01%</div>
-                        <button class="ex-btn mexc" onclick="window.open('https://www.mexc.com/register')">가입</button>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled>준비중</button>
                     </div>
                     <!-- BingX -->
                     <div class="exchange-item">
@@ -1238,7 +1278,7 @@
                         <div class="ex-rate bingx">--%</div>
                         <div class="ex-fee">0.008%</div>
                         <div class="ex-fee">0.02%</div>
-                        <button class="ex-btn bingx" onclick="window.open('https://bingx.com/register')">가입</button>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled>준비중</button>
                     </div>
                     <!-- Bitunix -->
                     <div class="exchange-item">
@@ -1249,10 +1289,67 @@
                         <div class="ex-rate bitunix">--%</div>
                         <div class="ex-fee">0.003%</div>
                         <div class="ex-fee">0.009%</div>
-                        <button class="ex-btn bitunix" onclick="window.open('https://www.bitunix.com/register')">가입</button>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled>준비중</button>
                     </div>
                 </div>
             </div>
+
+            <!-- 명예의 전당 -->
+            <div class="content-section">
+                <div class="section-header">
+                    <div class="section-title">🏆 명예의 전당</div>
+                    <div class="section-more" onclick="location.href='rewards.html'">Reward 계산 →</div>
+                </div>
+                <div class="hof-grid">
+                    <div class="hof-item top1">
+                        <div class="hof-rank r1">🥇</div>
+                        <div class="hof-avatar">K</div>
+                        <div class="hof-info">
+                            <div class="hof-name">k***r</div>
+                            <div class="hof-ex">Bitget · 이번 달</div>
+                        </div>
+                        <div class="hof-reward">$2,847.30<small>이번 달 Reward</small></div>
+                    </div>
+                    <div class="hof-item top2">
+                        <div class="hof-rank r2">🥈</div>
+                        <div class="hof-avatar">T</div>
+                        <div class="hof-info">
+                            <div class="hof-name">tra****</div>
+                            <div class="hof-ex">Bitget · 이번 달</div>
+                        </div>
+                        <div class="hof-reward">$1,523.70<small>이번 달 Reward</small></div>
+                    </div>
+                    <div class="hof-item top3">
+                        <div class="hof-rank r3">🥉</div>
+                        <div class="hof-avatar">M</div>
+                        <div class="hof-info">
+                            <div class="hof-name">m***8</div>
+                            <div class="hof-ex">OKX · 이번 달</div>
+                        </div>
+                        <div class="hof-reward">$987.50<small>이번 달 Reward</small></div>
+                    </div>
+                    <div class="hof-item">
+                        <div class="hof-rank rn">4</div>
+                        <div class="hof-avatar" style="background:linear-gradient(135deg,#f7931a,#dc2626);">S</div>
+                        <div class="hof-info">
+                            <div class="hof-name">sun***</div>
+                            <div class="hof-ex">Gate.io · 이번 달</div>
+                        </div>
+                        <div class="hof-reward">$631.20<small>이번 달 Reward</small></div>
+                    </div>
+                    <div class="hof-item">
+                        <div class="hof-rank rn">5</div>
+                        <div class="hof-avatar" style="background:linear-gradient(135deg,#9333ea,#6366f1);">J</div>
+                        <div class="hof-info">
+                            <div class="hof-name">j***n</div>
+                            <div class="hof-ex">Bitget · 이번 달</div>
+                        </div>
+                        <div class="hof-reward">$412.80<small>이번 달 Reward</small></div>
+                    </div>
+                </div>
+                <div class="hof-notice">📊 매월 1일 갱신 · Reward 수령 확인 후 등록 · 프라이버시 보호를 위해 ID 일부 마스킹</div>
+            </div>
+
         </main>
 
         <!-- 오른쪽 사이드바 -->

@@ -130,7 +130,8 @@
                 <div class="calc-label">거래소 선택</div>
                 <select class="calc-select" id="calcExchange" onchange="updateCalc()">
                     <option value="bitget">Bitget (85% Reward)</option>
-                    <option value="gate">Gate.io (80% Reward)</option>
+                    <option value="okx">OKX (50% Reward)</option>
+                    <option value="gate">Gate.io (70% Reward)</option>
                 </select>
             </div>
             <div class="calc-row">
@@ -178,15 +179,17 @@
             <h3>거래소별 수수료 & Reward율</h3>
             <ul>
                 <li><strong>Bitget</strong> — 지정가 0.002% / 시장가 0.004% — <strong>Reward 85%</strong></li>
-                <li><strong>Gate.io</strong> — 지정가 0.004% / 시장가 0.01% — <strong>Reward 80%</strong></li>
+                <li><strong>OKX</strong> — 지정가 0.004% / 시장가 0.01% — <strong>Reward 50%</strong></li>
+                <li><strong>Gate.io</strong> — 지정가 0.004% / 시장가 0.01% — <strong>Reward 70%</strong></li>
             </ul>
         </div>
     </div>
 
     <script>
         const feeData = {
-            bitget: { maker: 0.00002, taker: 0.00004, reward: 0.85, name: 'Bitget', rate: '85%' },
-            gate:   { maker: 0.00004, taker: 0.0001,  reward: 0.80, name: 'Gate.io', rate: '80%' }
+            bitget: { maker: 0.00002, taker: 0.00004, reward: 0.85, name: 'Bitget',  rate: '85%' },
+            okx:    { maker: 0.00004, taker: 0.0001,  reward: 0.50, name: 'OKX',     rate: '50%' },
+            gate:   { maker: 0.00004, taker: 0.0001,  reward: 0.70, name: 'Gate.io', rate: '70%' }
         };
 
         function updateCalc() {
