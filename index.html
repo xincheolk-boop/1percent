@@ -1264,6 +1264,7 @@
                     <div class="sr-tab active" onclick="switchCoinTab('price', this)">💲 시세</div>
                     <div class="sr-tab" onclick="switchCoinTab('up', this)">🔥</div>
                     <div class="sr-tab" onclick="switchCoinTab('down', this)">💧</div>
+                    <div class="sr-tab" onclick="switchCoinTab('vol', this)">📊</div>
                 </div>
                 <div class="sr-coin-header">
                     <span class="col-name">페어명</span>
@@ -1346,6 +1347,10 @@
                         <span class="sr-coin-change up">+9.8%</span>
                     </div>
                 </div>
+                <!-- 거래량 급증 -->
+                <div class="sr-coin-list" id="coinListVol">
+                    <div class="sr-coin-item"><span class="sr-coin-rank">-</span><span class="sr-coin-name" style="color:var(--text-muted)">로딩중...</span></div>
+                </div>
                 <!-- 급락 -->
                 <div class="sr-coin-list" id="coinListDown">
                     <div class="sr-coin-item">
@@ -1406,29 +1411,15 @@
             <!-- 코인 주요 일정 -->
             <div class="sr-section">
                 <div class="sr-title">📅 코인 주요 일정 <span class="sr-more" onclick="location.href='events.html'">더보기→</span></div>
-                <div class="sr-sch-item">
-                    <div class="sr-sch-head">
-                        <span class="sr-sch-day">23</span>
-                        <span class="sr-sch-dow">금요일</span>
+                <div id="calendarContainer">
+                    <div class="sr-sch-item">
+                        <div class="sr-sch-head">
+                            <span class="sr-sch-day">--</span>
+                            <span class="sr-sch-dow">로딩중</span>
+                        </div>
+                        <div class="sr-sch-tag">#주요이슈</div>
+                        <div class="sr-sch-title">일정 불러오는 중...</div>
                     </div>
-                    <div class="sr-sch-tag">#주요이슈</div>
-                    <div class="sr-sch-title">일본 금리결정</div>
-                </div>
-                <div class="sr-sch-item">
-                    <div class="sr-sch-head">
-                        <span class="sr-sch-day">25</span>
-                        <span class="sr-sch-dow">일요일</span>
-                    </div>
-                    <div class="sr-sch-tag">#프로젝트</div>
-                    <div class="sr-sch-title">H, 총 유통량의 4.57% 언락</div>
-                </div>
-                <div class="sr-sch-item">
-                    <div class="sr-sch-head">
-                        <span class="sr-sch-day">26</span>
-                        <span class="sr-sch-dow">월요일</span>
-                    </div>
-                    <div class="sr-sch-tag">#거래소</div>
-                    <div class="sr-sch-title">빗썸, EVZ 상장 폐지</div>
                 </div>
             </div>
         </aside>
@@ -1898,9 +1889,12 @@
             } else if (type === 'up') {
                 el.classList.add('active-up');
                 document.getElementById('coinListUp').classList.add('active');
-            } else {
+            } else if (type === 'down') {
                 el.classList.add('active-down');
                 document.getElementById('coinListDown').classList.add('active');
+            } else if (type === 'vol') {
+                el.classList.add('active');
+                document.getElementById('coinListVol').classList.add('active');
             }
         }
 
@@ -2006,17 +2000,34 @@
                     renderCoin(i+1, getCoinName(c.symbol), c.lastPrice, c.priceChangePercent)
                 ).join('');
 
-                // 급등 탭
+                // 급등 탭 (상위 10개)
                 const sorted = [...pairs].sort((a,b) => parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent));
-                document.getElementById('coinListUp').innerHTML = sorted.slice(0,5).map((c,i) =>
+                document.getElementById('coinListUp').innerHTML = sorted.slice(0,10).map((c,i) =>
                     renderCoin(i+1, getCoinName(c.symbol), c.lastPrice, c.priceChangePercent)
                 ).join('');
 
-                // 급락 탭
+                // 급락 탭 (하위 10개)
                 const losers = [...pairs].sort((a,b) => parseFloat(a.priceChangePercent) - parseFloat(b.priceChangePercent));
-                document.getElementById('coinListDown').innerHTML = losers.slice(0,5).map((c,i) =>
+                document.getElementById('coinListDown').innerHTML = losers.slice(0,10).map((c,i) =>
                     renderCoin(i+1, getCoinName(c.symbol), c.lastPrice, c.priceChangePercent)
                 ).join('');
+
+                // 거래량 급증 탭 (24h 거래대금 상위 10개, 주요 코인 제외)
+                const volCoins = [...pairs]
+                    .filter(c => !['BTCUSDT','ETHUSDT'].includes(c.symbol))
+                    .sort((a,b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume));
+                document.getElementById('coinListVol').innerHTML = volCoins.slice(0,10).map((c,i) => {
+                    const vol = parseFloat(c.quoteVolume);
+                    const volStr = vol >= 1e9 ? '$' + (vol/1e9).toFixed(1) + 'B' : '$' + (vol/1e6).toFixed(0) + 'M';
+                    const cls = parseFloat(c.priceChangePercent) >= 0 ? 'up' : 'down';
+                    const binanceUrl = 'https://www.binance.com/en/trade/' + getCoinName(c.symbol) + '_USDT';
+                    return '<div class="sr-coin-item" onclick="window.open(\'' + binanceUrl + '\')" style="cursor:pointer;">' +
+                        '<span class="sr-coin-rank">' + (i+1) + '</span>' +
+                        '<img class="sr-coin-icon" src="' + coinIcon(getCoinName(c.symbol)) + '" alt="' + getCoinName(c.symbol) + '" onerror="this.style.display=\'none\'">' +
+                        '<span class="sr-coin-name">' + getCoinName(c.symbol) + '</span>' +
+                        '<span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">' + volStr + '</span>' +
+                        '<span class="sr-coin-change ' + cls + '">' + formatChange(c.priceChangePercent) + '</span></div>';
+                }).join('');
             } catch(e) { console.warn('Coin fetch fail:', e); }
         }
 
@@ -2115,6 +2126,28 @@
             } catch(e) { console.warn('News fetch fail:', e); }
         }
 
+        // 코인 주요 일정 (CoinMarketCal via Worker)
+        async function loadCalendar() {
+            try {
+                const res = await fetch('/api/calendar');
+                const data = await res.json();
+                if (!data.events || data.events.length === 0) return; // API 키 미설정 시 정적 유지
+                const container = document.getElementById('calendarContainer');
+                if (!container) return;
+                container.innerHTML = data.events.slice(0, 5).map(e => {
+                    const title = e.title + (e.coins.length ? ' (' + e.coins.join(', ') + ')' : '');
+                    return '<div class="sr-sch-item">' +
+                        '<div class="sr-sch-head">' +
+                            '<span class="sr-sch-day">' + e.day + '</span>' +
+                            '<span class="sr-sch-dow">' + e.dow + '요일</span>' +
+                        '</div>' +
+                        '<div class="sr-sch-tag">#' + e.category + '</div>' +
+                        '<div class="sr-sch-title">' + (title.length > 32 ? title.slice(0,32) + '…' : title) + '</div>' +
+                    '</div>';
+                }).join('');
+            } catch(e) { /* 오류 시 정적 콘텐츠 유지 */ }
+        }
+
         // 데이터 로딩 & 자동 갱신
         function loadAllData() {
             fetchCoinData();
@@ -2124,10 +2157,12 @@
         // 초기 로드
         loadAllData();
         fetchNews();
+        loadCalendar();
 
         // 자동 갱신: 시세 15초, 선물 30초, 티커 4초, 뉴스 5분
-        setInterval(fetchCoinData, 15000);
+        setInterval(fetchCoinData, 300000); // 5분 갱신
         setInterval(fetchFuturesData, 30000);
+        setInterval(loadCalendar, 3600000); // 1시간 갱신
         setInterval(rotateRewardTicker, 4000);
         setInterval(fetchNews, 300000);
 

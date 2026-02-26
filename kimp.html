@@ -67,7 +67,7 @@
         /* 검색 */
         .search-bar{position:relative;margin-bottom:16px}
         .search-bar input{width:100%;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--txt);font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
-        .search-bar input:focus{border-color:var(--cyan)}
+        .search-bar input:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(0,184,217,0.15)}
         .search-bar input::placeholder{color:var(--txt3)}
 
         /* 암호화폐 수 표시 */
@@ -295,7 +295,7 @@
 
         <!-- 검색 -->
         <div class="search-bar">
-            <input type="text" id="searchInput" placeholder="BTC, 비트코인, 이더리움..." oninput="onSearch()" style="padding-left:16px">
+            <input type="text" id="searchInput" placeholder="🔍 코인명 또는 티커로 검색 (예: BTC, 비트코인)" oninput="onSearch()" style="padding-left:16px">
         </div>
 
         <div class="coin-count" id="coinCount"></div>
@@ -407,9 +407,9 @@ function fmtKRW(n) {
 function fmtVol(n) {
     if (n == null) return '-';
     if (n >= 1e12) return (n/1e12).toFixed(2) + '조';
-    if (n >= 1e8) return (n/1e8).toFixed(0) + '억';
-    if (n >= 1e4) return (n/1e4).toFixed(0) + '만';
-    return Math.round(n).toLocaleString();
+    if (n >= 1e8) return Math.round(n/1e8).toLocaleString('ko-KR') + '억';
+    if (n >= 1e4) return Math.round(n/1e4).toLocaleString('ko-KR') + '만';
+    return Math.round(n).toLocaleString('ko-KR');
 }
 function fmtUSD(n) {
     if (n == null) return '-';
