@@ -36,8 +36,16 @@ export default {
 
     // Static files
     try {
+      // Clean URL support: /admin → admin.html, /register → register.html, etc.
+      let assetRequest = request;
+      const pathname = url.pathname;
+      if (pathname !== '/' && !pathname.includes('.') && !pathname.endsWith('/')) {
+        const newUrl = new URL(request.url);
+        newUrl.pathname = pathname + '.html';
+        assetRequest = new Request(newUrl.toString(), request);
+      }
       return await getAssetFromKV(
-        { request, waitUntil: ctx.waitUntil.bind(ctx) },
+        { request: assetRequest, waitUntil: ctx.waitUntil.bind(ctx) },
         { ASSET_NAMESPACE: env.__STATIC_CONTENT, ASSET_MANIFEST: assetManifest }
       );
     } catch (e) {
