@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>코인 주요 일정 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary:#0a0a0f;--bg-secondary:#111118;--bg-card:#16161f;--bg-card-hover:#1c1c28;
+            --accent-cyan:#00b8d9;--accent-purple:#9333ea;--accent-green:#00D4A0;--accent-red:#dc2626;--accent-yellow:#fbbf24;
+            --text-primary:#fff;--text-secondary:#9ca3af;--text-muted:#6b7280;--border-color:rgba(255,255,255,0.08);
+        }
+        * { margin:0;padding:0;box-sizing:border-box; }
+        body { font-family:'Noto Sans KR',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh; }
+        .top-bar { position:fixed;top:0;left:0;right:0;height:56px;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-color);display:flex;align-items:center;padding:0 24px;z-index:1000;gap:12px; }
+        .back-btn { display:flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:8px;transition:all 0.2s; }
+        .back-btn:hover { color:var(--accent-cyan);background:var(--bg-card); }
+        .top-title { font-family:'Orbitron',monospace;font-size:16px;font-weight:700;background:linear-gradient(90deg,var(--accent-cyan),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-left:auto; }
+        .container { max-width:900px;margin:0 auto;padding:72px 24px 40px; }
+        .page-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px; }
+        .page-header h1 { font-size:22px;font-weight:700; }
+        /* 뷰 전환 */
+        .view-toggle { display:flex;gap:4px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;padding:4px; }
+        .view-btn { padding:6px 16px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text-muted);transition:all 0.2s; }
+        .view-btn.active { background:var(--accent-cyan);color:#000; }
+        /* 카테고리 필터 */
+        .filter-row { display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap; }
+        .filter-btn { padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border-color);background:var(--bg-card);color:var(--text-muted);transition:all 0.2s; }
+        .filter-btn.active { color:#fff; }
+        .filter-btn.all.active { background:var(--accent-cyan);border-color:var(--accent-cyan);color:#000; }
+        .filter-btn.macro.active { background:rgba(220,38,38,0.2);border-color:#f87171;color:#f87171; }
+        .filter-btn.exchange.active { background:rgba(251,191,36,0.2);border-color:var(--accent-yellow);color:var(--accent-yellow); }
+        .filter-btn.project.active { background:rgba(0,212,160,0.2);border-color:var(--accent-green);color:var(--accent-green); }
+        /* 월간 캘린더 */
+        .cal-view { display:none; }
+        .cal-view.active { display:block; }
+        .cal-nav { display:flex;align-items:center;justify-content:space-between;margin-bottom:16px; }
+        .cal-nav-btn { width:36px;height:36px;border-radius:8px;background:var(--bg-card);border:1px solid var(--border-color);color:var(--text-secondary);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s; }
+        .cal-nav-btn:hover { color:var(--accent-cyan);border-color:var(--accent-cyan); }
+        .cal-month { font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:var(--accent-cyan); }
+        .cal-grid { display:grid;grid-template-columns:repeat(7,1fr);gap:2px; }
+        .cal-dow { text-align:center;font-size:11px;color:var(--text-muted);padding:8px 0;font-weight:600; }
+        .cal-dow:first-child { color:var(--accent-red); }
+        .cal-dow:last-child { color:var(--accent-cyan); }
+        .cal-cell {
+            min-height:72px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:6px;padding:6px;
+            cursor:pointer;transition:background 0.15s;position:relative;
+        }
+        .cal-cell:hover { background:var(--bg-card-hover); }
+        .cal-cell.empty { background:transparent;border-color:transparent;cursor:default; }
+        .cal-cell.today { border-color:var(--accent-cyan);background:rgba(0,184,217,0.06); }
+        .cal-cell.other-month { opacity:0.3; }
+        .cal-date { font-size:12px;font-weight:700;margin-bottom:4px; }
+        .cal-cell.today .cal-date { color:var(--accent-cyan); }
+        .cal-event-dot {
+            font-size:10px;line-height:1.4;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;
+            border-radius:3px;padding:1px 4px;margin-bottom:2px;
+        }
+        .dot-macro    { background:rgba(220,38,38,0.15); color:#f87171; }
+        .dot-exchange { background:rgba(251,191,36,0.15); color:var(--accent-yellow); }
+        .dot-project  { background:rgba(0,212,160,0.15);  color:var(--accent-green); }
+        .dot-default  { background:rgba(147,51,234,0.15); color:var(--accent-purple); }
+        /* 리스트 뷰 */
+        .list-group { margin-bottom:20px; }
+        .list-date-header {
+            display:flex;align-items:center;gap:10px;padding:8px 0;margin-bottom:8px;
+            border-bottom:1px solid var(--border-color);
+        }
+        .list-date-day { font-family:'Orbitron',monospace;font-size:26px;font-weight:700;color:var(--accent-cyan);line-height:1; }
+        .list-date-day.today { color:var(--accent-green); }
+        .list-date-day.tomorrow { color:var(--accent-yellow); }
+        .list-date-info { display:flex;flex-direction:column;gap:2px; }
+        .list-date-full { font-size:13px;font-weight:600; }
+        .list-date-rel { font-size:11px;color:var(--text-muted); }
+        .list-item {
+            display:flex;align-items:flex-start;gap:12px;
+            padding:12px 14px;background:var(--bg-card);border:1px solid var(--border-color);
+            border-radius:10px;margin-bottom:8px;transition:background 0.15s;
+        }
+        .list-item:hover { background:var(--bg-card-hover); }
+        .list-badge { flex-shrink:0;margin-top:2px; }
+        .cal-badge {
+            display:inline-flex;align-items:center;gap:3px;
+            font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;white-space:nowrap;
+        }
+        .cal-badge.macro    { background:rgba(220,38,38,0.12);color:#f87171; }
+        .cal-badge.exchange { background:rgba(251,191,36,0.12);color:var(--accent-yellow); }
+        .cal-badge.project  { background:rgba(0,212,160,0.12); color:var(--accent-green); }
+        .cal-badge.default  { background:rgba(147,51,234,0.12);color:var(--accent-purple); }
+        .list-content { flex:1; }
+        .list-title { font-size:14px;font-weight:600;margin-bottom:4px; }
+        .list-coins { font-size:11px;color:var(--text-muted); }
+        .list-hot { font-size:10px;background:rgba(220,38,38,0.1);color:var(--accent-red);padding:2px 6px;border-radius:4px;flex-shrink:0; }
+        /* 더보기 */
+        .load-more { text-align:center;margin-top:16px; }
+        .load-more button { padding:10px 32px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:8px;color:var(--text-secondary);font-size:13px;cursor:pointer;transition:all 0.2s;font-family:inherit; }
+        .load-more button:hover { border-color:var(--accent-cyan);color:var(--accent-cyan); }
+        @media (max-width:600px) {
+            .container { padding:72px 12px 32px; }
+            .cal-cell { min-height:52px;padding:4px; }
+            .cal-event-dot { display:none; }
+            .cal-date { font-size:11px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">← 홈</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📅 코인 주요 일정</h1>
+            <div class="view-toggle">
+                <div class="view-btn active" id="btnList" onclick="setView('list')">≡ 리스트</div>
+                <div class="view-btn" id="btnCal" onclick="setView('cal')">⊞ 월간</div>
+            </div>
+        </div>
+
+        <div class="filter-row">
+            <div class="filter-btn all active" onclick="setFilter('all', this)">전체</div>
+            <div class="filter-btn macro"    onclick="setFilter('macro', this)">🔴 주요이슈</div>
+            <div class="filter-btn exchange" onclick="setFilter('exchange', this)">🟡 거래소</div>
+            <div class="filter-btn project"  onclick="setFilter('project', this)">🟢 프로젝트</div>
+        </div>
+
+        <!-- 리스트 뷰 -->
+        <div class="cal-view active" id="listView">
+            <div id="listContent">
+                <!-- JS로 렌더링 -->
+            </div>
+            <div class="load-more"><button onclick="loadMore()">더 보기</button></div>
+        </div>
+
+        <!-- 월간 뷰 -->
+        <div class="cal-view" id="calView">
+            <div class="cal-nav">
+                <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+                <span class="cal-month" id="calMonthTitle"></span>
+                <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+            </div>
+            <div class="cal-grid" id="calGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // 더미 이벤트 데이터 (API 없을 때 기본)
+        const DAYS = ['일','월','화','수','목','금','토'];
+        const MONTHS = ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+        let currentFilter = 'all';
+        let currentView = 'list';
+        let showCount = 10;
+        let calYear, calMonth;
+
+        const dummyEvents = [
+            { date: '2026-02-25', title: '미국 소비자물가지수(CPI) 발표', category: 'macro', coins: [], hot: true },
+            { date: '2026-02-25', title: 'Binance EIGEN 선물 상장', category: 'exchange', coins: ['EIGEN'], hot: false },
+            { date: '2026-02-26', title: 'ARB 토큰 언락 — 92M ARB', category: 'project', coins: ['ARB'], hot: false },
+            { date: '2026-02-26', title: 'Bybit OP 마진 이벤트', category: 'exchange', coins: ['OP'], hot: false },
+            { date: '2026-02-27', title: 'SOL 네트워크 업그레이드 v2.1', category: 'project', coins: ['SOL'], hot: true },
+            { date: '2026-02-27', title: '미국 FOMC 회의 — 금리 결정', category: 'macro', coins: [], hot: true },
+            { date: '2026-02-28', title: 'SUI 토큰 언락 — 45M SUI', category: 'project', coins: ['SUI'], hot: false },
+            { date: '2026-02-28', title: 'OKX DOGE 레버리지 ETF 상장', category: 'exchange', coins: ['DOGE'], hot: false },
+            { date: '2026-03-01', title: 'BTC 반감기 기념 이벤트 (Bitget)', category: 'exchange', coins: ['BTC'], hot: true },
+            { date: '2026-03-03', title: '미국 PCE 물가지수 발표', category: 'macro', coins: [], hot: true },
+            { date: '2026-03-05', title: 'AVAX 메인넷 업그레이드', category: 'project', coins: ['AVAX'], hot: false },
+            { date: '2026-03-07', title: 'INJ 스테이킹 보상 배분', category: 'project', coins: ['INJ'], hot: false },
+            { date: '2026-03-10', title: 'ETH 상하이 업그레이드 2주년', category: 'project', coins: ['ETH'], hot: false },
+            { date: '2026-03-12', title: '미국 CPI 발표', category: 'macro', coins: [], hot: true },
+            { date: '2026-03-15', title: 'LINK 토큰 언락 — 150M LINK', category: 'project', coins: ['LINK'], hot: false },
+        ];
+
+        function catClass(cat) {
+            const c = (cat || '').toLowerCase();
+            if (c === 'macro') return 'macro';
+            if (c === 'exchange') return 'exchange';
+            if (c === 'project') return 'project';
+            return 'default';
+        }
+        function catLabel(cat) {
+            const cls = catClass(cat);
+            if (cls === 'macro')    return '🔴 #주요이슈';
+            if (cls === 'exchange') return '🟡 #거래소';
+            if (cls === 'project')  return '🟢 #프로젝트';
+            return '🟣 #이슈';
+        }
+
+        let allEvents = [...dummyEvents];
+
+        function setFilter(f, el) {
+            currentFilter = f;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            showCount = 10;
+            if (currentView === 'list') renderList();
+            else renderCal();
+        }
+
+        function setView(v) {
+            currentView = v;
+            document.getElementById('listView').classList.toggle('active', v === 'list');
+            document.getElementById('calView').classList.toggle('active', v === 'cal');
+            document.getElementById('btnList').classList.toggle('active', v === 'list');
+            document.getElementById('btnCal').classList.toggle('active', v === 'cal');
+            if (v === 'cal') renderCal();
+        }
+
+        function getFiltered() {
+            if (currentFilter === 'all') return allEvents;
+            return allEvents.filter(e => catClass(e.category) === currentFilter);
+        }
+
+        function loadMore() {
+            showCount += 10;
+            renderList();
+        }
+
+        function renderList() {
+            const events = getFiltered().slice(0, showCount);
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const tomorrow = new Date(today.getTime() + 86400000);
+            // 날짜별 그룹핑
+            const groups = {};
+            events.forEach(e => {
+                if (!groups[e.date]) groups[e.date] = [];
+                groups[e.date].push(e);
+            });
+            let html = '';
+            Object.keys(groups).sort().forEach(dateStr => {
+                const d = new Date(dateStr);
+                const isToday = d.getTime() === today.getTime();
+                const isTomorrow = d.getTime() === tomorrow.getTime();
+                const dayClass = isToday ? 'today' : (isTomorrow ? 'tomorrow' : '');
+                const relLabel = isToday ? '오늘' : (isTomorrow ? '내일' : '');
+                const dateLabel = (d.getMonth()+1) + '월 ' + d.getDate() + '일 (' + DAYS[d.getDay()] + ')';
+                html += '<div class="list-group">';
+                html += '<div class="list-date-header">';
+                html += '<div class="list-date-day ' + dayClass + '">' + d.getDate() + '</div>';
+                html += '<div class="list-date-info">';
+                html += '<div class="list-date-full">' + dateLabel + '</div>';
+                if (relLabel) html += '<div class="list-date-rel" style="color:' + (isToday?'var(--accent-green)':'var(--accent-yellow)') + ';">' + relLabel + '</div>';
+                html += '</div></div>';
+                groups[dateStr].forEach(e => {
+                    const cls = catClass(e.category);
+                    html += '<div class="list-item">';
+                    html += '<div class="list-badge"><span class="cal-badge ' + cls + '">' + catLabel(e.category) + '</span></div>';
+                    html += '<div class="list-content">';
+                    html += '<div class="list-title">' + e.title + '</div>';
+                    if (e.coins.length) html += '<div class="list-coins">관련 코인: ' + e.coins.join(', ') + '</div>';
+                    html += '</div>';
+                    if (e.hot) html += '<div class="list-hot">🔥 HOT</div>';
+                    html += '</div>';
+                });
+                html += '</div>';
+            });
+            if (!html) html = '<div style="text-align:center;color:var(--text-muted);padding:40px 0;">해당 카테고리의 일정이 없습니다.</div>';
+            document.getElementById('listContent').innerHTML = html;
+        }
+
+        // 월간 캘린더 렌더
+        function renderCal() {
+            const events = getFiltered();
+            const eventsByDate = {};
+            events.forEach(e => {
+                if (!eventsByDate[e.date]) eventsByDate[e.date] = [];
+                eventsByDate[e.date].push(e);
+            });
+            const title = calYear + '년 ' + MONTHS[calMonth];
+            document.getElementById('calMonthTitle').textContent = title;
+            const firstDay = new Date(calYear, calMonth, 1).getDay();
+            const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+            const today = new Date();
+            let html = '';
+            ['일','월','화','수','목','금','토'].forEach(d => {
+                html += '<div class="cal-dow">' + d + '</div>';
+            });
+            for (let i = 0; i < firstDay; i++) html += '<div class="cal-cell empty"></div>';
+            for (let d = 1; d <= daysInMonth; d++) {
+                const isToday = d === today.getDate() && calMonth === today.getMonth() && calYear === today.getFullYear();
+                const dateKey = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+                const dayEvents = eventsByDate[dateKey] || [];
+                html += '<div class="cal-cell' + (isToday ? ' today' : '') + '">';
+                html += '<div class="cal-date">' + d + '</div>';
+                dayEvents.slice(0,2).forEach(e => {
+                    const cls = catClass(e.category);
+                    html += '<div class="cal-event-dot dot-' + cls + '">' + e.title.substring(0,10) + '</div>';
+                });
+                if (dayEvents.length > 2) html += '<div style="font-size:10px;color:var(--text-muted);">+' + (dayEvents.length-2) + '개</div>';
+                html += '</div>';
+            }
+            document.getElementById('calGrid').innerHTML = html;
+        }
+
+        function changeMonth(delta) {
+            calMonth += delta;
+            if (calMonth > 11) { calMonth = 0; calYear++; }
+            if (calMonth < 0) { calMonth = 11; calYear--; }
+            renderCal();
+        }
+
+        // API 데이터 로드 시도
+        async function loadFromApi() {
+            try {
+                const res = await fetch('/api/calendar');
+                const data = await res.json();
+                if (data.events && data.events.length > 0) {
+                    allEvents = data.events.map(e => ({
+                        date: e.date.split('T')[0],
+                        title: e.title,
+                        category: e.category,
+                        coins: e.coins || [],
+                        hot: e.hot || false
+                    })).concat(dummyEvents.filter(d => !data.events.some(e => e.date.startsWith(d.date))));
+                }
+            } catch(e) {}
+            renderList();
+            renderCal();
+        }
+
+        // 초기화
+        const now = new Date();
+        calYear = now.getFullYear();
+        calMonth = now.getMonth();
+        renderList();
+        renderCal();
+        loadFromApi();
+    </script>
+</body>
+</html>

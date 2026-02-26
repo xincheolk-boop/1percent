@@ -893,6 +893,44 @@
             font-size: 13px;
         }
 
+        /* ===== 뉴스 탭 ===== */
+        .news-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+        .news-tab {
+            flex: 1; padding: 6px 0; text-align: center; font-size: 12px; font-weight: 600;
+            border-radius: 6px; cursor: pointer; background: var(--bg-card);
+            color: var(--text-muted); border: 1px solid var(--border-color); transition: all 0.2s;
+        }
+        .news-tab:hover { color: var(--text-secondary); }
+        .news-tab.active-breaking { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
+        .news-tab.active-news { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
+        .news-tab-panel { display: none; }
+        .news-tab-panel.active { display: block; }
+        /* 속보 아이템 */
+        .breaking-item {
+            display: flex; gap: 8px; padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            cursor: pointer; transition: all 0.15s;
+        }
+        .breaking-item:last-child { border-bottom: none; }
+        .breaking-item:hover .breaking-title { color: var(--accent-cyan); }
+        .breaking-time { font-size: 10px; color: var(--text-muted); flex-shrink: 0; width: 30px; margin-top: 2px; font-family: 'Orbitron', monospace; }
+        .breaking-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-red); flex-shrink: 0; margin-top: 5px; animation: bdot 1.4s infinite; }
+        @keyframes bdot { 0%,100%{opacity:1} 50%{opacity:0.2} }
+        .breaking-title { font-size: 12px; line-height: 1.5; color: var(--text-secondary); flex: 1; }
+        /* 일정 카테고리 뱃지 */
+        .cal-badge {
+            display: inline-flex; align-items: center; gap: 3px;
+            font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-bottom: 4px;
+        }
+        .cal-badge.macro    { background: rgba(220,38,38,0.12); color: #f87171; }
+        .cal-badge.exchange { background: rgba(251,191,36,0.12); color: #fbbf24; }
+        .cal-badge.project  { background: rgba(0,212,160,0.12);  color: var(--accent-green); }
+        .cal-badge.default  { background: rgba(147,51,234,0.12); color: var(--accent-purple); }
+        .sr-sch-day.today    { color: var(--accent-green) !important; }
+        .sr-sch-day.tomorrow { color: #fbbf24 !important; }
+        .sr-sch-item { cursor: pointer; border-radius: 6px; margin: 0 -4px; padding: 10px 4px; transition: background 0.15s; }
+        .sr-sch-item:hover { background: var(--bg-card-hover); }
+
         /* ===== 오른쪽 숨김 메뉴 사이드바 ===== */
         .hidden-sidebar {
             position: fixed;
@@ -1518,34 +1556,85 @@
                 </div>
             </div>
 
-            <!-- 실시간 뉴스 -->
+            <!-- 뉴스 (2탭: 속보 / 뉴스) -->
             <div class="sr-section">
-                <div class="sr-title">🔴 실시간 뉴스 <span class="sr-more" onclick="location.href='news.html'">더보기→</span></div>
-                <div class="sl-news-item" onclick="location.href='news.html'">
-                    <div class="sl-news-tag">HOT</div>
-                    <div class="sl-news-title">비트코인 $100K 돌파, 신고점 경신</div>
+                <div class="sr-title" id="newsSrTitle">⚡ 속보 <span class="sr-more" id="newsMoreLink" onclick="location.href='news.html'">더보기→</span></div>
+                <div class="news-tabs">
+                    <div class="news-tab active-breaking" id="tabBreaking" onclick="switchNewsTab('breaking')">⚡ 속보</div>
+                    <div class="news-tab" id="tabNews" onclick="switchNewsTab('news')">📰 뉴스</div>
                 </div>
-                <div class="sl-news-item" onclick="location.href='news.html'">
-                    <div class="sl-news-tag">HOT</div>
-                    <div class="sl-news-title">이더리움 ETF 자금 유입 급증</div>
+                <!-- 속보 패널 -->
+                <div class="news-tab-panel active" id="newsTabBreaking">
+                    <div class="breaking-item" onclick="location.href='news.html'">
+                        <span class="breaking-time">14:32</span>
+                        <span class="breaking-dot"></span>
+                        <span class="breaking-title">BTC $105K 돌파 시도 — 단기 저항선 주목</span>
+                    </div>
+                    <div class="breaking-item" onclick="location.href='news.html'">
+                        <span class="breaking-time">13:45</span>
+                        <span class="breaking-dot"></span>
+                        <span class="breaking-title">ETH 펀딩비 급등, 롱 포지션 과열 신호</span>
+                    </div>
+                    <div class="breaking-item" onclick="location.href='news.html'">
+                        <span class="breaking-time">12:18</span>
+                        <span class="breaking-dot"></span>
+                        <span class="breaking-title">SEC 암호화폐 ETF 신청 심사 일정 공개</span>
+                    </div>
+                    <div class="breaking-item" onclick="location.href='news.html'">
+                        <span class="breaking-time">11:50</span>
+                        <span class="breaking-dot"></span>
+                        <span class="breaking-title">솔라나 DeFi TVL 사상 최고치 돌파</span>
+                    </div>
+                    <div class="breaking-item" onclick="location.href='news.html'">
+                        <span class="breaking-time">10:03</span>
+                        <span class="breaking-dot"></span>
+                        <span class="breaking-title">Binance, USDC 지원 확대 발표</span>
+                    </div>
                 </div>
-                <div class="sl-news-item" onclick="location.href='news.html'">
-                    <div class="sl-news-tag">HOT</div>
-                    <div class="sl-news-title">트럼프 취임 앞두고 시장 관망</div>
+                <!-- 뉴스 패널 -->
+                <div class="news-tab-panel" id="newsTabNews">
+                    <div class="sl-news-item" onclick="location.href='news.html'">
+                        <div class="sl-news-tag">BTC</div>
+                        <div class="sl-news-title">비트코인 $100K 돌파, 신고점 경신</div>
+                    </div>
+                    <div class="sl-news-item" onclick="location.href='news.html'">
+                        <div class="sl-news-tag">ETF</div>
+                        <div class="sl-news-title">이더리움 ETF 자금 유입 급증</div>
+                    </div>
+                    <div class="sl-news-item" onclick="location.href='news.html'">
+                        <div class="sl-news-tag">시장</div>
+                        <div class="sl-news-title">트럼프 취임 앞두고 시장 관망</div>
+                    </div>
                 </div>
             </div>
 
             <!-- 코인 주요 일정 -->
             <div class="sr-section">
-                <div class="sr-title">📅 코인 주요 일정 <span class="sr-more" onclick="location.href='events.html'">더보기→</span></div>
+                <div class="sr-title">📅 코인 주요 일정 <span class="sr-more" onclick="location.href='calendar.html'">더보기→</span></div>
                 <div id="calendarContainer">
-                    <div class="sr-sch-item">
+                    <div class="sr-sch-item" onclick="location.href='calendar.html'">
                         <div class="sr-sch-head">
-                            <span class="sr-sch-day">--</span>
-                            <span class="sr-sch-dow">로딩중</span>
+                            <span class="sr-sch-day" style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--accent-cyan);">28</span>
+                            <span class="sr-sch-dow">수요일</span>
                         </div>
-                        <div class="sr-sch-tag">#주요이슈</div>
-                        <div class="sr-sch-title">일정 불러오는 중...</div>
+                        <div><span class="cal-badge macro">🔴 #주요이슈</span></div>
+                        <div class="sr-sch-title">미국 FOMC 회의 — 금리 결정 발표</div>
+                    </div>
+                    <div class="sr-sch-item" onclick="location.href='calendar.html'">
+                        <div class="sr-sch-head">
+                            <span class="sr-sch-day" style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--accent-cyan);">27</span>
+                            <span class="sr-sch-dow">화요일</span>
+                        </div>
+                        <div><span class="cal-badge exchange">🟡 #거래소</span></div>
+                        <div class="sr-sch-title">Binance EIGEN 선물 상장</div>
+                    </div>
+                    <div class="sr-sch-item" onclick="location.href='calendar.html'">
+                        <div class="sr-sch-head">
+                            <span class="sr-sch-day" style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--accent-cyan);">26</span>
+                            <span class="sr-sch-dow">월요일</span>
+                        </div>
+                        <div><span class="cal-badge project">🟢 #프로젝트</span></div>
+                        <div class="sr-sch-title">ARB 토큰 언락 — 92M ARB</div>
                     </div>
                 </div>
             </div>
@@ -2231,13 +2320,37 @@
             }, 400);
         }
 
+        // 뉴스 탭 전환
+        function switchNewsTab(type) {
+            const tabB = document.getElementById('tabBreaking');
+            const tabN = document.getElementById('tabNews');
+            const panelB = document.getElementById('newsTabBreaking');
+            const panelN = document.getElementById('newsTabNews');
+            const title = document.getElementById('newsSrTitle');
+            const more = document.getElementById('newsMoreLink');
+            tabB.className = 'news-tab';
+            tabN.className = 'news-tab';
+            panelB.classList.remove('active');
+            panelN.classList.remove('active');
+            if (type === 'breaking') {
+                tabB.classList.add('active-breaking');
+                panelB.classList.add('active');
+                title.innerHTML = '⚡ 속보 <span class="sr-more" id="newsMoreLink" onclick="location.href=\'news.html\'">더보기→</span>';
+            } else {
+                tabN.classList.add('active-news');
+                panelN.classList.add('active');
+                title.innerHTML = '📰 뉴스 <span class="sr-more" id="newsMoreLink" onclick="location.href=\'news.html\'">더보기→</span>';
+            }
+        }
+
         // 뉴스 실시간 (Binance 공지 활용)
         async function fetchNews() {
             try {
-                const res = await fetch('https://www.binance.com/bapi/composite/v1/public/cms/article/list/query?type=1&pageNo=1&pageSize=4');
+                const res = await fetch('https://www.binance.com/bapi/composite/v1/public/cms/article/list/query?type=1&pageNo=1&pageSize=6');
                 const data = await res.json();
                 if (data.data && data.data.catalogs) {
                     const articles = data.data.catalogs[0]?.articles || [];
+                    // 메인 뉴스 그리드 업데이트
                     const newsGrid = document.querySelector('.news-grid');
                     if (newsGrid && articles.length >= 4) {
                         newsGrid.innerHTML = articles.slice(0,4).map(a => {
@@ -2245,8 +2358,31 @@
                             const time = date.getHours().toString().padStart(2,'0') + ':' + date.getMinutes().toString().padStart(2,'0');
                             return '<div class="news-card" onclick="location.href=\'news.html\'">' +
                                 '<div class="time">' + time + '</div>' +
-                                '<div class="title">' + (a.title.length > 35 ? a.title.substring(0,35) + '...' : a.title) + '</div>' +
+                                '<div class="title">' + (a.title.length > 40 ? a.title.substring(0,40) + '...' : a.title) + '</div>' +
                                 '<span class="tag">Binance</span></div>';
+                        }).join('');
+                    }
+                    // 속보 탭 업데이트
+                    const breakingPanel = document.getElementById('newsTabBreaking');
+                    if (breakingPanel && articles.length > 0) {
+                        breakingPanel.innerHTML = articles.slice(0,6).map(a => {
+                            const date = new Date(a.releaseDate);
+                            const time = date.getHours().toString().padStart(2,'0') + ':' + date.getMinutes().toString().padStart(2,'0');
+                            const title = a.title.length > 28 ? a.title.substring(0,28) + '…' : a.title;
+                            return '<div class="breaking-item" onclick="location.href=\'news.html\'">' +
+                                '<span class="breaking-time">' + time + '</span>' +
+                                '<span class="breaking-dot"></span>' +
+                                '<span class="breaking-title">' + title + '</span></div>';
+                        }).join('');
+                    }
+                    // 뉴스 탭 업데이트
+                    const newsPanel = document.getElementById('newsTabNews');
+                    if (newsPanel && articles.length > 0) {
+                        newsPanel.innerHTML = articles.slice(0,4).map(a => {
+                            const title = a.title.length > 32 ? a.title.substring(0,32) + '…' : a.title;
+                            return '<div class="sl-news-item" onclick="location.href=\'news.html\'">' +
+                                '<div class="sl-news-tag">Binance</div>' +
+                                '<div class="sl-news-title">' + title + '</div></div>';
                         }).join('');
                     }
                 }
@@ -2261,15 +2397,38 @@
                 if (!data.events || data.events.length === 0) return; // API 키 미설정 시 정적 유지
                 const container = document.getElementById('calendarContainer');
                 if (!container) return;
+                const today = new Date();
+                const todayD = today.getDate();
+                const tomorrowD = new Date(today.getTime() + 86400000).getDate();
+                const DAYS = ['일','월','화','수','목','금','토'];
+                // 카테고리 분류
+                function catClass(cat) {
+                    const c = (cat || '').toLowerCase();
+                    if (c.includes('macro') || c.includes('fomc') || c.includes('cpi') || c.includes('economic') || c.includes('주요이슈')) return 'macro';
+                    if (c.includes('listing') || c.includes('exchange') || c.includes('거래소')) return 'exchange';
+                    if (c.includes('unlock') || c.includes('update') || c.includes('project') || c.includes('프로젝트')) return 'project';
+                    return 'default';
+                }
+                function catLabel(cat) {
+                    const cls = catClass(cat);
+                    if (cls === 'macro')    return '🔴 #주요이슈';
+                    if (cls === 'exchange') return '🟡 #거래소';
+                    if (cls === 'project')  return '🟢 #프로젝트';
+                    return '🟣 #' + (cat || '이슈');
+                }
                 container.innerHTML = data.events.slice(0, 5).map(e => {
-                    const title = e.title + (e.coins.length ? ' (' + e.coins.join(', ') + ')' : '');
-                    return '<div class="sr-sch-item">' +
+                    const dayClass = e.day === todayD ? 'today' : (e.day === tomorrowD ? 'tomorrow' : '');
+                    const todayLabel = e.day === todayD ? ' <span style="font-size:10px;color:var(--accent-green);">오늘</span>' : (e.day === tomorrowD ? ' <span style="font-size:10px;color:#fbbf24;">내일</span>' : '');
+                    const coinSuffix = e.coins.length ? ' (' + e.coins.join(', ') + ')' : '';
+                    const title = e.title + coinSuffix;
+                    const cls = catClass(e.category);
+                    return '<div class="sr-sch-item" onclick="location.href=\'calendar.html\'">' +
                         '<div class="sr-sch-head">' +
-                            '<span class="sr-sch-day">' + e.day + '</span>' +
-                            '<span class="sr-sch-dow">' + e.dow + '요일</span>' +
+                            '<span class="sr-sch-day ' + dayClass + '">' + e.day + '</span>' +
+                            '<span class="sr-sch-dow">' + e.dow + '요일</span>' + todayLabel +
                         '</div>' +
-                        '<div class="sr-sch-tag">#' + e.category + '</div>' +
-                        '<div class="sr-sch-title">' + (title.length > 32 ? title.slice(0,32) + '…' : title) + '</div>' +
+                        '<div><span class="cal-badge ' + cls + '">' + catLabel(e.category) + '</span></div>' +
+                        '<div class="sr-sch-title">' + (title.length > 30 ? title.slice(0,30) + '…' : title) + '</div>' +
                     '</div>';
                 }).join('');
             } catch(e) { /* 오류 시 정적 콘텐츠 유지 */ }
