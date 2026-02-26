@@ -1018,6 +1018,56 @@
             .sidebar-left, .sidebar-right { display: none; }
             .futures-grid { grid-template-columns: repeat(2, 1fr); }
         }
+
+        @media (max-width: 768px) {
+            /* 헤더 */
+            .nav-menu { display: none; }
+            .header { padding: 0 12px; gap: 0; }
+            .logo { margin-right: 8px; }
+            .logo-text { font-size: 15px; }
+            .header-reward { display: none; }
+            .lang-selector { display: none; }
+            .btn-login { display: none; }
+            .btn-signup { display: none; }
+            .header-right { gap: 4px; }
+            /* 티커 */
+            .ticker-bar { overflow-x: auto; gap: 16px; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+            /* 레이아웃 */
+            .layout { margin-top: 88px; }
+            /* 메인 */
+            .main { padding: 12px 12px; }
+            .hero { padding: 28px 16px 20px; }
+            .hero h1 { font-size: 22px; }
+            .hero .sub { font-size: 13px; }
+            .hero-btns { flex-direction: column; gap: 8px; }
+            .btn-primary, .btn-secondary { width: 100%; }
+            /* 선물 카드 */
+            .futures-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .futures-card { padding: 12px; }
+            .futures-card .value { font-size: 18px; }
+            .futures-card .label { font-size: 11px; }
+            /* 거래소 테이블 - fee 컬럼 숨김 */
+            .exchange-header .ex-col-fee { display: none; }
+            .exchange-item .ex-fee { display: none; }
+            .ex-btn { width: 52px; font-size: 10px; padding: 6px 6px; }
+            .ex-rate { width: 50px; font-size: 12px; }
+            /* 명예의 전당 */
+            .hof-reward small { display: none; }
+            /* 섹션 패딩 */
+            .content-section { margin-bottom: 16px; }
+            /* 뉴스 그리드 1열 */
+            .news-grid { grid-template-columns: 1fr !important; }
+        }
+
+        @media (max-width: 480px) {
+            /* 선물 카드 - 세로 1열 (2열이 너무 좁으면) */
+            .futures-card .value { font-size: 16px; }
+            .futures-card .sub { font-size: 10px; }
+            /* 히어로 */
+            .hero h1 { font-size: 18px; }
+            /* 헤더 */
+            .logo-text { font-size: 13px; }
+        }
     </style>
 </head>
 <body>

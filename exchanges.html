@@ -240,7 +240,25 @@
         .rj-cta { margin-top: 12px; }
         .rj-cta a { display: inline-block; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; }
         .rj-cta a:hover { opacity: 0.85; }
-        @media (max-width: 600px) { .rj-tabs { flex-wrap: wrap; } .rj-tab { font-size: 12px; padding: 6px 12px; } }
+        @media (max-width: 600px) {
+            .rj-tabs { flex-wrap: wrap; }
+            .rj-tab { font-size: 12px; padding: 6px 12px; }
+        }
+        @media (max-width: 480px) {
+            .container { padding: 72px 12px 32px; }
+            /* 거래소 테이블 - 지정가/시장가 컬럼 숨김 */
+            .exchange-header .ex-col-fee { display: none; }
+            .exchange-item .ex-fee { display: none; }
+            /* 버튼/레이트 컴팩트 */
+            .ex-btn { width: 52px; font-size: 10px; padding: 6px 4px; }
+            .ex-rate { width: 50px; font-size: 12px; }
+            .ex-logo { width: 30px; height: 30px; margin-right: 8px; }
+            .ex-name { font-size: 13px; }
+            /* 재가입 카드 */
+            .rj-card-head { padding: 11px 12px; }
+            .rj-card-body { padding: 0 12px 12px; }
+            .rj-step { font-size: 12px; }
+        }
     </style>
 </head>
 <body>

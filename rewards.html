@@ -111,6 +111,14 @@
         }
         .info-box li:last-child { border-bottom: none; }
         .info-box li strong { color: var(--text-primary); }
+        @media (max-width: 600px) {
+            .container { padding: 72px 12px 32px; }
+            .calc-card { padding: 20px 16px; }
+            .calc-row { flex-direction: column; gap: 0; }
+            .result-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .result-value { font-size: 26px; }
+            .result-card { padding: 20px 16px; }
+        }
     </style>
 </head>
 <body>
