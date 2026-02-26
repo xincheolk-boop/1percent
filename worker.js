@@ -24,6 +24,11 @@ export default {
       return handleAdmin(request, env, url);
     }
 
+    // Public Register API
+    if (url.pathname === '/api/register') {
+      return handleRegister(request, env);
+    }
+
     // Calendar API
     if (url.pathname === '/api/calendar') {
       return handleCalendar(request, env);
@@ -260,6 +265,55 @@ async function handleAdmin(request, env, url) {
   } catch (err) {
     console.error('Admin error:', err);
     return ajson({ error: err.message }, 500);
+  }
+}
+
+// ── Public Register ───────────────────────────────────────────────────────────
+
+const REG_CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
+const rjson = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: REG_CORS });
+
+async function handleRegister(request, env) {
+  if (request.method !== 'POST') return rjson({ error: 'POST only' }, 405);
+
+  const db = env.DB;
+  if (!db) return rjson({ error: 'DB 미연결' }, 500);
+
+  let body;
+  try { body = await request.json(); }
+  catch (e) { return rjson({ error: '잘못된 요청 형식' }, 400); }
+
+  const { exchange, uid, telegram, nickname } = body;
+
+  if (!exchange || !uid) return rjson({ error: '거래소와 UID는 필수입니다' }, 400);
+
+  const VALID_EX = ['Bitget', 'OKX', 'Gate.io'];
+  if (!VALID_EX.includes(exchange)) return rjson({ error: '지원하지 않는 거래소입니다' }, 400);
+
+  const cleanUid = String(uid).trim();
+  if (cleanUid.length < 3) return rjson({ error: 'UID가 너무 짧습니다' }, 400);
+
+  try {
+    // UID 중복 확인
+    const existing = await db.prepare('SELECT id FROM users WHERE uid=? AND exchange=?').bind(cleanUid, exchange).first();
+    if (existing) return rjson({ error: '이미 등록된 UID입니다', code: 'DUPLICATE' }, 409);
+
+    const today = new Date().toISOString().slice(0, 10);
+    const result = await db.prepare(
+      'INSERT INTO users (nickname, uid, exchange, telegram, join_date, status) VALUES (?,?,?,?,?,?)'
+    ).bind(
+      String(nickname || '').trim().slice(0, 30),
+      cleanUid,
+      exchange,
+      String(telegram || '').trim().replace(/^@/, ''),
+      today,
+      'active'
+    ).run();
+
+    return rjson({ ok: true, id: result.meta.last_row_id, message: 'UID 등록 완료' });
+  } catch (err) {
+    console.error('Register error:', err);
+    return rjson({ error: '등록 중 오류가 발생했습니다: ' + err.message }, 500);
   }
 }
 
