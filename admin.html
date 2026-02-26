@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관리자 - 1% Trading PRO</title>
+<style>
+:root {
+  --bg:#0a0a0f; --bg2:#111118; --bg3:#16161f; --bg4:#1c1c28;
+  --cyan:#00b8d9; --purple:#9333ea; --green:#00D4A0; --red:#dc2626;
+  --yellow:#fbbf24; --txt:#fff; --txt2:#9ca3af; --txt3:#6b7280;
+  --border:rgba(255,255,255,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+
+/* ── Login ── */
+#loginWrap{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-box{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:360px;text-align:center;}
+.login-logo{font-size:28px;font-weight:900;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;}
+.login-sub{font-size:13px;color:var(--txt3);margin-bottom:32px;}
+.login-input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;color:var(--txt);font-size:15px;outline:none;margin-bottom:14px;}
+.login-input:focus{border-color:var(--cyan);}
+.login-btn{width:100%;background:linear-gradient(90deg,var(--cyan),var(--purple));border:none;border-radius:10px;padding:14px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+.login-err{font-size:12px;color:var(--red);margin-top:8px;min-height:18px;}
+
+/* ── Layout ── */
+#appWrap{display:none;height:100vh;overflow:hidden;}
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);height:100vh;position:fixed;left:0;top:0;display:flex;flex-direction:column;overflow-y:auto;}
+.sidebar-logo{padding:20px 20px 16px;font-size:18px;font-weight:900;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;border-bottom:1px solid var(--border);}
+.sidebar-logo span{display:block;font-size:11px;font-weight:400;color:var(--txt3);-webkit-text-fill-color:var(--txt3);margin-top:2px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:12px 20px;font-size:13px;color:var(--txt2);cursor:pointer;transition:all 0.15s;}
+.nav-item:hover{background:var(--bg3);color:var(--txt);}
+.nav-item.active{background:rgba(0,184,217,0.1);color:var(--cyan);border-right:2px solid var(--cyan);}
+.nav-icon{font-size:16px;width:20px;text-align:center;}
+.sidebar-logout{margin-top:auto;padding:16px 20px;border-top:1px solid var(--border);}
+.logout-btn{width:100%;background:transparent;border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--txt3);font-size:12px;cursor:pointer;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+
+.main-area{margin-left:220px;height:100vh;overflow-y:auto;padding:24px;}
+
+/* ── Top bar ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.page-title{font-size:20px;font-weight:700;}
+.page-sub{font-size:12px;color:var(--txt3);margin-top:2px;}
+
+/* ── Cards ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:14px;padding:20px;}
+.stat-label{font-size:11px;color:var(--txt3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;}
+.stat-val{font-size:28px;font-weight:700;font-family:monospace;color:var(--cyan);}
+.stat-val.green{color:var(--green);}
+.stat-val.red{color:var(--red);}
+.stat-val.yellow{color:var(--yellow);}
+.stat-sub{font-size:11px;color:var(--txt2);margin-top:6px;}
+
+/* ── Table section ── */
+.section{background:var(--bg3);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:20px;}
+.section-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.section-title2{font-size:14px;font-weight:600;}
+.btn-primary{background:var(--cyan);color:#000;border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-primary:hover{opacity:0.85;}
+.btn-sm{background:var(--bg4);border:1px solid var(--border);color:var(--txt2);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;}
+.btn-sm:hover{color:var(--txt);}
+.btn-danger{background:transparent;border:1px solid rgba(220,38,38,0.4);color:var(--red);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;}
+.btn-danger:hover{background:rgba(220,38,38,0.1);}
+.btn-success{background:transparent;border:1px solid rgba(0,212,160,0.4);color:var(--green);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;}
+.btn-success:hover{background:rgba(0,212,160,0.1);}
+
+/* ── Filters ── */
+.filters{display:flex;gap:10px;padding:12px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.filter-select,.filter-input{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px 12px;color:var(--txt);font-size:12px;outline:none;}
+.filter-select:focus,.filter-input:focus{border-color:var(--cyan);}
+
+/* ── Table ── */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:11px;color:var(--txt3);font-weight:500;text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{font-size:13px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);}
+tr:hover td{background:var(--bg4);}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-active{background:rgba(0,212,160,0.12);color:var(--green);}
+.badge-inactive{background:rgba(220,38,38,0.12);color:var(--red);}
+.badge-pending{background:rgba(251,191,36,0.12);color:var(--yellow);}
+.badge-paid{background:rgba(0,212,160,0.12);color:var(--green);}
+
+/* Exchange badges */
+.ex-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;}
+.ex-bitget{background:rgba(0,132,255,0.12);color:#3b82f6;}
+.ex-okx{background:rgba(255,255,255,0.08);color:#e5e7eb;}
+.ex-gate{background:rgba(220,38,38,0.12);color:#f87171;}
+.ex-other{background:rgba(147,51,234,0.12);color:var(--purple);}
+
+/* ── Modal ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;}
+.modal{background:var(--bg3);border:1px solid var(--border);border-radius:16px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);}
+.modal-title{font-size:16px;font-weight:700;}
+.modal-close{background:none;border:none;color:var(--txt3);font-size:20px;cursor:pointer;line-height:1;}
+.modal-close:hover{color:var(--txt);}
+.modal-body{padding:24px;}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;}
+.form-group{margin-bottom:16px;}
+.form-label{display:block;font-size:12px;color:var(--txt2);margin-bottom:6px;}
+.form-input,.form-select,.form-textarea{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--txt);font-size:13px;outline:none;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--cyan);}
+.form-textarea{min-height:80px;resize:vertical;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;}
+#toast.show{opacity:1;}
+#toast.success{background:rgba(0,212,160,0.15);border:1px solid rgba(0,212,160,0.4);color:var(--green);}
+#toast.error{background:rgba(220,38,38,0.15);border:1px solid rgba(220,38,38,0.4);color:var(--red);}
+
+/* ── Chart bars (exchange breakdown) ── */
+.ex-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.ex-bar-label{width:70px;font-size:12px;color:var(--txt2);}
+.ex-bar-track{flex:1;height:8px;background:var(--bg2);border-radius:4px;overflow:hidden;}
+.ex-bar-fill{height:100%;border-radius:4px;transition:width 0.5s;}
+.ex-bar-val{width:40px;font-size:11px;color:var(--txt2);text-align:right;}
+
+/* ── Detail view ── */
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;}
+.detail-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.detail-key{font-size:11px;color:var(--txt3);margin-bottom:4px;}
+.detail-val{font-size:14px;font-weight:600;}
+
+/* ── Toggle switch ── */
+.toggle{position:relative;display:inline-flex;width:44px;height:24px;cursor:pointer;}
+.toggle input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;background:var(--bg2);border:1px solid var(--border);border-radius:12px;transition:0.2s;}
+.toggle-slider:before{content:'';position:absolute;width:18px;height:18px;left:2px;bottom:2px;background:var(--txt3);border-radius:50%;transition:0.2s;}
+.toggle input:checked + .toggle-slider{background:rgba(0,212,160,0.2);border-color:var(--green);}
+.toggle input:checked + .toggle-slider:before{transform:translateX(20px);background:var(--green);}
+
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:48px 20px;color:var(--txt3);}
+.empty-icon{font-size:36px;margin-bottom:12px;}
+.empty-text{font-size:14px;}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .sidebar{width:60px;overflow:hidden;}
+  .nav-item span,.sidebar-logo span,.sidebar-logo h2,.sidebar-logout .logout-btn span{display:none;}
+  .main-area{margin-left:60px;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div id="loginWrap">
+  <div class="login-box">
+    <div class="login-logo">1% TRADING</div>
+    <p class="login-sub">관리자 전용 페이지</p>
+    <input type="password" id="loginPw" class="login-input" placeholder="비밀번호 입력" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">로그인</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="appWrap">
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <div>1% PRO</div>
+      <span>Admin Panel</span>
+    </div>
+    <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
+      <span class="nav-icon">📊</span><span>대시보드</span>
+    </div>
+    <div class="nav-item" onclick="showPage('users')" data-page="users">
+      <span class="nav-icon">👥</span><span>유저 관리</span>
+    </div>
+    <div class="nav-item" onclick="showPage('settlements')" data-page="settlements">
+      <span class="nav-icon">💰</span><span>정산 관리</span>
+    </div>
+    <div class="nav-item" onclick="showPage('events')" data-page="events">
+      <span class="nav-icon">🎯</span><span>이벤트 관리</span>
+    </div>
+    <div class="nav-item" onclick="showPage('banners')" data-page="banners">
+      <span class="nav-icon">🖼️</span><span>배너 관리</span>
+    </div>
+    <div class="nav-item" onclick="showPage('notices')" data-page="notices">
+      <span class="nav-icon">📢</span><span>공지사항</span>
+    </div>
+    <div class="sidebar-logout">
+      <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+    </div>
+  </nav>
+
+  <div class="main-area" id="mainArea">
+    <!-- content injected here -->
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const BASE = '/api/admin';
+let TOKEN = sessionStorage.getItem('adminToken') || '';
+let currentPage = 'dashboard';
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+
+async function doLogin() {
+  const pw = document.getElementById('loginPw').value;
+  if (!pw) return;
+  const r = await fetch(BASE + '/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: pw }),
+  });
+  const d = await r.json();
+  if (d.ok) {
+    TOKEN = pw;
+    sessionStorage.setItem('adminToken', pw);
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('appWrap').style.display = 'flex';
+    showPage('dashboard');
+  } else {
+    document.getElementById('loginErr').textContent = d.error || '오류가 발생했습니다';
+  }
+}
+
+document.getElementById('loginPw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function doLogout() {
+  TOKEN = '';
+  sessionStorage.removeItem('adminToken');
+  location.reload();
+}
+
+// Try auto-login
+(async () => {
+  if (!TOKEN) return;
+  const r = await fetch(BASE + '/auth', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password: TOKEN }),
+  });
+  const d = await r.json();
+  if (d.ok) {
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('appWrap').style.display = 'flex';
+    showPage('dashboard');
+  } else {
+    TOKEN = '';
+    sessionStorage.removeItem('adminToken');
+  }
+})();
+
+// ── API helpers ───────────────────────────────────────────────────────────────
+
+async function api(path, method = 'GET', body = null) {
+  const opts = { method, headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(BASE + path, opts);
+  return r.json();
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'show ' + type;
+  setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+
+function showPage(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
+  const fns = { dashboard: renderDashboard, users: renderUsers, settlements: renderSettlements,
+                events: renderEvents, banners: renderBanners, notices: renderNotices };
+  if (fns[page]) fns[page]();
+}
+
+// ── Exchange helper ───────────────────────────────────────────────────────────
+
+function exBadge(ex) {
+  const cls = ex === 'Bitget' ? 'ex-bitget' : ex === 'OKX' ? 'ex-okx' : ex === 'Gate.io' ? 'ex-gate' : 'ex-other';
+  return `<span class="ex-badge ${cls}">${ex}</span>`;
+}
+
+function statusBadge(s) {
+  if (s === 'active')   return '<span class="badge badge-active">활성</span>';
+  if (s === 'inactive') return '<span class="badge badge-inactive">비활성</span>';
+  if (s === 'pending')  return '<span class="badge badge-pending">대기</span>';
+  if (s === 'paid')     return '<span class="badge badge-paid">지급완료</span>';
+  return `<span class="badge">${s}</span>`;
+}
+
+function fmtMoney(n) {
+  n = parseFloat(n) || 0;
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'K';
+  return '$' + n.toFixed(2);
+}
+
+function fmtDate(s) { return s ? s.slice(0,10) : '--'; }
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+
+async function renderDashboard() {
+  document.getElementById('mainArea').innerHTML = `
+    <div class="topbar">
+      <div><div class="page-title">📊 대시보드</div><div class="page-sub">서비스 현황 요약</div></div>
+    </div>
+    <div class="stats-grid" id="statsGrid">
+      ${['--','--','--','--'].map(v => `<div class="stat-card"><div class="stat-label">로딩중</div><div class="stat-val">${v}</div></div>`).join('')}
+    </div>
+    <div class="section">
+      <div class="section-header"><div class="section-title2">📈 거래소별 유저 현황</div></div>
+      <div style="padding:20px;" id="exChart">로딩중...</div>
+    </div>`;
+
+  const d = await api('/stats');
+  if (d.error) { toast(d.error, 'error'); return; }
+
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">총 유저수</div>
+      <div class="stat-val">${d.totalUsers}</div>
+      <div class="stat-sub">전체 등록 유저</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">이번달 정산 예정</div>
+      <div class="stat-val green">${fmtMoney(d.monthlySettlement)}</div>
+      <div class="stat-sub">${new Date().toISOString().slice(0,7)} 기준</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">미지급 건수</div>
+      <div class="stat-val ${d.unpaidCount > 0 ? 'red' : 'green'}">${d.unpaidCount}</div>
+      <div class="stat-sub">대기 중인 정산</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">활성 거래소</div>
+      <div class="stat-val yellow">${(d.byExchange||[]).length}</div>
+      <div class="stat-sub">Bitget / OKX / Gate.io</div>
+    </div>`;
+
+  const byEx = d.byExchange || [];
+  const max = Math.max(1, ...byEx.map(x => x.cnt));
+  const exColors = { Bitget: '#3b82f6', OKX: '#e5e7eb', 'Gate.io': '#f87171' };
+  document.getElementById('exChart').innerHTML = byEx.length ? byEx.map(x => `
+    <div class="ex-bar-row">
+      <div class="ex-bar-label">${x.exchange}</div>
+      <div class="ex-bar-track"><div class="ex-bar-fill" style="width:${(x.cnt/max*100).toFixed(0)}%;background:${exColors[x.exchange]||'#9333ea'};"></div></div>
+      <div class="ex-bar-val">${x.cnt}명</div>
+    </div>`).join('') : '<div style="color:var(--txt3);font-size:13px;">유저 없음</div>';
+}
+
+// ── Users ─────────────────────────────────────────────────────────────────────
+
+let usersData = [];
+
+async function renderUsers(ex='', st='', q='') {
+  document.getElementById('mainArea').innerHTML = `
+    <div class="topbar">
+      <div><div class="page-title">👥 유저 관리</div><div class="page-sub">전체 유저 한눈에 보기</div></div>
+      <button class="btn-primary" onclick="openUserModal()">+ 유저 추가</button>
+    </div>
+    <div class="section">
+      <div class="filters">
+        <select class="filter-select" id="filterEx" onchange="filterUsers()">
+          <option value="">전체 거래소</option>
+          <option value="Bitget">Bitget</option>
+          <option value="OKX">OKX</option>
+          <option value="Gate.io">Gate.io</option>
+        </select>
+        <select class="filter-select" id="filterSt" onchange="filterUsers()">
+          <option value="">전체 상태</option>
+          <option value="active">활성</option>
+          <option value="inactive">비활성</option>
+        </select>
+        <input type="text" class="filter-input" id="filterQ" placeholder="닉네임/UID 검색" onkeydown="if(event.key==='Enter')filterUsers()">
+        <button class="btn-sm" onclick="filterUsers()">검색</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>닉네임</th><th>UID</th><th>거래소</th><th>가입일</th>
+            <th>누적 거래량</th><th>누적 페이백</th><th>상태</th><th>액션</th>
+          </tr></thead>
+          <tbody id="usersBody"><tr><td colspan="8" class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">로딩중...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+
+  if (ex) document.getElementById('filterEx').value = ex;
+  if (st) document.getElementById('filterSt').value = st;
+  if (q)  document.getElementById('filterQ').value  = q;
+
+  await loadUsers();
+}
+
+async function loadUsers() {
+  const ex = document.getElementById('filterEx')?.value || '';
+  const st = document.getElementById('filterSt')?.value || '';
+  const q  = document.getElementById('filterQ')?.value  || '';
+  const params = new URLSearchParams();
+  if (ex) params.set('exchange', ex);
+  if (st) params.set('status',   st);
+  if (q)  params.set('search',   q);
+  const d = await api('/users?' + params);
+  if (d.error) { toast(d.error, 'error'); return; }
+  usersData = d.users || [];
+  const body = document.getElementById('usersBody');
+  if (!body) return;
+  if (!usersData.length) {
+    body.innerHTML = '<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">👤</div><div class="empty-text">등록된 유저가 없습니다</div></div></td></tr>';
+    return;
+  }
+  body.innerHTML = usersData.map(u => `<tr>
+    <td style="font-weight:600;">${u.nickname||'--'}</td>
+    <td style="font-family:monospace;color:var(--txt2);">${u.uid||'--'}</td>
+    <td>${exBadge(u.exchange)}</td>
+    <td style="color:var(--txt2);">${fmtDate(u.join_date)}</td>
+    <td style="font-family:monospace;">${fmtMoney(u.total_volume)}</td>
+    <td style="color:var(--green);font-weight:600;">${fmtMoney(u.total_payback)}</td>
+    <td>${statusBadge(u.status)}</td>
+    <td style="display:flex;gap:6px;">
+      <button class="btn-sm" onclick="openUserDetail(${u.id})">상세</button>
+      <button class="btn-sm" onclick="openUserModal(${u.id})">수정</button>
+      <button class="btn-danger" onclick="deleteUser(${u.id})">삭제</button>
+    </td>
+  </tr>`).join('');
+}
+
+function filterUsers() { loadUsers(); }
+
+async function openUserDetail(id) {
+  const d = await api('/users/' + id);
+  if (d.error) { toast(d.error, 'error'); return; }
+  const u = d.user;
+  const settl = d.settlements || [];
+  const html = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">👤 ${u.nickname || u.uid}</div>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-card"><div class="detail-key">거래소</div><div class="detail-val">${exBadge(u.exchange)}</div></div>
+          <div class="detail-card"><div class="detail-key">UID</div><div class="detail-val" style="font-family:monospace;">${u.uid}</div></div>
+          <div class="detail-card"><div class="detail-key">가입일</div><div class="detail-val">${fmtDate(u.join_date)}</div></div>
+          <div class="detail-card"><div class="detail-key">상태</div><div class="detail-val">${statusBadge(u.status)}</div></div>
+          <div class="detail-card"><div class="detail-key">텔레그램</div><div class="detail-val" style="color:var(--txt2);">${u.telegram||'--'}</div></div>
+          <div class="detail-card"><div class="detail-key">등록일</div><div class="detail-val">${fmtDate(u.created_at)}</div></div>
+        </div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;">📋 정산 내역</div>
+        ${settl.length ? `<table><thead><tr><th>월</th><th>거래량</th><th>수수료</th><th>페이백</th><th>상태</th></tr></thead><tbody>
+        ${settl.map(s=>`<tr>
+          <td>${s.month}</td>
+          <td>${fmtMoney(s.volume)}</td>
+          <td>${fmtMoney(s.fee)}</td>
+          <td style="color:var(--green);font-weight:600;">${fmtMoney(s.payback_amount)}</td>
+          <td>${statusBadge(s.status)}</td>
+        </tr>`).join('')}
+        </tbody></table>` : '<div style="color:var(--txt3);font-size:13px;">정산 내역 없음</div>'}
+      </div>
+    </div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function openUserModal(id = null) {
+  const u = id ? usersData.find(x => x.id === id) : null;
+  const html = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">${u ? '✏️ 유저 수정' : '➕ 유저 추가'}</div>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">닉네임</label>
+            <input class="form-input" id="fNick" value="${u?.nickname||''}" placeholder="트레이더 닉네임"></div>
+          <div class="form-group"><label class="form-label">UID *</label>
+            <input class="form-input" id="fUid" value="${u?.uid||''}" placeholder="거래소 UID"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">거래소 *</label>
+            <select class="form-select" id="fEx">
+              ${['Bitget','OKX','Gate.io'].map(e=>`<option${(u?.exchange===e)?' selected':''}>${e}</option>`).join('')}
+            </select></div>
+          <div class="form-group"><label class="form-label">텔레그램</label>
+            <input class="form-input" id="fTg" value="${u?.telegram||''}" placeholder="@username"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">가입일 *</label>
+            <input type="date" class="form-input" id="fJoin" value="${u?.join_date?.slice(0,10)||new Date().toISOString().slice(0,10)}"></div>
+          <div class="form-group"><label class="form-label">상태</label>
+            <select class="form-select" id="fSt">
+              <option value="active"${u?.status==='active'?' selected':''}>활성</option>
+              <option value="inactive"${u?.status==='inactive'?' selected':''}>비활성</option>
+            </select></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm" onclick="this.closest('.modal-overlay').remove()">취소</button>
+        <button class="btn-primary" onclick="saveUser(${id||'null'}, this)">저장</button>
+      </div>
+    </div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function saveUser(id, btn) {
+  btn.disabled = true;
+  const body = { nickname: document.getElementById('fNick').value, uid: document.getElementById('fUid').value,
+    exchange: document.getElementById('fEx').value, telegram: document.getElementById('fTg').value,
+    join_date: document.getElementById('fJoin').value, status: document.getElementById('fSt').value };
+  if (!body.uid) { toast('UID를 입력하세요', 'error'); btn.disabled=false; return; }
+  const d = id ? await api('/users/' + id, 'PUT', body) : await api('/users', 'POST', body);
+  if (d.ok) {
+    toast(id ? '유저 수정 완료' : '유저 추가 완료');
+    btn.closest('.modal-overlay').remove();
+    loadUsers();
+  } else {
+    toast(d.error || '오류', 'error'); btn.disabled=false;
+  }
+}
+
+async function deleteUser(id) {
+  if (!confirm('정말 삭제하시겠습니까? 관련 정산 내역도 함께 삭제됩니다.')) return;
+  const d = await api('/users/' + id, 'DELETE');
+  if (d.ok) { toast('삭제 완료'); loadUsers(); }
+  else toast(d.error || '오류', 'error');
+}
+
+// ── Settlements ───────────────────────────────────────────────────────────────
+
+let settlData = [];
+
+async function renderSettlements() {
+  const curMonth = new Date().toISOString().slice(0,7);
+  document.getElementById('mainArea').innerHTML = `
+    <div class="topbar">
+      <div><div class="page-title">💰 정산 관리</div><div class="page-sub">월별 정산 내역 및 지급 상태</div></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-sm" onclick="exportCSV()">📥 CSV 내보내기</button>
+        <button class="btn-primary" onclick="openSettlModal()">+ 정산 추가</button>
+      </div>
+    </div>
+    <div class="section">
+      <div class="filters">
+        <input type="month" class="filter-input" id="sFilterMo" value="${curMonth}" onchange="loadSettlements()">
+        <select class="filter-select" id="sFilterEx" onchange="loadSettlements()">
+          <option value="">전체 거래소</option>
+          <option value="Bitget">Bitget</option><option value="OKX">OKX</option><option value="Gate.io">Gate.io</option>
+        </select>
+        <select class="filter-select" id="sFilterSt" onchange="loadSettlements()">
+          <option value="">전체 상태</option>
+          <option value="pending">대기</option><option value="paid">지급완료</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>닉네임</th><th>UID</th><th>거래소</th><th>월</th><th>거래량</th><th>수수료</th><th>페이백</th><th>상태</th><th>지급일</th><th>액션</th></tr></thead>
+          <tbody id="settlBody"><tr><td colspan="10" class="empty-state"><div class="empty-text">로딩중...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  loadSettlements();
+}
+
+async function loadSettlements() {
+  const mo = document.getElementById('sFilterMo')?.value || '';
+  const ex = document.getElementById('sFilterEx')?.value || '';
+  const st = document.getElementById('sFilterSt')?.value || '';
+  const p = new URLSearchParams();
+  if (mo) p.set('month', mo);
+  if (ex) p.set('exchange', ex);
+  if (st) p.set('status', st);
+  const d = await api('/settlements?' + p);
+  if (d.error) { toast(d.error,'error'); return; }
+  settlData = d.settlements || [];
+  const body = document.getElementById('settlBody');
+  if (!body) return;
+  if (!settlData.length) {
+    body.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">💸</div><div class="empty-text">정산 내역 없음</div></div></td></tr>';
+    return;
+  }
+  // Summary row
+  const totVol = settlData.reduce((a,s)=>a+parseFloat(s.volume||0),0);
+  const totFee = settlData.reduce((a,s)=>a+parseFloat(s.fee||0),0);
+  const totPay = settlData.reduce((a,s)=>a+parseFloat(s.payback_amount||0),0);
+  body.innerHTML = settlData.map(s => `<tr>
+    <td style="font-weight:600;">${s.nickname||'--'}</td>
+    <td style="font-family:monospace;color:var(--txt2);font-size:11px;">${s.user_uid||'--'}</td>
+    <td>${exBadge(s.user_exchange||s.exchange)}</td>
+    <td>${s.month}</td>
+    <td>${fmtMoney(s.volume)}</td>
+    <td>${fmtMoney(s.fee)}</td>
+    <td style="color:var(--green);font-weight:600;">${fmtMoney(s.payback_amount)}</td>
+    <td>${statusBadge(s.status)}</td>
+    <td style="color:var(--txt2);">${fmtDate(s.paid_date)}</td>
+    <td style="display:flex;gap:4px;">
+      ${s.status==='pending'
+        ? `<button class="btn-success" onclick="markPaid(${s.id})">지급</button>`
+        : `<button class="btn-sm" onclick="markPending(${s.id})">취소</button>`}
+      <button class="btn-sm" onclick="openSettlModal(${s.id})">수정</button>
+      <button class="btn-danger" onclick="deleteSettl(${s.id})">삭제</button>
+    </td>
+  </tr>`).join('') + `<tr style="background:rgba(255,255,255,0.03);">
+    <td colspan="4" style="font-weight:700;color:var(--txt2);">합계 (${settlData.length}건)</td>
+    <td style="font-weight:700;">${fmtMoney(totVol)}</td>
+    <td style="font-weight:700;">${fmtMoney(totFee)}</td>
+    <td style="color:var(--green);font-weight:700;">${fmtMoney(totPay)}</td>
+    <td colspan="3"></td>
+  </tr>`;
+}
+
+async function markPaid(id) {
+  const today = new Date().toISOString().slice(0,10);
+  const s = settlData.find(x=>x.id===id);
+  if (!s) return;
+  const d = await api('/settlements/'+id,'PUT',{...s, status:'paid', paid_date:today});
+  if (d.ok) { toast('지급 완료 처리'); loadSettlements(); }
+  else toast(d.error,'error');
+}
+async function markPending(id) {
+  const s = settlData.find(x=>x.id===id);
+  if (!s) return;
+  const d = await api('/settlements/'+id,'PUT',{...s, status:'pending', paid_date:null});
+  if (d.ok) { toast('대기 상태로 변경'); loadSettlements(); }
+  else toast(d.error,'error');
+}
+async function deleteSettl(id) {
+  if (!confirm('정산 내역을 삭제하시겠습니까?')) return;
+  const d = await api('/settlements/'+id,'DELETE');
+  if (d.ok) { toast('삭제 완료'); loadSettlements(); }
+  else toast(d.error,'error');
+}
+
+async function openSettlModal(id = null) {
+  const s = id ? settlData.find(x=>x.id===id) : null;
+  // Load users for dropdown
+  const ud = await api('/users');
+  const users = (ud.users||[]);
+  const html = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">${s?'✏️ 정산 수정':'➕ 정산 추가'}</div>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">유저 *</label>
+          <select class="form-select" id="sUserId">
+            ${users.map(u=>`<option value="${u.id}"${s?.user_id===u.id?' selected':''}>${u.nickname||u.uid} (${u.exchange})</option>`).join('')}
+          </select></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">월 *</label>
+            <input type="month" class="form-input" id="sMonth" value="${s?.month||new Date().toISOString().slice(0,7)}"></div>
+          <div class="form-group"><label class="form-label">거래소</label>
+            <select class="form-select" id="sEx">
+              ${['Bitget','OKX','Gate.io'].map(e=>`<option${(s?.exchange||s?.user_exchange)===e?' selected':''}>${e}</option>`).join('')}
+            </select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">거래량 (USDT)</label>
+            <input type="number" class="form-input" id="sVol" value="${s?.volume||0}" step="0.01"></div>
+          <div class="form-group"><label class="form-label">수수료 (USDT)</label>
+            <input type="number" class="form-input" id="sFee" value="${s?.fee||0}" step="0.0001"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">페이백 금액 (USDT)</label>
+            <input type="number" class="form-input" id="sPay" value="${s?.payback_amount||0}" step="0.01"></div>
+          <div class="form-group"><label class="form-label">상태</label>
+            <select class="form-select" id="sSt">
+              <option value="pending"${s?.status==='pending'?' selected':''}>대기</option>
+              <option value="paid"${s?.status==='paid'?' selected':''}>지급완료</option>
+            </select></div>
+        </div>
+        <div class="form-group"><label class="form-label">지급일</label>
+          <input type="date" class="form-input" id="sPaidDate" value="${s?.paid_date||''}"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm" onclick="this.closest('.modal-overlay').remove()">취소</button>
+        <button class="btn-primary" onclick="saveSettl(${id||'null'},this)">저장</button>
+      </div>
+    </div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function saveSettl(id, btn) {
+  btn.disabled = true;
+  const body = { user_id: +document.getElementById('sUserId').value,
+    exchange: document.getElementById('sEx').value, month: document.getElementById('sMonth').value,
+    volume: +document.getElementById('sVol').value, fee: +document.getElementById('sFee').value,
+    payback_amount: +document.getElementById('sPay').value, status: document.getElementById('sSt').value,
+    paid_date: document.getElementById('sPaidDate').value || null };
+  const d = id ? await api('/settlements/'+id,'PUT',body) : await api('/settlements','POST',body);
+  if (d.ok) { toast(id?'수정 완료':'추가 완료'); btn.closest('.modal-overlay').remove(); loadSettlements(); }
+  else { toast(d.error||'오류','error'); btn.disabled=false; }
+}
+
+function exportCSV() {
+  if (!settlData.length) { toast('내보낼 데이터 없음','error'); return; }
+  const headers = ['닉네임','UID','거래소','월','거래량','수수료','페이백','상태','지급일'];
+  const rows = settlData.map(s => [s.nickname||'',s.user_uid||'',s.user_exchange||s.exchange,s.month,s.volume,s.fee,s.payback_amount,s.status,s.paid_date||'']);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+  a.download = `settlements_${new Date().toISOString().slice(0,7)}.csv`;
+  a.click();
+  toast('CSV 다운로드 완료');
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+
+let eventsData = [];
+
+async function renderEvents() {
+  document.getElementById('mainArea').innerHTML = `
+    <div class="topbar">
+      <div><div class="page-title">🎯 이벤트 관리</div><div class="page-sub">거래소별 이벤트 추가/수정/삭제</div></div>
+      <button class="btn-primary" onclick="openEventModal()">+ 이벤트 추가</button>
+    </div>
+    <div class="section">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>거래소</th><th>제목</th><th>기간</th><th>링크</th><th>활성</th><th>액션</th></tr></thead>
+          <tbody id="eventsBody"><tr><td colspan="6" class="empty-state"><div class="empty-text">로딩중...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  await loadEvents();
+}
+
+async function loadEvents() {
+  const d = await api('/events');
+  if (d.error) { toast(d.error,'error'); return; }
+  eventsData = d.events || [];
+  const body = document.getElementById('eventsBody');
+  if (!body) return;
+  if (!eventsData.length) {
+    body.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🎯</div><div class="empty-text">이벤트 없음</div></div></td></tr>';
+    return;
+  }
+  body.innerHTML = eventsData.map(e=>`<tr>
+    <td>${exBadge(e.exchange)}</td>
+    <td style="font-weight:600;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.title}</td>
+    <td style="color:var(--txt2);font-size:12px;">${fmtDate(e.start_date)} ~ ${fmtDate(e.end_date)}</td>
+    <td>${e.link?`<a href="${e.link}" target="_blank" style="color:var(--cyan);font-size:12px;">링크↗</a>`:'--'}</td>
+    <td>
+      <label class="toggle"><input type="checkbox" ${e.is_active?'checked':''} onchange="toggleEvent(${e.id},this.checked)"><span class="toggle-slider"></span></label>
+    </td>
+    <td style="display:flex;gap:4px;">
+      <button class="btn-sm" onclick="openEventModal(${e.id})">수정</button>
+      <button class="btn-danger" onclick="deleteEvent(${e.id})">삭제</button>
+    </td>
+  </tr>`).join('');
+}
+
+async function toggleEvent(id, active) {
+  const e = eventsData.find(x=>x.id===id);
+  if (!e) return;
+  await api('/events/'+id,'PUT',{...e, is_active:active?1:0});
+  toast(active?'이벤트 활성화':'이벤트 비활성화');
+  loadEvents();
+}
+
+function openEventModal(id=null) {
+  const e = id ? eventsData.find(x=>x.id===id) : null;
+  const html = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">${e?'✏️ 이벤트 수정':'➕ 이벤트 추가'}</div>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">거래소 *</label>
+            <select class="form-select" id="eEx">
+              ${['Bitget','OKX','Gate.io'].map(ex=>`<option${e?.exchange===ex?' selected':''}>${ex}</option>`).join('')}
+            </select></div>
+          <div class="form-group"><label class="form-label">활성 여부</label>
+            <select class="form-select" id="eActive">
+              <option value="1"${e?.is_active?'1':''===' selected':''}>활성</option>
+              <option value="0"${!e?.is_active?'0':''===' selected':''}>비활성</option>
+            </select></div>
+        </div>
+        <div class="form-group"><label class="form-label">제목 *</label>
+          <input class="form-input" id="eTitle" value="${e?.title||''}" placeholder="이벤트 제목"></div>
+        <div class="form-group"><label class="form-label">설명</label>
+          <textarea class="form-textarea" id="eDesc">${e?.description||''}</textarea></div>
+        <div class="form-group"><label class="form-label">이미지 URL</label>
+          <input class="form-input" id="eImg" value="${e?.image_url||''}" placeholder="https://..."></div>
+        <div class="form-group"><label class="form-label">링크 URL</label>
+          <input class="form-input" id="eLink" value="${e?.link||''}" placeholder="https://..."></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">시작일</label>
+            <input type="date" class="form-input" id="eStart" value="${e?.start_date?.slice(0,10)||''}"></div>
+          <div class="form-group"><label class="form-label">종료일</label>
+            <input type="date" class="form-input" id="eEnd" value="${e?.end_date?.slice(0,10)||''}"></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm" onclick="this.closest('.modal-overlay').remove()">취소</button>
+        <button class="btn-primary" onclick="saveEvent(${id||'null'},this)">저장</button>
+      </div>
+    </div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function saveEvent(id, btn) {
+  btn.disabled = true;
+  const body = { exchange: document.getElementById('eEx').value, title: document.getElementById('eTitle').value,
+    description: document.getElementById('eDesc').value, image_url: document.getElementById('eImg').value,
+    link: document.getElementById('eLink').value, start_date: document.getElementById('eStart').value,
+    end_date: document.getElementById('eEnd').value, is_active: +document.getElementById('eActive').value };
+  if (!body.title) { toast('제목을 입력하세요','error'); btn.disabled=false; return; }
+  const d = id ? await api('/events/'+id,'PUT',body) : await api('/events','POST',body);
+  if (d.ok) { toast(id?'수정 완료':'추가 완료'); btn.closest('.modal-overlay').remove(); loadEvents(); }
+  else { toast(d.error||'오류','error'); btn.disabled=false; }
+}
+
+async function deleteEvent(id) {
+  if (!confirm('이벤트를 삭제하시겠습니까?')) return;
+  const d = await api('/events/'+id,'DELETE');
+  if (d.ok) { toast('삭제 완료'); loadEvents(); }
+  else toast(d.error,'error');
+}
+
+// ── Banners ───────────────────────────────────────────────────────────────────
+
+let bannersData = [];
+
+async function renderBanners() {
+  document.getElementById('mainArea').innerHTML = `
+    <div class="topbar">
+      <div><div class="page-title">🖼️ 배너 관리</div><div class="page-sub">메인 배너 이미지/링크 수정</div></div>
+      <button class="btn-primary" onclick="openBannerModal()">+ 배너 추가</button>
+    </div>
+    <div class="section">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>제목</th><th>노출 위치</th><th>링크</th><th>활성</th><th>액션</th></tr></thead>
+          <tbody id="bannersBody"><tr><td colspan="5" class="empty-state"><div class="empty-text">로딩중...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  await loadBanners();
+}
+
+async function loadBanners() {
+  const d = await api('/banners');
+  if (d.error) { toast(d.error,'error'); return; }
+  bannersData = d.banners || [];
+  const body = document.getElementById('bannersBody');
+  if (!body) return;
+  if (!bannersData.length) {
+    body.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">🖼️</div><div class="empty-text">배너 없음</div></div></td></tr>';
+    return;
+  }
+  body.innerHTML = bannersData.map(b=>`<tr>
+    <td style="font-weight:600;">${b.title}</td>
+    <td><span class="badge" style="background:rgba(147,51,234,0.12);color:var(--purple);">${b.position}</span></td>
+    <td>${b.link?`<a href="${b.link}" target="_blank" style="color:var(--cyan);font-size:12px;">링크↗</a>`:'--'}</td>
+    <td><label class="toggle"><input type="checkbox" ${b.is_active?'checked':''} onchange="toggleBanner(${b.id},this.checked)"><span class="toggle-slider"></span></label></td>
+    <td style="display:flex;gap:4px;">
+      <button class="btn-sm" onclick="openBannerModal(${b.id})">수정</button>
+      <button class="btn-danger" onclick="deleteBanner(${b.id})">삭제</button>
+    </td>
+  </tr>`).join('');
+}
+
+async function toggleBanner(id, active) {
+  const b = bannersData.find(x=>x.id===id);
+  if (!b) return;
+  await api('/banners/'+id,'PUT',{...b,is_active:active?1:0});
+  toast(active?'배너 활성화':'배너 비활성화');
+  loadBanners();
+}
+
+function openBannerModal(id=null) {
+  const b = id ? bannersData.find(x=>x.id===id) : null;
+  const html = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">${b?'✏️ 배너 수정':'➕ 배너 추가'}</div>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">제목 *</label>
+          <input class="form-input" id="bTitle" value="${b?.title||''}" placeholder="배너 제목"></div>
+        <div class="form-group"><label class="form-label">이미지 URL</label>
+          <input class="form-input" id="bImg" value="${b?.image_url||''}" placeholder="https://..."></div>
+        <div class="form-group"><label class="form-label">링크 URL</label>
+          <input class="form-input" id="bLink" value="${b?.link||''}" placeholder="https://..."></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">노출 위치</label>
+            <select class="form-select" id="bPos">
+              <option value="main"${b?.position==='main'?' selected':''}>메인</option>
+              <option value="top"${b?.position==='top'?' selected':''}>상단</option>
+              <option value="sidebar"${b?.position==='sidebar'?' selected':''}>사이드바</option>
+            </select></div>
+          <div class="form-group"><label class="form-label">활성 여부</label>
+            <select class="form-select" id="bActive">
+              <option value="1">활성</option><option value="0"${!b?.is_active?' selected':''}>비활성</option>
+            </select></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm" onclick="this.closest('.modal-overlay').remove()">취소</button>
+        <button class="btn-primary" onclick="saveBanner(${id||'null'},this)">저장</button>
+      </div>
+    </div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function saveBanner(id, btn) {
+  btn.disabled = true;
+  const body = { title: document.getElementById('bTitle').value, image_url: document.getElementById('bImg').value,
+    link: document.getElementById('bLink').value, position: document.getElementById('bPos').value,
+    is_active: +document.getElementById('bActive').value };
+  if (!body.title) { toast('제목을 입력하세요','error'); btn.disabled=false; return; }
+  const d = id ? await api('/banners/'+id,'PUT',body) : await api('/banners','POST',body);
+  if (d.ok) { toast(id?'수정 완료':'추가 완료'); btn.closest('.modal-overlay').remove(); loadBanners(); }
+  else { toast(d.error||'오류','error'); btn.disabled=false; }
+}
+
+async function deleteBanner(id) {
+  if (!confirm('배너를 삭제하시겠습니까?')) return;
+  const d = await api('/banners/'+id,'DELETE');
+  if (d.ok) { toast('삭제 완료'); loadBanners(); }
+  else toast(d.error,'error');
+}
+
+// ── Notices ───────────────────────────────────────────────────────────────────
+
+let noticesData = [];
+
+async function renderNotices() {
+  document.getElementById('mainArea').innerHTML = `
+    <div class="topbar">
+      <div><div class="page-title">📢 공지사항</div><div class="page-sub">공지 추가/수정/삭제</div></div>
+      <button class="btn-primary" onclick="openNoticeModal()">+ 공지 추가</button>
+    </div>
+    <div class="section">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>상단고정</th><th>제목</th><th>등록일</th><th>액션</th></tr></thead>
+          <tbody id="noticesBody"><tr><td colspan="4" class="empty-state"><div class="empty-text">로딩중...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+  await loadNotices();
+}
+
+async function loadNotices() {
+  const d = await api('/notices');
+  if (d.error) { toast(d.error,'error'); return; }
+  noticesData = d.notices || [];
+  const body = document.getElementById('noticesBody');
+  if (!body) return;
+  if (!noticesData.length) {
+    body.innerHTML = '<tr><td colspan="4"><div class="empty-state"><div class="empty-icon">📢</div><div class="empty-text">공지사항 없음</div></div></td></tr>';
+    return;
+  }
+  body.innerHTML = noticesData.map(n=>`<tr>
+    <td><label class="toggle"><input type="checkbox" ${n.is_pinned?'checked':''} onchange="togglePin(${n.id},this.checked)"><span class="toggle-slider"></span></label></td>
+    <td style="font-weight:600;">${n.is_pinned?'📌 ':''}<span style="cursor:pointer;color:var(--cyan);" onclick="viewNotice(${n.id})">${n.title}</span></td>
+    <td style="color:var(--txt2);font-size:12px;">${fmtDate(n.created_at)}</td>
+    <td style="display:flex;gap:4px;">
+      <button class="btn-sm" onclick="openNoticeModal(${n.id})">수정</button>
+      <button class="btn-danger" onclick="deleteNotice(${n.id})">삭제</button>
+    </td>
+  </tr>`).join('');
+}
+
+function viewNotice(id) {
+  const n = noticesData.find(x=>x.id===id);
+  if (!n) return;
+  const html = `<div class="modal-overlay" onclick="if(event.target===this)this.remove()"><div class="modal">
+    <div class="modal-header"><div class="modal-title">${n.is_pinned?'📌 ':''}${n.title}</div>
+      <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button></div>
+    <div class="modal-body" style="font-size:14px;line-height:1.8;color:var(--txt2);white-space:pre-wrap;">${n.content||'(내용 없음)'}</div>
+    <div class="modal-footer"><div style="font-size:11px;color:var(--txt3);">등록일: ${fmtDate(n.created_at)}</div>
+      <button class="btn-sm" onclick="this.closest('.modal-overlay').remove()">닫기</button></div>
+  </div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function togglePin(id, pinned) {
+  const n = noticesData.find(x=>x.id===id);
+  if (!n) return;
+  await api('/notices/'+id,'PUT',{...n,is_pinned:pinned?1:0});
+  toast(pinned?'상단 고정':'고정 해제');
+  loadNotices();
+}
+
+function openNoticeModal(id=null) {
+  const n = id ? noticesData.find(x=>x.id===id) : null;
+  const html = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+    <div class="modal">
+      <div class="modal-header"><div class="modal-title">${n?'✏️ 공지 수정':'➕ 공지 추가'}</div>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button></div>
+      <div class="modal-body">
+        <div class="form-group"><label class="form-label">제목 *</label>
+          <input class="form-input" id="nTitle" value="${n?.title||''}" placeholder="공지 제목"></div>
+        <div class="form-group"><label class="form-label">내용</label>
+          <textarea class="form-textarea" style="min-height:120px;" id="nContent">${n?.content||''}</textarea></div>
+        <div class="form-group">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+            <label class="toggle"><input type="checkbox" id="nPinned" ${n?.is_pinned?'checked':''}><span class="toggle-slider"></span></label>
+            <span class="form-label" style="margin:0;">상단 고정</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm" onclick="this.closest('.modal-overlay').remove()">취소</button>
+        <button class="btn-primary" onclick="saveNotice(${id||'null'},this)">저장</button>
+      </div>
+    </div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function saveNotice(id, btn) {
+  btn.disabled = true;
+  const body = { title: document.getElementById('nTitle').value,
+    content: document.getElementById('nContent').value,
+    is_pinned: document.getElementById('nPinned').checked ? 1 : 0 };
+  if (!body.title) { toast('제목을 입력하세요','error'); btn.disabled=false; return; }
+  const d = id ? await api('/notices/'+id,'PUT',body) : await api('/notices','POST',body);
+  if (d.ok) { toast(id?'수정 완료':'추가 완료'); btn.closest('.modal-overlay').remove(); loadNotices(); }
+  else { toast(d.error||'오류','error'); btn.disabled=false; }
+}
+
+async function deleteNotice(id) {
+  if (!confirm('공지사항을 삭제하시겠습니까?')) return;
+  const d = await api('/notices/'+id,'DELETE');
+  if (d.ok) { toast('삭제 완료'); loadNotices(); }
+  else toast(d.error,'error');
+}
+</script>
+</body>
+</html>

@@ -4,3 +4,8 @@ compatibility_date = "2024-01-01"
 
 [site]
 bucket = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "1percent-admin"
+database_id = "eeac24cb-a420-471f-babb-47ebb73daf30"
