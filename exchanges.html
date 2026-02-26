@@ -240,9 +240,56 @@
         .rj-cta { margin-top: 12px; }
         .rj-cta a { display: inline-block; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; }
         .rj-cta a:hover { opacity: 0.85; }
+        /* ===== 명예의 전당 ===== */
+        .hof-section { margin-bottom: 28px; }
+        .hof-header { font-size: 15px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+        .hof-grid { display: flex; flex-direction: column; gap: 8px; }
+        .hof-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 16px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+        .hof-item.top1 { border-color: rgba(255,215,0,0.35); background: rgba(255,215,0,0.04); }
+        .hof-item.top2 { border-color: rgba(192,192,192,0.3); background: rgba(192,192,192,0.03); }
+        .hof-item.top3 { border-color: rgba(205,127,50,0.3); background: rgba(205,127,50,0.03); }
+        .hof-tier-img { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
+        .hof-info { flex: 1; min-width: 0; }
+        .hof-name { font-size: 13px; font-weight: 600; }
+        .hof-ex { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+        .hof-reward { font-family: 'Orbitron', monospace; font-size: 14px; font-weight: 700; color: var(--accent-cyan); text-align: right; }
+        .hof-reward small { display: block; font-size: 9px; color: var(--text-muted); font-family: inherit; font-weight: 400; margin-top: 2px; }
+        .hof-notice { margin-top: 10px; padding: 8px 12px; background: rgba(0,184,217,0.05); border: 1px solid rgba(0,184,217,0.1); border-radius: 8px; font-size: 11px; color: var(--text-muted); text-align: center; }
+        /* ===== 이벤트 카드 ===== */
+        .event-section { margin-bottom: 28px; }
+        .event-section-title { font-size: 15px; font-weight: 700; margin-bottom: 14px; }
+        .event-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+        .event-tab {
+            padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--border-color);
+            background: var(--bg-card); color: var(--text-muted); transition: all 0.2s;
+        }
+        .event-tab.active { background: rgba(0,0,0,0.15); border-color: #fff; color: #fff; }
+        .event-tab[data-ex="okx"].active { background: rgba(255,255,255,0.08); border-color: #aaa; color: #fff; }
+        .event-panel { display: none; flex-direction: column; gap: 10px; }
+        .event-panel.active { display: flex; }
+        .event-card {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 18px;
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: 12px; cursor: pointer; text-decoration: none;
+            transition: all 0.2s;
+        }
+        .event-card:hover { background: var(--bg-card-hover); border-color: rgba(255,255,255,0.2); }
+        .event-icon { font-size: 28px; flex-shrink: 0; }
+        .event-info { flex: 1; }
+        .event-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+        .event-desc { font-size: 12px; color: var(--text-muted); }
+        .event-arrow { font-size: 16px; color: var(--text-muted); flex-shrink: 0; }
         @media (max-width: 600px) {
             .rj-tabs { flex-wrap: wrap; }
             .rj-tab { font-size: 12px; padding: 6px 12px; }
+            .event-tabs { flex-wrap: wrap; }
         }
         @media (max-width: 480px) {
             .container { padding: 72px 12px 32px; }
@@ -271,6 +318,80 @@
         <div class="page-header">
             <h1>🏦 제휴 거래소</h1>
             <p>1% Trading PRO를 통해 가입하고 최대 85% 페이백을 받으세요</p>
+        </div>
+
+        <!-- 명예의 전당 -->
+        <div class="hof-section">
+            <div class="hof-header">🏆 명예의 전당 <span style="font-size:11px;color:var(--text-muted);font-weight:400;">· 이번 달 Reward TOP 5</span></div>
+            <div class="hof-grid">
+                <div class="hof-item top1">
+                    <img class="hof-tier-img" src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/images/ranked-emblem/emblem-challenger.png" alt="Challenger" onerror="this.style.display='none'">
+                    <div class="hof-info">
+                        <div class="hof-name">k***r</div>
+                        <div class="hof-ex">Bitget · Challenger</div>
+                    </div>
+                    <div class="hof-reward">$2,847.30<small>이번 달 Reward</small></div>
+                </div>
+                <div class="hof-item top2">
+                    <img class="hof-tier-img" src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/images/ranked-emblem/emblem-grandmaster.png" alt="Grandmaster" onerror="this.style.display='none'">
+                    <div class="hof-info">
+                        <div class="hof-name">tra****</div>
+                        <div class="hof-ex">Bitget · Grandmaster</div>
+                    </div>
+                    <div class="hof-reward">$1,523.70<small>이번 달 Reward</small></div>
+                </div>
+                <div class="hof-item top3">
+                    <img class="hof-tier-img" src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/images/ranked-emblem/emblem-master.png" alt="Master" onerror="this.style.display='none'">
+                    <div class="hof-info">
+                        <div class="hof-name">m***8</div>
+                        <div class="hof-ex">OKX · Master</div>
+                    </div>
+                    <div class="hof-reward">$987.50<small>이번 달 Reward</small></div>
+                </div>
+                <div class="hof-item">
+                    <img class="hof-tier-img" src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/images/ranked-emblem/emblem-diamond.png" alt="Diamond" onerror="this.style.display='none'">
+                    <div class="hof-info">
+                        <div class="hof-name">sun***</div>
+                        <div class="hof-ex">Gate.io · Diamond</div>
+                    </div>
+                    <div class="hof-reward">$631.20<small>이번 달 Reward</small></div>
+                </div>
+                <div class="hof-item">
+                    <img class="hof-tier-img" src="https://raw.communitydragon.org/latest/plugins/rcp-fe-lol-shared-components/global/default/images/ranked-emblem/emblem-diamond.png" alt="Diamond" onerror="this.style.display='none'">
+                    <div class="hof-info">
+                        <div class="hof-name">j***n</div>
+                        <div class="hof-ex">Bitget · Diamond</div>
+                    </div>
+                    <div class="hof-reward">$412.80<small>이번 달 Reward</small></div>
+                </div>
+            </div>
+            <div class="hof-notice">📊 매월 1일 갱신 · Reward 수령 확인 후 등록 · 프라이버시 보호를 위해 ID 일부 마스킹</div>
+        </div>
+
+        <!-- 거래소 이벤트 -->
+        <div class="event-section">
+            <div class="event-section-title">🎁 거래소 이벤트</div>
+            <div class="event-tabs">
+                <div class="event-tab active" data-ex="okx" onclick="switchEventTab('okx', this)">OKX</div>
+            </div>
+            <div class="event-panel active" id="evPanel-okx">
+                <a class="event-card" href="https://www.okx.com/campaigns/tria-trade-and-earn?channelId=84293762" target="_blank" rel="noopener">
+                    <div class="event-icon">🎯</div>
+                    <div class="event-info">
+                        <div class="event-title">Trial Fund 이벤트 — 거래하고 보상 받기</div>
+                        <div class="event-desc">OKX Trial Fund로 선물 거래 후 보상 획득 · 레퍼럴 링크 자동 적용</div>
+                    </div>
+                    <div class="event-arrow">→</div>
+                </a>
+                <a class="event-card" href="https://www.okx.com/campaigns/reward-rally?channelId=84293762" target="_blank" rel="noopener">
+                    <div class="event-icon">🏆</div>
+                    <div class="event-info">
+                        <div class="event-title">리워드 랠리 이벤트</div>
+                        <div class="event-desc">OKX 리워드 랠리 참가 · 거래량 달성 시 추가 보상 지급</div>
+                    </div>
+                    <div class="event-arrow">→</div>
+                </a>
+            </div>
         </div>
 
         <div class="exchange-header">
@@ -509,6 +630,13 @@
     </div>
 
     <script>
+        function switchEventTab(ex, el) {
+            document.querySelectorAll('.event-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.event-panel').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+            const panel = document.getElementById('evPanel-' + ex);
+            if (panel) panel.classList.add('active');
+        }
         function toggleRejoin() {
             const toggle = document.getElementById('rejoinToggle');
             const body = document.getElementById('rejoinBody');
