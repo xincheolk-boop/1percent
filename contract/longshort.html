@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>롱/숏 비율 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-primary:#0a0a0f;--bg-secondary:#111118;--bg-card:#16161f;--bg-card-hover:#1c1c28;--accent-cyan:#00b8d9;--accent-purple:#9333ea;--accent-green:#00D4A0;--accent-red:#dc2626;--text-primary:#fff;--text-secondary:#9ca3af;--text-muted:#6b7280;--border-color:rgba(255,255,255,0.08); }
+        * { margin:0;padding:0;box-sizing:border-box; }
+        body { font-family:'Noto Sans KR',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh; }
+        .top-bar { position:fixed;top:0;left:0;right:0;height:56px;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-color);display:flex;align-items:center;padding:0 24px;z-index:1000;gap:12px; }
+        .back-btn { display:flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:8px;transition:all 0.2s; }
+        .back-btn:hover { color:var(--accent-cyan);background:var(--bg-card); }
+        .top-breadcrumb { font-size:13px;color:var(--text-muted); }
+        .top-breadcrumb span { color:var(--accent-cyan); }
+        .top-title { font-family:'Orbitron',monospace;font-size:16px;font-weight:700;background:linear-gradient(90deg,var(--accent-cyan),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-left:auto; }
+        .refresh-badge { font-size:11px;color:var(--text-muted);background:var(--bg-card);padding:4px 10px;border-radius:20px;border:1px solid var(--border-color); }
+        .container { max-width:900px;margin:0 auto;padding:72px 24px 40px; }
+        .page-header { margin-bottom:24px; }
+        .page-header h1 { font-size:22px;font-weight:700;margin-bottom:6px; }
+        .page-header p { font-size:13px;color:var(--text-secondary); }
+        .metric-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px; }
+        .metric-card { background:var(--bg-card);border:1px solid var(--border-color);border-radius:14px;padding:20px; }
+        .metric-card.main { border-color:rgba(0,184,217,0.3);background:rgba(0,184,217,0.04); }
+        .metric-label { font-size:11px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px; }
+        .metric-value { font-family:'Orbitron',monospace;font-size:28px;font-weight:700; }
+        .metric-value.green { color:var(--accent-green); }
+        .metric-value.red { color:var(--accent-red); }
+        .metric-sub { font-size:12px;color:var(--text-secondary);margin-top:6px; }
+        /* 롱숏 바 */
+        .ls-bar-section { background:var(--bg-card);border:1px solid var(--border-color);border-radius:14px;padding:24px;margin-bottom:24px; }
+        .ls-bar-label { display:flex;justify-content:space-between;margin-bottom:10px;font-size:13px;font-weight:600; }
+        .ls-bar-track { height:14px;border-radius:7px;overflow:hidden;background:#1e1e2e;display:flex; }
+        .ls-bar-long { height:100%;border-radius:7px 0 0 7px;background:linear-gradient(90deg,#00D4A0,#00b8d9);transition:width 0.6s ease; }
+        .ls-bar-short { height:100%;border-radius:0 7px 7px 0;background:linear-gradient(90deg,#dc2626,#9333ea);flex:1; }
+        .ls-pct-row { display:flex;justify-content:space-between;margin-top:8px;font-family:'Orbitron',monospace;font-size:14px;font-weight:700; }
+        /* 테이블 */
+        .section-title { font-size:15px;font-weight:600;margin-bottom:14px; }
+        .history-table { width:100%;border-collapse:collapse; }
+        .history-table th { font-size:11px;color:var(--text-muted);font-weight:500;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border-color); }
+        .history-table td { font-size:13px;padding:11px 12px;border-bottom:1px solid rgba(255,255,255,0.04); }
+        .history-table tr:hover td { background:var(--bg-card-hover); }
+        .table-wrap { background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;margin-bottom:24px; }
+        .explain-box { background:rgba(0,184,217,0.05);border:1px solid rgba(0,184,217,0.12);border-radius:12px;padding:20px; }
+        .explain-box h3 { font-size:14px;color:var(--accent-cyan);margin-bottom:12px; }
+        .explain-box p { font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:8px; }
+        .explain-box p:last-child { margin-bottom:0; }
+        @media (max-width:600px) { .metric-grid{grid-template-columns:1fr 1fr;} .metric-card.main{grid-column:span 2;} .container{padding:72px 12px 32px;} }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html" class="back-btn">← 홈</a>
+        <span class="top-breadcrumb">계약 데이터 / <span>롱/숏 비율</span></span>
+        <span class="top-title">1% TRADING</span>
+        <span class="refresh-badge" id="refreshBadge">갱신 중...</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>⚖️ 롱/숏 비율</h1>
+            <p>Binance BTC 선물 시장의 글로벌 롱/숏 포지션 비율 · 30초 자동 갱신</p>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-card main">
+                <div class="metric-label">롱 비율</div>
+                <div class="metric-value green" id="longRatio">--</div>
+                <div class="metric-sub" id="longDesc">로딩 중...</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">숏 비율</div>
+                <div class="metric-value red" id="shortRatio">--</div>
+                <div class="metric-sub" id="shortDesc">--</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">시장 심리</div>
+                <div class="metric-value" id="sentiment" style="font-size:18px;">--</div>
+                <div class="metric-sub" id="sentimentSub">--</div>
+            </div>
+        </div>
+
+        <div class="ls-bar-section">
+            <div class="ls-bar-label">
+                <span style="color:var(--accent-green);">롱 (매수)</span>
+                <span style="color:var(--accent-red);">숏 (매도)</span>
+            </div>
+            <div class="ls-bar-track">
+                <div class="ls-bar-long" id="longBar" style="width:50%"></div>
+                <div class="ls-bar-short"></div>
+            </div>
+            <div class="ls-pct-row">
+                <span style="color:var(--accent-green);" id="longPct">50%</span>
+                <span style="color:var(--accent-red);" id="shortPct">50%</span>
+            </div>
+        </div>
+
+        <div class="section-title">📋 롱/숏 비율 히스토리 (최근 10회 · 5분 간격)</div>
+        <div class="table-wrap">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>시각</th>
+                        <th>롱 비율</th>
+                        <th>숏 비율</th>
+                        <th>방향</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">로딩 중...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="explain-box">
+            <h3>💡 롱/숏 비율이란?</h3>
+            <p>현재 선물 시장에서 <strong style="color:#fff;">매수(롱)</strong> 포지션과 <strong style="color:#fff;">매도(숏)</strong> 포지션의 비율을 보여줍니다.</p>
+            <p>롱 비율이 높을수록 시장 참여자가 상승에 베팅하는 상태입니다. 과도한 롱 쏠림은 <strong style="color:#fff;">청산 캐스케이드</strong> 위험이 높아집니다.</p>
+            <p>숏 비율이 높을수록 하락에 베팅하는 상태로, 역습 상승(숏 스퀴즈) 가능성이 있습니다.</p>
+        </div>
+    </div>
+
+    <script>
+        async function load() {
+            try {
+                const res = await fetch('https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=5m&limit=10');
+                const data = await res.json();
+                const latest = data[data.length - 1];
+                const longR = parseFloat(latest.longAccount) * 100;
+                const shortR = parseFloat(latest.shortAccount) * 100;
+
+                document.getElementById('longRatio').textContent = longR.toFixed(1) + '%';
+                document.getElementById('shortRatio').textContent = shortR.toFixed(1) + '%';
+                document.getElementById('longDesc').textContent = '매수 포지션';
+                document.getElementById('shortDesc').textContent = '매도 포지션';
+
+                document.getElementById('longBar').style.width = longR + '%';
+                document.getElementById('longPct').textContent = longR.toFixed(1) + '%';
+                document.getElementById('shortPct').textContent = shortR.toFixed(1) + '%';
+
+                let sentiment, sentimentSub;
+                if (longR > 65) { sentiment = '🔥 강한 롱'; sentimentSub = '과열 주의'; }
+                else if (longR > 55) { sentiment = '📈 롱 우세'; sentimentSub = '매수 심리 강함'; }
+                else if (longR < 35) { sentiment = '🧊 강한 숏'; sentimentSub = '하락 우세'; }
+                else if (longR < 45) { sentiment = '📉 숏 우세'; sentimentSub = '매도 심리 강함'; }
+                else { sentiment = '⚖️ 균형'; sentimentSub = '중립적 시장'; }
+                document.getElementById('sentiment').textContent = sentiment;
+                document.getElementById('sentimentSub').textContent = sentimentSub;
+
+                const rows = [...data].reverse().map(item => {
+                    const lR = parseFloat(item.longAccount) * 100;
+                    const sR = parseFloat(item.shortAccount) * 100;
+                    const dt = new Date(parseInt(item.timestamp));
+                    const t = dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
+                    const dir = lR > sR ? '롱 우세' : '숏 우세';
+                    const col = lR > sR ? 'var(--accent-green)' : 'var(--accent-red)';
+                    return `<tr>
+                        <td style="color:var(--text-secondary);">${t}</td>
+                        <td style="color:var(--accent-green);font-family:Orbitron,monospace;font-weight:700;">${lR.toFixed(1)}%</td>
+                        <td style="color:var(--accent-red);font-family:Orbitron,monospace;font-weight:700;">${sR.toFixed(1)}%</td>
+                        <td><span style="font-size:11px;color:${col};background:${lR>sR?'rgba(0,212,160,0.1)':'rgba(220,38,38,0.1)'};padding:2px 8px;border-radius:4px;">${dir}</span></td>
+                    </tr>`;
+                }).join('');
+                document.getElementById('historyBody').innerHTML = rows;
+
+                const now = new Date();
+                document.getElementById('refreshBadge').textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0') + ' 갱신';
+            } catch(e) {
+                document.getElementById('refreshBadge').textContent = '오류 발생';
+            }
+        }
+        load();
+        setInterval(load, 30000);
+    </script>
+</body>
+</html>

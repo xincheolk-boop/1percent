@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OI 미결제약정 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-primary:#0a0a0f;--bg-secondary:#111118;--bg-card:#16161f;--bg-card-hover:#1c1c28;--accent-cyan:#00b8d9;--accent-purple:#9333ea;--accent-green:#00D4A0;--accent-red:#dc2626;--text-primary:#fff;--text-secondary:#9ca3af;--text-muted:#6b7280;--border-color:rgba(255,255,255,0.08); }
+        * { margin:0;padding:0;box-sizing:border-box; }
+        body { font-family:'Noto Sans KR',sans-serif;background:var(--bg-primary);color:var(--text-primary);min-height:100vh; }
+        .top-bar { position:fixed;top:0;left:0;right:0;height:56px;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-color);display:flex;align-items:center;padding:0 24px;z-index:1000;gap:12px; }
+        .back-btn { display:flex;align-items:center;gap:6px;color:var(--text-secondary);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:8px;transition:all 0.2s; }
+        .back-btn:hover { color:var(--accent-cyan);background:var(--bg-card); }
+        .top-breadcrumb { font-size:13px;color:var(--text-muted); }
+        .top-breadcrumb span { color:var(--accent-cyan); }
+        .top-title { font-family:'Orbitron',monospace;font-size:16px;font-weight:700;background:linear-gradient(90deg,var(--accent-cyan),var(--accent-purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-left:auto; }
+        .refresh-badge { font-size:11px;color:var(--text-muted);background:var(--bg-card);padding:4px 10px;border-radius:20px;border:1px solid var(--border-color); }
+        .container { max-width:900px;margin:0 auto;padding:72px 24px 40px; }
+        .page-header { margin-bottom:24px; }
+        .page-header h1 { font-size:22px;font-weight:700;margin-bottom:6px; }
+        .page-header p { font-size:13px;color:var(--text-secondary); }
+        .metric-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px; }
+        .metric-card { background:var(--bg-card);border:1px solid var(--border-color);border-radius:14px;padding:20px; }
+        .metric-card.main { border-color:rgba(147,51,234,0.35);background:rgba(147,51,234,0.04); }
+        .metric-label { font-size:11px;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px; }
+        .metric-value { font-family:'Orbitron',monospace;font-size:28px;font-weight:700;color:var(--accent-purple); }
+        .metric-value.green { color:var(--accent-green); }
+        .metric-value.red { color:var(--accent-red); }
+        .metric-sub { font-size:12px;color:var(--text-secondary);margin-top:6px; }
+        /* OI 히스토리 */
+        .section-title { font-size:15px;font-weight:600;margin-bottom:14px; }
+        .history-table { width:100%;border-collapse:collapse; }
+        .history-table th { font-size:11px;color:var(--text-muted);font-weight:500;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border-color); }
+        .history-table td { font-size:13px;padding:11px 12px;border-bottom:1px solid rgba(255,255,255,0.04); }
+        .history-table tr:hover td { background:var(--bg-card-hover); }
+        .table-wrap { background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;margin-bottom:24px; }
+        /* 미니 차트 */
+        .oi-chart { height:80px;display:flex;align-items:flex-end;gap:3px;padding:8px 0; }
+        .oi-bar { flex:1;border-radius:3px 3px 0 0;min-height:4px;transition:height 0.4s; }
+        .explain-box { background:rgba(147,51,234,0.05);border:1px solid rgba(147,51,234,0.15);border-radius:12px;padding:20px; }
+        .explain-box h3 { font-size:14px;color:var(--accent-purple);margin-bottom:12px; }
+        .explain-box p { font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:8px; }
+        .explain-box p:last-child { margin-bottom:0; }
+        @media (max-width:600px) { .metric-grid{grid-template-columns:1fr 1fr;} .metric-card.main{grid-column:span 2;} .container{padding:72px 12px 32px;} }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html" class="back-btn">← 홈</a>
+        <span class="top-breadcrumb">계약 데이터 / <span>OI 미결제약정</span></span>
+        <span class="top-title">1% TRADING</span>
+        <span class="refresh-badge" id="refreshBadge">갱신 중...</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📊 OI 미결제약정</h1>
+            <p>Binance BTC 선물 시장의 미결제약정(Open Interest) 실시간 현황 · 30초 갱신</p>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-card main">
+                <div class="metric-label">현재 OI (USD)</div>
+                <div class="metric-value" id="oiUsd">--</div>
+                <div class="metric-sub">BTC 선물 기준</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">OI (BTC)</div>
+                <div class="metric-value green" id="oiBtc" style="font-size:22px;">--</div>
+                <div class="metric-sub" id="oiBtcSub">현재 시세 기준</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">OI 변화 (1h)</div>
+                <div class="metric-value" id="oiChange" style="font-size:22px;">--</div>
+                <div class="metric-sub" id="oiChangeSub">--</div>
+            </div>
+        </div>
+
+        <div class="section-title">📋 OI 히스토리 (최근 10회 · 5분 간격)</div>
+        <div class="table-wrap">
+            <div style="padding:16px 16px 8px;">
+                <div class="oi-chart" id="oiChart"></div>
+            </div>
+            <table class="history-table">
+                <thead>
+                    <tr><th>시각</th><th>OI (USD)</th><th>OI (BTC)</th><th>변화</th></tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">로딩 중...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="explain-box">
+            <h3>💡 OI (미결제약정)이란?</h3>
+            <p><strong style="color:#fff;">OI(Open Interest, 미결제약정)</strong>는 현재 청산되지 않고 열려있는 선물 계약의 총 수량입니다.</p>
+            <p>OI 증가 + 가격 상승 → <strong style="color:#fff;">강세 추세 유지</strong> (신규 매수 진입)</p>
+            <p>OI 감소 + 가격 상승 → <strong style="color:#fff;">숏 커버링</strong> (약세 신호 가능)</p>
+            <p>OI 급증 + 가격 급변 → <strong style="color:#fff;">청산 위험 증가</strong></p>
+        </div>
+    </div>
+
+    <script>
+        function fmtB(n) {
+            if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+            if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
+            return '$' + n.toFixed(0);
+        }
+        let prevOI = null;
+        async function load() {
+            try {
+                // 현재 OI
+                const oiRes = await fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT');
+                const oiD = await oiRes.json();
+                const oiBtc = parseFloat(oiD.openInterest);
+
+                // BTC 현재가
+                const priceRes = await fetch('https://fapi.binance.com/fapi/v1/ticker/price?symbol=BTCUSDT');
+                const priceD = await priceRes.json();
+                const btcPrice = parseFloat(priceD.price);
+                const oiUsd = oiBtc * btcPrice;
+
+                document.getElementById('oiUsd').textContent = fmtB(oiUsd);
+                document.getElementById('oiBtc').textContent = oiBtc.toLocaleString('en', {maximumFractionDigits:0}) + ' BTC';
+                document.getElementById('oiBtcSub').textContent = '$' + btcPrice.toLocaleString() + '/BTC 기준';
+
+                if (prevOI !== null) {
+                    const chg = ((oiBtc - prevOI) / prevOI) * 100;
+                    const el = document.getElementById('oiChange');
+                    el.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+                    el.className = 'metric-value ' + (chg >= 0 ? 'green' : 'red');
+                    el.style.fontSize = '22px';
+                    document.getElementById('oiChangeSub').textContent = chg >= 0 ? 'OI 증가 중' : 'OI 감소 중';
+                }
+                prevOI = oiBtc;
+
+                // OI 히스토리
+                const histRes = await fetch('https://fapi.binance.com/futures/data/openInterestHist?symbol=BTCUSDT&period=5m&limit=10');
+                const histData = await histRes.json();
+
+                // 미니 차트
+                const oiVals = histData.map(d => parseFloat(d.sumOpenInterest));
+                const minOI = Math.min(...oiVals);
+                const maxOI = Math.max(...oiVals);
+                const chartHTML = oiVals.map((v, i) => {
+                    const pct = maxOI === minOI ? 50 : ((v - minOI) / (maxOI - minOI)) * 70 + 10;
+                    const col = i === oiVals.length - 1 ? 'var(--accent-purple)' : 'rgba(147,51,234,0.4)';
+                    return `<div class="oi-bar" style="height:${pct}%;background:${col};"></div>`;
+                }).join('');
+                document.getElementById('oiChart').innerHTML = chartHTML;
+
+                const rows = [...histData].reverse().map((item, i) => {
+                    const oi = parseFloat(item.sumOpenInterest);
+                    const oiUsd2 = oi * btcPrice;
+                    const dt = new Date(parseInt(item.timestamp));
+                    const t = dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
+                    const prev = histData[histData.length - 1 - i - 1];
+                    let chgStr = '--';
+                    if (prev) {
+                        const chg = ((oi - parseFloat(prev.sumOpenInterest)) / parseFloat(prev.sumOpenInterest)) * 100;
+                        const c = chg >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+                        chgStr = `<span style="color:${c};font-weight:700;">${chg>=0?'+':''}${chg.toFixed(2)}%</span>`;
+                    }
+                    return `<tr>
+                        <td style="color:var(--text-secondary);">${t}</td>
+                        <td style="font-family:Orbitron,monospace;font-size:11px;color:var(--accent-purple);">${fmtB(oiUsd2)}</td>
+                        <td style="color:var(--text-secondary);">${oi.toLocaleString('en',{maximumFractionDigits:0})} BTC</td>
+                        <td>${chgStr}</td>
+                    </tr>`;
+                }).join('');
+                document.getElementById('historyBody').innerHTML = rows;
+
+                const now = new Date();
+                document.getElementById('refreshBadge').textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0') + ' 갱신';
+            } catch(e) {
+                document.getElementById('refreshBadge').textContent = '오류 발생';
+            }
+        }
+        load();
+        setInterval(load, 30000);
+    </script>
+</body>
+</html>

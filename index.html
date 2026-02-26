@@ -103,6 +103,33 @@
         .nav-item:hover { color: var(--text-primary); background: var(--bg-card); }
         .nav-item.event { color: var(--accent-yellow); }
         .nav-item.event::before { content: '🎁 '; }
+        /* 계약 데이터 드롭다운 */
+        .nav-dropdown { position: relative; }
+        .nav-dropdown-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            overflow: hidden;
+            min-width: 160px;
+            z-index: 2000;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+        .nav-dropdown:hover .nav-dropdown-menu,
+        .nav-dropdown.open .nav-dropdown-menu { display: block; }
+        .nav-dropdown-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 16px;
+            font-size: 13px; color: var(--text-secondary);
+            cursor: pointer; transition: background 0.15s;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .nav-dropdown-item:hover { background: var(--bg-card-hover); color: var(--accent-cyan); }
+        .nav-dropdown-item .di-icon { font-size: 14px; }
 
         .header-right {
             margin-left: auto;
@@ -1078,6 +1105,15 @@
         </div>
         <nav class="nav-menu">
             <div class="nav-item" onclick="location.href='kimp.html'" style="color:var(--accent-red);font-weight:700;">김프</div>
+            <div class="nav-dropdown">
+                <div class="nav-item" style="display:flex;align-items:center;gap:4px;">계약 데이터 <span style="font-size:9px;opacity:0.6;">▼</span></div>
+                <div class="nav-dropdown-menu">
+                    <a class="nav-dropdown-item" href="contract/funding.html"><span class="di-icon">📈</span>펀딩비</a>
+                    <a class="nav-dropdown-item" href="contract/longshort.html"><span class="di-icon">⚖️</span>롱/숏 비율</a>
+                    <a class="nav-dropdown-item" href="contract/liquidation.html"><span class="di-icon">💥</span>청산 데이터</a>
+                    <a class="nav-dropdown-item" href="contract/oi.html"><span class="di-icon">📊</span>OI 미결제약정</a>
+                </div>
+            </div>
             <div class="nav-item" onclick="location.href='news.html'">뉴스</div>
             <div class="nav-item" onclick="location.href='exchanges.html'">거래소</div>
             <div class="nav-item" onclick="location.href='rewards.html'">리워드</div>
@@ -1186,25 +1222,25 @@
 
             <!-- 선물 정보 -->
             <div class="futures-grid" id="futuresSection">
-                <div class="futures-card" onclick="location.href='kimp.html'" style="cursor:pointer;">
+                <div class="futures-card" onclick="location.href='contract/funding.html'" style="cursor:pointer;" title="상세 보기">
                     <div class="label">📈 BTC 펀딩비</div>
-                    <div class="value green">+0.0125%</div>
-                    <div class="sub">롱 우세</div>
+                    <div class="value green" id="fCardFunding">+0.0125%</div>
+                    <div class="sub" id="fCardFundingSub">롱 우세</div>
                 </div>
-                <div class="futures-card" onclick="location.href='kimp.html'" style="cursor:pointer;">
+                <div class="futures-card" onclick="location.href='contract/longshort.html'" style="cursor:pointer;" title="상세 보기">
                     <div class="label">⚖️ 롱/숏 비율</div>
-                    <div class="value">52/48</div>
-                    <div class="sub">롱 +4%</div>
+                    <div class="value" id="fCardLS">52/48</div>
+                    <div class="sub" id="fCardLSSub">롱 +4%</div>
                 </div>
-                <div class="futures-card" onclick="location.href='kimp.html'" style="cursor:pointer;">
+                <div class="futures-card" onclick="location.href='contract/liquidation.html'" style="cursor:pointer;" title="상세 보기">
                     <div class="label">💥 청산 (24h)</div>
-                    <div class="value red">$148M</div>
-                    <div class="sub">숏 61%</div>
+                    <div class="value red" id="fCardLiq">$148M</div>
+                    <div class="sub" id="fCardLiqSub">숏 61%</div>
                 </div>
-                <div class="futures-card" onclick="location.href='kimp.html'" style="cursor:pointer;">
+                <div class="futures-card" onclick="location.href='contract/oi.html'" style="cursor:pointer;" title="상세 보기">
                     <div class="label">📊 OI 변화</div>
-                    <div class="value green">+2.3%</div>
-                    <div class="sub">증가 추세</div>
+                    <div class="value green" id="fCardOI">+2.3%</div>
+                    <div class="sub" id="fCardOISub">증가 추세</div>
                 </div>
             </div>
 

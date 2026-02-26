@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTC 펀딩비 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f; --bg-secondary: #111118; --bg-card: #16161f; --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9; --accent-purple: #9333ea; --accent-green: #00D4A0; --accent-red: #dc2626;
+            --text-primary: #fff; --text-secondary: #9ca3af; --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 24px; z-index: 1000; gap: 12px;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-breadcrumb { font-size: 13px; color: var(--text-muted); }
+        .top-breadcrumb span { color: var(--accent-cyan); }
+        .top-title { font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-left: auto; }
+        .refresh-badge { font-size: 11px; color: var(--text-muted); background: var(--bg-card); padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-color); }
+        .container { max-width: 900px; margin: 0 auto; padding: 72px 24px 40px; }
+        .page-header { margin-bottom: 24px; }
+        .page-header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+        .page-header p { font-size: 13px; color: var(--text-secondary); }
+        /* 핵심 지표 */
+        .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+        .metric-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; }
+        .metric-card.main { border-color: rgba(0,184,217,0.3); background: rgba(0,184,217,0.04); }
+        .metric-label { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-value { font-family: 'Orbitron', monospace; font-size: 28px; font-weight: 700; }
+        .metric-value.green { color: var(--accent-green); }
+        .metric-value.red { color: var(--accent-red); }
+        .metric-sub { font-size: 12px; color: var(--text-secondary); margin-top: 6px; }
+        /* 히스토리 */
+        .section-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+        .history-table { width: 100%; border-collapse: collapse; }
+        .history-table th { font-size: 11px; color: var(--text-muted); font-weight: 500; text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--border-color); }
+        .history-table td { font-size: 13px; padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .history-table tr:hover td { background: var(--bg-card-hover); }
+        .table-wrap { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+        .rate-bar-wrap { display: flex; align-items: center; gap: 8px; }
+        .rate-bar { height: 4px; border-radius: 2px; flex-shrink: 0; }
+        /* 설명 */
+        .explain-box { background: rgba(0,184,217,0.05); border: 1px solid rgba(0,184,217,0.12); border-radius: 12px; padding: 20px; }
+        .explain-box h3 { font-size: 14px; color: var(--accent-cyan); margin-bottom: 12px; }
+        .explain-box p { font-size: 13px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 8px; }
+        .explain-box p:last-child { margin-bottom: 0; }
+        .tag-green { display: inline-block; background: rgba(0,212,160,0.12); color: var(--accent-green); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+        .tag-red   { display: inline-block; background: rgba(220,38,38,0.12); color: var(--accent-red); padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+        @media (max-width: 600px) { .metric-grid { grid-template-columns: 1fr 1fr; } .metric-card.main { grid-column: span 2; } .container { padding: 72px 12px 32px; } }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="../index.html" class="back-btn">← 홈</a>
+        <span class="top-breadcrumb">계약 데이터 / <span>펀딩비</span></span>
+        <span class="top-title">1% TRADING</span>
+        <span class="refresh-badge" id="refreshBadge">갱신 중...</span>
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1>📈 BTC 펀딩비</h1>
+            <p>Binance 선물 시장의 BTC 펀딩비 실시간 현황 · 30초 자동 갱신</p>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-card main">
+                <div class="metric-label">현재 펀딩비</div>
+                <div class="metric-value green" id="currentRate">--</div>
+                <div class="metric-sub" id="rateDesc">로딩 중...</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">다음 정산까지</div>
+                <div class="metric-value" id="nextFunding" style="font-size:20px;">--</div>
+                <div class="metric-sub">8시간마다 정산</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">연환산 수익률</div>
+                <div class="metric-value green" id="annualRate" style="font-size:20px;">--</div>
+                <div class="metric-sub">현재 비율 기준</div>
+            </div>
+        </div>
+
+        <div class="section-title">📋 펀딩비 히스토리 (최근 10회)</div>
+        <div class="table-wrap">
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>정산 시각</th>
+                        <th>펀딩비율</th>
+                        <th>방향</th>
+                        <th>시각화</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody">
+                    <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">로딩 중...</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="explain-box">
+            <h3>💡 펀딩비란?</h3>
+            <p>선물 시장의 <strong style="color:#fff;">롱(매수)</strong>과 <strong style="color:#fff;">숏(매도)</strong> 포지션 간 균형을 맞추기 위해 8시간마다 지급되는 비용입니다.</p>
+            <p><span class="tag-green">펀딩비 > 0</span> → 롱 포지션이 숏 포지션에게 수수료를 지급. <strong style="color:#fff;">롱 우세</strong> 시장을 의미합니다.</p>
+            <p><span class="tag-red">펀딩비 &lt; 0</span> → 숏 포지션이 롱 포지션에게 수수료를 지급. <strong style="color:#fff;">숏 우세</strong> 시장을 의미합니다.</p>
+            <p>펀딩비가 높을수록 롱 과열 상태이며, 조정 가능성이 높아집니다.</p>
+        </div>
+    </div>
+
+    <script>
+        async function load() {
+            try {
+                // 현재 펀딩비
+                const res = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT');
+                const d = await res.json();
+                const rate = parseFloat(d.lastFundingRate) * 100;
+                const markPrice = parseFloat(d.markPrice);
+                const indexPrice = parseFloat(d.indexPrice);
+                const nextTime = parseInt(d.nextFundingTime);
+
+                const rateEl = document.getElementById('currentRate');
+                rateEl.textContent = (rate >= 0 ? '+' : '') + rate.toFixed(4) + '%';
+                rateEl.className = 'metric-value ' + (rate >= 0 ? 'green' : 'red');
+                document.getElementById('rateDesc').textContent = rate >= 0 ? '롱 우세 · 롱→숏 지급' : '숏 우세 · 숏→롱 지급';
+
+                // 다음 정산까지
+                const now = Date.now();
+                const diff = nextTime - now;
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                document.getElementById('nextFunding').textContent = h + 'h ' + m + 'm';
+
+                // 연환산
+                const annual = rate * 3 * 365;
+                const annEl = document.getElementById('annualRate');
+                annEl.textContent = (annual >= 0 ? '+' : '') + annual.toFixed(1) + '%';
+                annEl.className = 'metric-value ' + (annual >= 0 ? 'green' : 'red') + ' ';
+                annEl.style.fontSize = '20px';
+
+                // 히스토리
+                const hRes = await fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=10');
+                const hData = await hRes.json();
+                const rows = hData.reverse().map(item => {
+                    const r = parseFloat(item.fundingRate) * 100;
+                    const dt = new Date(item.fundingTime);
+                    const dateStr = (dt.getMonth()+1) + '/' + dt.getDate() + ' ' + dt.getHours().toString().padStart(2,'0') + ':00';
+                    const color = r >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+                    const dir = r >= 0 ? '롱→숏' : '숏→롱';
+                    const barW = Math.min(Math.abs(r) / 0.01 * 60, 80);
+                    return `<tr>
+                        <td style="color:var(--text-secondary);">${dateStr}</td>
+                        <td style="font-family:Orbitron,monospace;color:${color};font-weight:700;">${(r>=0?'+':'')}${r.toFixed(4)}%</td>
+                        <td><span style="font-size:11px;background:${r>=0?'rgba(0,212,160,0.1)':'rgba(220,38,38,0.1)'};color:${color};padding:2px 8px;border-radius:4px;">${dir}</span></td>
+                        <td><div class="rate-bar-wrap"><div class="rate-bar" style="width:${barW}px;background:${color};"></div></div></td>
+                    </tr>`;
+                }).join('');
+                document.getElementById('historyBody').innerHTML = rows;
+
+                const now2 = new Date();
+                document.getElementById('refreshBadge').textContent = now2.getHours().toString().padStart(2,'0') + ':' + now2.getMinutes().toString().padStart(2,'0') + ':' + now2.getSeconds().toString().padStart(2,'0') + ' 갱신';
+            } catch(e) {
+                document.getElementById('refreshBadge').textContent = '오류 발생';
+            }
+        }
+        load();
+        setInterval(load, 30000);
+
+        // 다음 정산 카운트다운
+        setInterval(async () => {
+            try {
+                const res = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT');
+                const d = await res.json();
+                const diff = parseInt(d.nextFundingTime) - Date.now();
+                if (diff > 0) {
+                    const h = Math.floor(diff / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    const s = Math.floor((diff % 60000) / 1000);
+                    document.getElementById('nextFunding').textContent = h + 'h ' + m + 'm ' + s + 's';
+                }
+            } catch(e) {}
+        }, 1000);
+    </script>
+</body>
+</html>
