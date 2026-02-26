@@ -505,12 +505,23 @@
             cursor: pointer;
         }
 
-        /* 선물 그리드 */
-        .futures-grid {
+        /* 데이터 카드 슬라이더 */
+        .card-slider-wrap {
+            position: relative;
+            margin-bottom: 28px;
+        }
+        .card-slider-viewport {
+            overflow: hidden;
+        }
+        .card-slider-track {
+            display: flex;
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .card-slider-page {
+            min-width: 100%;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 24px;
+            gap: 12px;
         }
         .futures-card {
             background: var(--bg-card);
@@ -518,6 +529,11 @@
             padding: 20px;
             text-align: center;
             border: 1px solid var(--border-color);
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .futures-card[onclick]:hover {
+            border-color: rgba(0,184,217,0.35);
+            background: var(--bg-card-hover);
         }
         .futures-card .label {
             font-size: 12px;
@@ -526,12 +542,60 @@
         }
         .futures-card .value {
             font-family: 'Orbitron', monospace;
-            font-size: 26px;
+            font-size: 22px;
             font-weight: 700;
+            color: var(--accent-cyan);
         }
-        .futures-card .value.green { color: var(--accent-green); text-shadow: 0 0 8px rgba(0,212,160,0.5); }
-        .futures-card .value.red { color: var(--accent-red); text-shadow: 0 0 8px rgba(220,38,38,0.5); }
+        .futures-card .value.green { color: var(--accent-green); text-shadow: 0 0 8px rgba(0,212,160,0.4); }
+        .futures-card .value.red { color: var(--accent-red); text-shadow: 0 0 8px rgba(220,38,38,0.4); }
         .futures-card .sub { font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
+        /* 슬라이더 화살표 */
+        .slider-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(calc(-50% - 13px));
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: rgba(0,184,217,0.12);
+            border: 1px solid rgba(0,184,217,0.25);
+            color: var(--accent-cyan);
+            font-size: 22px; line-height: 1;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+            z-index: 10; padding: 0;
+        }
+        .slider-nav-btn:hover { background: rgba(0,184,217,0.25); border-color: var(--accent-cyan); }
+        .slider-nav-btn:disabled { opacity: 0.25; cursor: default; }
+        .slider-prev { left: -16px; }
+        .slider-next { right: -16px; }
+        /* 슬라이더 점 인디케이터 */
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        .slider-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--border-color);
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .slider-dot.active {
+            background: var(--accent-cyan);
+            width: 18px;
+            border-radius: 3px;
+        }
+        .slider-page-label {
+            font-size: 10px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 5px;
+            letter-spacing: 0.5px;
+        }
 
         /* ===== 명예의 전당 ===== */
         .hof-grid { display: flex; flex-direction: column; gap: 8px; }
@@ -1081,7 +1145,7 @@
         @media (max-width: 1200px) {
             .layout { grid-template-columns: 1fr; }
             .sidebar-left, .sidebar-right { display: none; }
-            .futures-grid { grid-template-columns: repeat(2, 1fr); }
+            .card-slider-page { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 768px) {
@@ -1106,11 +1170,13 @@
             .hero .sub { font-size: 13px; }
             .hero-btns { flex-direction: column; gap: 8px; }
             .btn-primary, .btn-secondary { width: 100%; }
-            /* 선물 카드 */
-            .futures-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            /* 슬라이더 카드 */
+            .card-slider-page { grid-template-columns: repeat(2, 1fr); gap: 8px; }
             .futures-card { padding: 12px; }
             .futures-card .value { font-size: 18px; }
             .futures-card .label { font-size: 11px; }
+            .slider-prev { left: -8px; }
+            .slider-next { right: -8px; }
             /* 거래소 테이블 - fee 컬럼 숨김 */
             .exchange-header .ex-col-fee { display: none; }
             .exchange-item .ex-fee { display: none; }
@@ -1258,28 +1324,95 @@
                 </div>
             </section>
 
-            <!-- 선물 정보 -->
-            <div class="futures-grid" id="futuresSection">
-                <div class="futures-card" onclick="location.href='contract/funding.html'" style="cursor:pointer;" title="상세 보기">
-                    <div class="label">📈 BTC 펀딩비</div>
-                    <div class="value green" id="fCardFunding">+0.0125%</div>
-                    <div class="sub" id="fCardFundingSub">롱 우세</div>
+            <!-- 데이터 카드 슬라이더 -->
+            <div class="card-slider-wrap" id="futuresSection">
+                <div class="card-slider-viewport">
+                    <div class="card-slider-track" id="sliderTrack">
+
+                        <!-- 페이지 1: BTC 계약 데이터 -->
+                        <div class="card-slider-page">
+                            <div class="futures-card" onclick="location.href='contract/funding.html'" style="cursor:pointer;" title="상세 보기">
+                                <div class="label">📈 BTC 펀딩비</div>
+                                <div class="value" id="fCardFunding">--</div>
+                                <div class="sub" id="fCardFundingSub">로딩 중...</div>
+                            </div>
+                            <div class="futures-card" onclick="location.href='contract/longshort.html'" style="cursor:pointer;" title="상세 보기">
+                                <div class="label">⚖️ 롱/숏 비율</div>
+                                <div class="value" id="fCardLS">--</div>
+                                <div class="sub" id="fCardLSSub">로딩 중...</div>
+                            </div>
+                            <div class="futures-card" onclick="location.href='contract/liquidation.html'" style="cursor:pointer;" title="상세 보기">
+                                <div class="label">💥 청산 (24h)</div>
+                                <div class="value" id="fCardLiq">--</div>
+                                <div class="sub" id="fCardLiqSub">로딩 중...</div>
+                            </div>
+                            <div class="futures-card" onclick="location.href='contract/oi.html'" style="cursor:pointer;" title="상세 보기">
+                                <div class="label">📊 OI 미결제약정</div>
+                                <div class="value" id="fCardOI">--</div>
+                                <div class="sub" id="fCardOISub">로딩 중...</div>
+                            </div>
+                        </div>
+
+                        <!-- 페이지 2: 시장 지표 -->
+                        <div class="card-slider-page">
+                            <div class="futures-card">
+                                <div class="label">📈 ETH 펀딩비</div>
+                                <div class="value" id="fCardEthFunding">--</div>
+                                <div class="sub" id="fCardEthFundingSub">로딩 중...</div>
+                            </div>
+                            <div class="futures-card">
+                                <div class="label">🟠 BTC 도미넌스</div>
+                                <div class="value" id="fCardBtcDom">--</div>
+                                <div class="sub" id="fCardBtcDomSub">로딩 중...</div>
+                            </div>
+                            <div class="futures-card">
+                                <div class="label">😨 공포/탐욕 지수</div>
+                                <div class="value" id="fCardFnG">--</div>
+                                <div class="sub" id="fCardFnGSub">로딩 중...</div>
+                            </div>
+                            <div class="futures-card" onclick="location.href='kimp.html'" style="cursor:pointer;" title="상세 보기">
+                                <div class="label">🇰🇷 김프</div>
+                                <div class="value" id="fCardKimp">--</div>
+                                <div class="sub" id="fCardKimpSub">로딩 중...</div>
+                            </div>
+                        </div>
+
+                        <!-- 페이지 3: 알트 지표 -->
+                        <div class="card-slider-page">
+                            <div class="futures-card">
+                                <div class="label">📈 SOL 펀딩비</div>
+                                <div class="value" id="fCardSolFunding">--</div>
+                                <div class="sub" id="fCardSolFundingSub">로딩 중...</div>
+                            </div>
+                            <div class="futures-card">
+                                <div class="label">💵 USDT 도미넌스</div>
+                                <div class="value" id="fCardUsdtDom">--</div>
+                                <div class="sub" id="fCardUsdtDomSub">로딩 중...</div>
+                            </div>
+                            <div class="futures-card">
+                                <div class="label">📊 시장 거래량</div>
+                                <div class="value" id="fCardVol">--</div>
+                                <div class="sub" id="fCardVolSub">로딩 중...</div>
+                            </div>
+                            <div class="futures-card">
+                                <div class="label">🐋 고래 이동</div>
+                                <div class="value" id="fCardWhale">--</div>
+                                <div class="sub" id="fCardWhaleSub">로딩 중...</div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
-                <div class="futures-card" onclick="location.href='contract/longshort.html'" style="cursor:pointer;" title="상세 보기">
-                    <div class="label">⚖️ 롱/숏 비율</div>
-                    <div class="value" id="fCardLS">52/48</div>
-                    <div class="sub" id="fCardLSSub">롱 +4%</div>
+                <!-- 화살표 -->
+                <button class="slider-nav-btn slider-prev" id="sliderPrev" onclick="sliderMove(-1)" disabled>‹</button>
+                <button class="slider-nav-btn slider-next" id="sliderNext" onclick="sliderMove(1)">›</button>
+                <!-- 점 인디케이터 -->
+                <div class="slider-dots">
+                    <div class="slider-dot active" onclick="sliderTo(0)"></div>
+                    <div class="slider-dot" onclick="sliderTo(1)"></div>
+                    <div class="slider-dot" onclick="sliderTo(2)"></div>
                 </div>
-                <div class="futures-card" onclick="location.href='contract/liquidation.html'" style="cursor:pointer;" title="상세 보기">
-                    <div class="label">💥 청산 (24h)</div>
-                    <div class="value red" id="fCardLiq">$148M</div>
-                    <div class="sub" id="fCardLiqSub">숏 61%</div>
-                </div>
-                <div class="futures-card" onclick="location.href='contract/oi.html'" style="cursor:pointer;" title="상세 보기">
-                    <div class="label">📊 OI 변화</div>
-                    <div class="value green" id="fCardOI">+2.3%</div>
-                    <div class="sub" id="fCardOISub">증가 추세</div>
-                </div>
+                <div class="slider-page-label" id="sliderPageLabel">BTC 계약 데이터 · 1/3</div>
             </div>
 
             <!-- 뉴스 -->
@@ -2247,50 +2380,186 @@
             } catch(e) { console.warn('Coin fetch fail:', e); }
         }
 
-        // 선물 데이터 가져오기 (Binance Futures)
+        // 슬라이더 제어
+        let sliderPage = 0;
+        const SLIDER_PAGES = 3;
+        const SLIDER_LABELS = ['BTC 계약 데이터 · 1/3', '시장 지표 · 2/3', '알트 지표 · 3/3'];
+
+        function sliderTo(n) {
+            sliderPage = Math.max(0, Math.min(n, SLIDER_PAGES - 1));
+            const track = document.getElementById('sliderTrack');
+            if (track) track.style.transform = 'translateX(-' + (sliderPage * 100) + '%)';
+            document.querySelectorAll('.slider-dot').forEach((d, i) => d.classList.toggle('active', i === sliderPage));
+            const prev = document.getElementById('sliderPrev');
+            const next = document.getElementById('sliderNext');
+            if (prev) prev.disabled = sliderPage === 0;
+            if (next) next.disabled = sliderPage === SLIDER_PAGES - 1;
+            const lbl = document.getElementById('sliderPageLabel');
+            if (lbl) lbl.textContent = SLIDER_LABELS[sliderPage];
+        }
+
+        function sliderMove(dir) { sliderTo(sliderPage + dir); }
+
+        // 터치 스와이프
+        (function() {
+            let startX = 0;
+            const vp = document.querySelector('.card-slider-viewport');
+            if (!vp) return;
+            vp.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
+            vp.addEventListener('touchend', e => {
+                const dx = e.changedTouches[0].clientX - startX;
+                if (Math.abs(dx) > 40) sliderMove(dx < 0 ? 1 : -1);
+            }, { passive: true });
+        })();
+
+        // 선물·시장 데이터 가져오기
         async function fetchFuturesData() {
             try {
-                // 펀딩비
+                // === PAGE 1: BTC 계약 데이터 ===
+                // BTC 펀딩비 + markPrice
                 const fRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT');
                 const f = await fRes.json();
-                const fRate = (parseFloat(f.lastFundingRate) * 100);
-                const fCards = document.querySelectorAll('.futures-card');
+                const fRate = parseFloat(f.lastFundingRate) * 100;
+                const btcPrice = parseFloat(f.markPrice);
+                const fEl = document.getElementById('fCardFunding');
+                if (fEl) {
+                    fEl.textContent = (fRate >= 0 ? '+' : '') + fRate.toFixed(4) + '%';
+                    fEl.className = 'value ' + (fRate >= 0 ? 'green' : 'red');
+                    document.getElementById('fCardFundingSub').textContent = fRate >= 0 ? '롱 우세' : '숏 우세';
+                }
 
-                fCards[0].querySelector('.value').textContent = (fRate >= 0 ? '+' : '') + fRate.toFixed(4) + '%';
-                fCards[0].querySelector('.value').className = 'value ' + (fRate >= 0 ? 'green' : 'red');
-                fCards[0].querySelector('.sub').textContent = fRate >= 0 ? '롱 우세' : '숏 우세';
-
-                // 롱/숏 비율
+                // BTC 롱/숏 비율
                 const lsRes = await fetch('https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=5m&limit=1');
                 const ls = await lsRes.json();
                 if (ls[0]) {
                     const longR = Math.round(parseFloat(ls[0].longAccount) * 100);
-                    const shortR = Math.round(parseFloat(ls[0].shortAccount) * 100);
-                    fCards[1].querySelector('.value').textContent = longR + '/' + shortR;
-                    const diff = longR - shortR;
-                    fCards[1].querySelector('.sub').textContent = diff > 0 ? '롱 +' + diff + '%' : '숏 +' + Math.abs(diff) + '%';
+                    const shortR = 100 - longR;
+                    const lsEl = document.getElementById('fCardLS');
+                    if (lsEl) {
+                        lsEl.textContent = longR + '/' + shortR;
+                        lsEl.className = 'value ' + (longR >= shortR ? 'green' : 'red');
+                        document.getElementById('fCardLSSub').textContent = longR >= shortR ? '롱 우세' : '숏 우세';
+                    }
                 }
 
-                // OI
-                const oiRes = await fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT');
-                const oi = await oiRes.json();
-                const btcPrice = parseFloat(f.markPrice);
-                const oiUsd = parseFloat(oi.openInterest) * btcPrice;
-                fCards[3].querySelector('.value').textContent = '$' + (oiUsd / 1e9).toFixed(2) + 'B';
-                fCards[3].querySelector('.value').className = 'value';
-                fCards[3].querySelector('.sub').textContent = 'BTC 미결제약정';
-
-                // 청산 (24h) - Binance ticker volume 기반 추정
+                // BTC 24h 티커 (청산 추정 + 거래량 + 고래)
                 const ftRes = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT');
                 const ft = await ftRes.json();
                 const vol24h = parseFloat(ft.quoteVolume);
-                const liqEstimate = vol24h * 0.002; // 약 0.2% 청산 추정
-                if (liqEstimate > 1e9) {
-                    fCards[2].querySelector('.value').textContent = '$' + (liqEstimate / 1e9).toFixed(1) + 'B';
-                } else {
-                    fCards[2].querySelector('.value').textContent = '$' + (liqEstimate / 1e6).toFixed(0) + 'M';
+                const changeP = parseFloat(ft.priceChangePercent);
+                const liqEst = vol24h * (0.001 + Math.abs(changeP) * 0.0005);
+                const liqEl = document.getElementById('fCardLiq');
+                if (liqEl) {
+                    liqEl.textContent = liqEst >= 1e9 ? '$' + (liqEst/1e9).toFixed(1)+'B' : '$' + (liqEst/1e6).toFixed(0)+'M';
+                    liqEl.className = 'value red';
+                    document.getElementById('fCardLiqSub').textContent = changeP < 0 ? '롱 청산 多' : '숏 청산 多';
                 }
-                fCards[2].querySelector('.value').className = 'value red';
+
+                // BTC OI
+                const oiRes = await fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT');
+                const oi = await oiRes.json();
+                const oiUsd = parseFloat(oi.openInterest) * btcPrice;
+                const oiEl = document.getElementById('fCardOI');
+                if (oiEl) {
+                    oiEl.textContent = '$' + (oiUsd/1e9).toFixed(2) + 'B';
+                    oiEl.className = 'value';
+                    document.getElementById('fCardOISub').textContent = 'BTC 미결제약정';
+                }
+
+                // === PAGE 2: 시장 지표 ===
+                // ETH 펀딩비
+                const ethFRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=ETHUSDT');
+                const ethF = await ethFRes.json();
+                const ethFRate = parseFloat(ethF.lastFundingRate) * 100;
+                const ethFEl = document.getElementById('fCardEthFunding');
+                if (ethFEl) {
+                    ethFEl.textContent = (ethFRate >= 0 ? '+' : '') + ethFRate.toFixed(4) + '%';
+                    ethFEl.className = 'value ' + (ethFRate >= 0 ? 'green' : 'red');
+                    document.getElementById('fCardEthFundingSub').textContent = ethFRate >= 0 ? '롱 우세' : '숏 우세';
+                }
+
+                // BTC/USDT 도미넌스 (CoinGecko)
+                try {
+                    const geckoRes = await fetch('https://api.coingecko.com/api/v3/global');
+                    const gecko = await geckoRes.json();
+                    const btcDom = gecko.data.market_cap_percentage.btc;
+                    const usdtDom = gecko.data.market_cap_percentage.usdt;
+                    const bdEl = document.getElementById('fCardBtcDom');
+                    if (bdEl) {
+                        bdEl.textContent = btcDom.toFixed(1) + '%';
+                        bdEl.className = 'value';
+                        document.getElementById('fCardBtcDomSub').textContent = '전체 시장 기준';
+                    }
+                    const udEl = document.getElementById('fCardUsdtDom');
+                    if (udEl) {
+                        udEl.textContent = usdtDom.toFixed(1) + '%';
+                        udEl.className = 'value';
+                        document.getElementById('fCardUsdtDomSub').textContent = '스테이블 비중';
+                    }
+                } catch(e) { /* CoinGecko 실패 시 무시 */ }
+
+                // 공포/탐욕 지수
+                try {
+                    const fngRes = await fetch('https://api.alternative.me/fng/');
+                    const fng = await fngRes.json();
+                    const idx = parseInt(fng.data[0].value);
+                    const lbl = fng.data[0].value_classification;
+                    const fngEl = document.getElementById('fCardFnG');
+                    if (fngEl) {
+                        fngEl.textContent = idx;
+                        fngEl.className = 'value ' + (idx <= 30 ? 'red' : idx >= 60 ? 'green' : '');
+                        document.getElementById('fCardFnGSub').textContent = lbl;
+                    }
+                } catch(e) { /* 공포탐욕 실패 시 무시 */ }
+
+                // 김프 (Upbit KRW vs Binance USD)
+                try {
+                    const [upbitRes, rateRes] = await Promise.all([
+                        fetch('https://api.upbit.com/v1/ticker?markets=KRW-BTC'),
+                        fetch('https://open.er-api.com/v6/latest/USD')
+                    ]);
+                    const upbit = await upbitRes.json();
+                    const rate = await rateRes.json();
+                    const krwBtc = upbit[0].trade_price;
+                    const usdKrw = rate.rates.KRW;
+                    const kimpPct = ((krwBtc / usdKrw) / btcPrice - 1) * 100;
+                    const kimpEl = document.getElementById('fCardKimp');
+                    if (kimpEl) {
+                        kimpEl.textContent = (kimpPct >= 0 ? '+' : '') + kimpPct.toFixed(2) + '%';
+                        kimpEl.className = 'value ' + (kimpPct >= 0 ? 'green' : 'red');
+                        document.getElementById('fCardKimpSub').textContent = kimpPct >= 0 ? '국내 프리미엄' : '국내 디스카운트';
+                    }
+                } catch(e) { /* 김프 실패 시 무시 */ }
+
+                // === PAGE 3: 알트 지표 ===
+                // SOL 펀딩비
+                const solFRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=SOLUSDT');
+                const solF = await solFRes.json();
+                const solFRate = parseFloat(solF.lastFundingRate) * 100;
+                const solFEl = document.getElementById('fCardSolFunding');
+                if (solFEl) {
+                    solFEl.textContent = (solFRate >= 0 ? '+' : '') + solFRate.toFixed(4) + '%';
+                    solFEl.className = 'value ' + (solFRate >= 0 ? 'green' : 'red');
+                    document.getElementById('fCardSolFundingSub').textContent = solFRate >= 0 ? '롱 우세' : '숏 우세';
+                }
+
+                // 시장 거래량 (BTC 선물 24h)
+                const volEl = document.getElementById('fCardVol');
+                if (volEl) {
+                    volEl.textContent = vol24h >= 1e9 ? '$' + (vol24h/1e9).toFixed(1)+'B' : '$' + (vol24h/1e6).toFixed(0)+'M';
+                    volEl.className = 'value';
+                    document.getElementById('fCardVolSub').textContent = 'BTC 선물 24h';
+                }
+
+                // 고래 이동 (24h 거래 횟수 기반 활성도)
+                const tradeCount = parseInt(ft.count) || 0;
+                const whaleEl = document.getElementById('fCardWhale');
+                if (whaleEl) {
+                    whaleEl.textContent = tradeCount >= 1e6 ? (tradeCount/1e6).toFixed(1)+'M건' : Math.round(tradeCount/1e3)+'K건';
+                    whaleEl.className = 'value';
+                    document.getElementById('fCardWhaleSub').textContent = '24h BTC 거래 횟수';
+                }
+
             } catch(e) { console.warn('Futures fetch fail:', e); }
         }
 
