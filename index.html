@@ -103,33 +103,88 @@
         .nav-item:hover { color: var(--text-primary); background: var(--bg-card); }
         .nav-item.event { color: var(--accent-yellow); }
         .nav-item.event::before { content: '🎁 '; }
-        /* 계약 데이터 드롭다운 */
+        /* 네비게이션 드롭다운 공통 */
         .nav-dropdown { position: relative; }
+        .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+        .nav-dropdown:hover .nav-mega-menu  { display: block; }
+
+        /* 일반 드롭다운 (CFD 등) */
         .nav-dropdown-menu {
             display: none;
             position: absolute;
-            top: calc(100% + 4px);
+            top: calc(100% + 6px);
             left: 0;
-            background: var(--bg-card);
+            background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 10px;
             overflow: hidden;
-            min-width: 160px;
+            min-width: 180px;
             z-index: 2000;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
-        .nav-dropdown:hover .nav-dropdown-menu,
-        .nav-dropdown.open .nav-dropdown-menu { display: block; }
         .nav-dropdown-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 11px 16px;
-            font-size: 13px; color: var(--text-secondary);
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 16px;
+            font-size: 12px; color: var(--text-secondary);
             cursor: pointer; transition: background 0.15s;
-            text-decoration: none;
-            white-space: nowrap;
+            text-decoration: none; white-space: nowrap;
         }
         .nav-dropdown-item:hover { background: var(--bg-card-hover); color: var(--accent-cyan); }
-        .nav-dropdown-item .di-icon { font-size: 14px; }
+
+        /* 메가 드롭다운 (계약 데이터) */
+        .nav-mega-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            left: -20px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            z-index: 2000;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+            width: 700px;
+        }
+        .mega-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+        .mega-col-title {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 4px 10px 10px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 6px;
+        }
+        .mega-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 10px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .mega-item:hover:not(.prep) { background: rgba(0,184,217,0.08); color: var(--accent-cyan); }
+        .mega-item.prep { opacity: 0.4; cursor: default; pointer-events: none; }
+        .mega-hot { font-size: 10px; }
+        .mega-tag {
+            display: inline-block;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            margin-left: 2px;
+        }
+        .mega-tag.prep { background: rgba(107,114,128,0.2); color: var(--text-muted); }
+        .mega-tag.hot  { background: rgba(220,38,38,0.15); color: #f87171; }
 
         .header-right {
             margin-left: auto;
@@ -958,15 +1013,16 @@
         }
 
         /* ===== 뉴스 탭 ===== */
-        .news-tabs { display: flex; gap: 4px; margin-bottom: 10px; }
+        .news-tabs { display: flex; gap: 3px; margin-bottom: 10px; }
         .news-tab {
-            flex: 1; padding: 6px 0; text-align: center; font-size: 12px; font-weight: 600;
+            flex: 1; padding: 6px 0; text-align: center; font-size: 11px; font-weight: 600;
             border-radius: 6px; cursor: pointer; background: var(--bg-card);
             color: var(--text-muted); border: 1px solid var(--border-color); transition: all 0.2s;
         }
         .news-tab:hover { color: var(--text-secondary); }
-        .news-tab.active-breaking { background: var(--accent-red); color: #fff; border-color: var(--accent-red); }
-        .news-tab.active-news { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
+        .news-tab.active-industry { background: var(--accent-cyan); color: #000; border-color: var(--accent-cyan); }
+        .news-tab.active-daily   { background: var(--accent-purple); color: #fff; border-color: var(--accent-purple); }
+        .news-tab.active-partner { background: var(--accent-green); color: #000; border-color: var(--accent-green); }
         .news-tab-panel { display: none; }
         .news-tab-panel.active { display: block; }
         /* 속보 아이템 */
@@ -1208,16 +1264,61 @@
             <span class="logo-text">1% TRADING</span>
         </div>
         <nav class="nav-menu">
-            <div class="nav-item" onclick="location.href='kimp.html'" style="color:var(--accent-red);font-weight:700;">김프</div>
+            <!-- 계약 데이터 메가 드롭다운 -->
             <div class="nav-dropdown">
-                <div class="nav-item" style="display:flex;align-items:center;gap:4px;">계약 데이터 <span style="font-size:9px;opacity:0.6;">▼</span></div>
-                <div class="nav-dropdown-menu">
-                    <a class="nav-dropdown-item" href="contract/funding.html"><span class="di-icon">📈</span>펀딩비</a>
-                    <a class="nav-dropdown-item" href="contract/longshort.html"><span class="di-icon">⚖️</span>롱/숏 비율</a>
-                    <a class="nav-dropdown-item" href="contract/liquidation.html"><span class="di-icon">💥</span>청산 데이터</a>
-                    <a class="nav-dropdown-item" href="contract/oi.html"><span class="di-icon">📊</span>OI 미결제약정</a>
+                <div class="nav-item" style="display:flex;align-items:center;gap:4px;">계약데이터 <span style="font-size:9px;opacity:0.5;">▼</span></div>
+                <div class="nav-mega-menu">
+                    <div class="mega-grid">
+                        <!-- 열 1: 청산 & 펀딩비 -->
+                        <div>
+                            <div class="mega-col-title">청산 · 펀딩비</div>
+                            <a class="mega-item" href="contract/liquidation.html">💥 청산 데이터</a>
+                            <a class="mega-item prep">🔥 청산 히트맵<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item" href="contract/funding.html">📈 펀딩비</a>
+                            <a class="mega-item prep">🗺️ 펀딩비 히트맵<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">📊 누적 펀딩비<span class="mega-tag prep">준비중</span></a>
+                        </div>
+                        <!-- 열 2: 롱숏 비율 -->
+                        <div>
+                            <div class="mega-col-title">롱숏 비율</div>
+                            <a class="mega-item" href="contract/longshort.html">⚖️ 실시간 롱숏 비율</a>
+                            <a class="mega-item prep">📊 L/S Population<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">🐋 대규모 롱숏<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">🟡 바이낸스 L/S<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">⬛ OKX L/S<span class="mega-tag prep">준비중</span></a>
+                        </div>
+                        <!-- 열 3: 포지션 & 주문서 -->
+                        <div>
+                            <div class="mega-col-title">포지션 · 주문서</div>
+                            <a class="mega-item" href="contract/oi.html">📊 OI 미결제약정</a>
+                            <a class="mega-item prep">📉 OI 변화<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">📖 오더북<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">📐 Orderbook Depth<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">📚 Agg. Orderbook<span class="mega-tag prep">준비중</span></a>
+                        </div>
+                        <!-- 열 4: 종합 -->
+                        <div>
+                            <div class="mega-col-title">종합</div>
+                            <a class="mega-item prep">🐋 고래 포지션 <span class="mega-hot">🔥</span><span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">📈 RSI 히트맵<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">🖥️ Visual Screener<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item" href="kimp.html">😨 공포/탐욕 지수</a>
+                            <a class="mega-item" href="kimp.html">🇰🇷 김치프리미엄</a>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            <!-- CFD 드롭다운 -->
+            <div class="nav-dropdown">
+                <div class="nav-item" style="display:flex;align-items:center;gap:4px;">CFD <span style="font-size:9px;opacity:0.5;">▼</span></div>
+                <div class="nav-dropdown-menu">
+                    <a class="nav-dropdown-item" style="opacity:0.4;pointer-events:none;">🇺🇸 미국 주식 <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">준비중</span></a>
+                    <a class="nav-dropdown-item" style="opacity:0.4;pointer-events:none;">🥇 금/원자재 <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">준비중</span></a>
+                    <a class="nav-dropdown-item" style="opacity:0.4;pointer-events:none;">📊 나스닥 <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">준비중</span></a>
+                </div>
+            </div>
+
             <div class="nav-item" onclick="location.href='news.html'">뉴스</div>
             <div class="nav-item" onclick="location.href='exchanges.html'">거래소</div>
             <div class="nav-item" onclick="location.href='rewards.html'">리워드</div>
@@ -1689,55 +1790,22 @@
                 </div>
             </div>
 
-            <!-- 뉴스 (2탭: 속보 / 뉴스) -->
+            <!-- 뉴스 (Bitget 3탭: 업계뉴스 / 일일요약 / 제휴가이드) -->
             <div class="sr-section">
-                <div class="sr-title" id="newsSrTitle">⚡ 속보 <span class="sr-more" id="newsMoreLink" onclick="location.href='news.html'">더보기→</span></div>
+                <div class="sr-title" id="newsSrTitle">📰 뉴스 <span class="sr-more" onclick="location.href='news.html'">더보기→</span></div>
                 <div class="news-tabs">
-                    <div class="news-tab active-breaking" id="tabBreaking" onclick="switchNewsTab('breaking')">⚡ 속보</div>
-                    <div class="news-tab" id="tabNews" onclick="switchNewsTab('news')">📰 뉴스</div>
+                    <div class="news-tab active-industry" id="tabIndustry" onclick="switchNewsTab('industry')">업계뉴스</div>
+                    <div class="news-tab" id="tabDaily"    onclick="switchNewsTab('daily')">일일요약</div>
+                    <div class="news-tab" id="tabPartner"  onclick="switchNewsTab('partner')">제휴가이드</div>
                 </div>
-                <!-- 속보 패널 -->
-                <div class="news-tab-panel active" id="newsTabBreaking">
-                    <div class="breaking-item" onclick="location.href='news.html'">
-                        <span class="breaking-time">14:32</span>
-                        <span class="breaking-dot"></span>
-                        <span class="breaking-title">BTC $105K 돌파 시도 — 단기 저항선 주목</span>
-                    </div>
-                    <div class="breaking-item" onclick="location.href='news.html'">
-                        <span class="breaking-time">13:45</span>
-                        <span class="breaking-dot"></span>
-                        <span class="breaking-title">ETH 펀딩비 급등, 롱 포지션 과열 신호</span>
-                    </div>
-                    <div class="breaking-item" onclick="location.href='news.html'">
-                        <span class="breaking-time">12:18</span>
-                        <span class="breaking-dot"></span>
-                        <span class="breaking-title">SEC 암호화폐 ETF 신청 심사 일정 공개</span>
-                    </div>
-                    <div class="breaking-item" onclick="location.href='news.html'">
-                        <span class="breaking-time">11:50</span>
-                        <span class="breaking-dot"></span>
-                        <span class="breaking-title">솔라나 DeFi TVL 사상 최고치 돌파</span>
-                    </div>
-                    <div class="breaking-item" onclick="location.href='news.html'">
-                        <span class="breaking-time">10:03</span>
-                        <span class="breaking-dot"></span>
-                        <span class="breaking-title">Binance, USDC 지원 확대 발표</span>
-                    </div>
+                <div class="news-tab-panel active" id="newsTabIndustry">
+                    <div class="breaking-item"><span class="breaking-time">--</span><span class="breaking-dot"></span><span class="breaking-title">로딩 중...</span></div>
                 </div>
-                <!-- 뉴스 패널 -->
-                <div class="news-tab-panel" id="newsTabNews">
-                    <div class="sl-news-item" onclick="location.href='news.html'">
-                        <div class="sl-news-tag">BTC</div>
-                        <div class="sl-news-title">비트코인 $100K 돌파, 신고점 경신</div>
-                    </div>
-                    <div class="sl-news-item" onclick="location.href='news.html'">
-                        <div class="sl-news-tag">ETF</div>
-                        <div class="sl-news-title">이더리움 ETF 자금 유입 급증</div>
-                    </div>
-                    <div class="sl-news-item" onclick="location.href='news.html'">
-                        <div class="sl-news-tag">시장</div>
-                        <div class="sl-news-title">트럼프 취임 앞두고 시장 관망</div>
-                    </div>
+                <div class="news-tab-panel" id="newsTabDaily">
+                    <div class="breaking-item"><span class="breaking-time">--</span><span class="breaking-dot"></span><span class="breaking-title">로딩 중...</span></div>
+                </div>
+                <div class="news-tab-panel" id="newsTabPartner">
+                    <div class="breaking-item"><span class="breaking-time">--</span><span class="breaking-dot"></span><span class="breaking-title">로딩 중...</span></div>
                 </div>
             </div>
 
@@ -2591,67 +2659,82 @@
 
         // 뉴스 탭 전환
         function switchNewsTab(type) {
-            const tabB = document.getElementById('tabBreaking');
-            const tabN = document.getElementById('tabNews');
-            const panelB = document.getElementById('newsTabBreaking');
-            const panelN = document.getElementById('newsTabNews');
-            const title = document.getElementById('newsSrTitle');
-            const more = document.getElementById('newsMoreLink');
-            tabB.className = 'news-tab';
-            tabN.className = 'news-tab';
-            panelB.classList.remove('active');
-            panelN.classList.remove('active');
-            if (type === 'breaking') {
-                tabB.classList.add('active-breaking');
-                panelB.classList.add('active');
-                title.innerHTML = '⚡ 속보 <span class="sr-more" id="newsMoreLink" onclick="location.href=\'news.html\'">더보기→</span>';
-            } else {
-                tabN.classList.add('active-news');
-                panelN.classList.add('active');
-                title.innerHTML = '📰 뉴스 <span class="sr-more" id="newsMoreLink" onclick="location.href=\'news.html\'">더보기→</span>';
-            }
+            ['industry','daily','partner'].forEach(t => {
+                const tab   = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+                const panel = document.getElementById('newsTab' + t.charAt(0).toUpperCase() + t.slice(1));
+                if (tab)   tab.className = 'news-tab';
+                if (panel) panel.classList.remove('active');
+            });
+            const activeTab   = document.getElementById('tab' + type.charAt(0).toUpperCase() + type.slice(1));
+            const activePanel = document.getElementById('newsTab' + type.charAt(0).toUpperCase() + type.slice(1));
+            if (activeTab)   activeTab.classList.add('active-' + type);
+            if (activePanel) activePanel.classList.add('active');
         }
 
-        // 뉴스 실시간 (Binance 공지 활용)
+        // ── Bitget 뉴스 API ──
+        // annType: 10=업계뉴스, 3=일일요약, 6=제휴/파트너
+        const BITGET_NEWS_TYPES = { industry: '10', daily: '3', partner: '6' };
+
+        function buildBitgetItem(a) {
+            const ts = parseInt(a.cTime || a.createTime || a.time || 0);
+            const date = ts ? new Date(ts) : new Date();
+            const time = date.getHours().toString().padStart(2,'0') + ':' + date.getMinutes().toString().padStart(2,'0');
+            const title = (a.annTitle || a.title || '').trim();
+            const url = a.annUrl || a.url || 'https://www.bitget.com/ko/announcement/';
+            const display = title.length > 30 ? title.substring(0,30) + '…' : title;
+            return '<div class="breaking-item" style="cursor:pointer;" onclick="window.open(\'' + url.replace(/'/g,"'") + '\',\'_blank\')">' +
+                '<span class="breaking-time">' + time + '</span>' +
+                '<span class="breaking-dot"></span>' +
+                '<span class="breaking-title">' + display + '</span></div>';
+        }
+
+        async function fetchBitgetNews(annType) {
+            const res = await fetch('https://api.bitget.com/api/v2/public/annc/list?annType=' + annType + '&language=zh_CN&pageNo=1&pageSize=8');
+            const data = await res.json();
+            if (data.code === '00000' && Array.isArray(data.data)) return data.data;
+            // fallback: try without type
+            const res2 = await fetch('https://api.bitget.com/api/v2/public/annc/list?pageNo=1&pageSize=15');
+            const data2 = await res2.json();
+            return (data2.data || []).slice(0,8);
+        }
+
         async function fetchNews() {
             try {
-                const res = await fetch('https://www.binance.com/bapi/composite/v1/public/cms/article/list/query?type=1&pageNo=1&pageSize=6');
-                const data = await res.json();
-                if (data.data && data.data.catalogs) {
-                    const articles = data.data.catalogs[0]?.articles || [];
-                    // 메인 뉴스 그리드 업데이트
-                    const newsGrid = document.querySelector('.news-grid');
-                    if (newsGrid && articles.length >= 4) {
-                        newsGrid.innerHTML = articles.slice(0,4).map(a => {
-                            const date = new Date(a.releaseDate);
+                const [industryItems, dailyItems, partnerItems] = await Promise.allSettled([
+                    fetchBitgetNews(BITGET_NEWS_TYPES.industry),
+                    fetchBitgetNews(BITGET_NEWS_TYPES.daily),
+                    fetchBitgetNews(BITGET_NEWS_TYPES.partner),
+                ]);
+
+                const fill = (panelId, items) => {
+                    const panel = document.getElementById(panelId);
+                    if (!panel) return;
+                    if (!items || !items.length) {
+                        panel.innerHTML = '<div class="breaking-item"><span class="breaking-title" style="color:var(--text-muted);">데이터 없음</span></div>';
+                        return;
+                    }
+                    panel.innerHTML = items.slice(0,6).map(buildBitgetItem).join('');
+                };
+
+                fill('newsTabIndustry', industryItems.status === 'fulfilled' ? industryItems.value : []);
+                fill('newsTabDaily',    dailyItems.status   === 'fulfilled' ? dailyItems.value   : []);
+                fill('newsTabPartner',  partnerItems.status === 'fulfilled' ? partnerItems.value : []);
+
+                // 메인 뉴스 그리드 (업계뉴스 상위 4개)
+                const newsGrid = document.querySelector('.news-grid');
+                if (newsGrid) {
+                    const all = industryItems.status === 'fulfilled' ? industryItems.value : [];
+                    if (all.length >= 2) {
+                        newsGrid.innerHTML = all.slice(0,4).map(a => {
+                            const ts = parseInt(a.cTime || a.createTime || 0);
+                            const date = ts ? new Date(ts) : new Date();
                             const time = date.getHours().toString().padStart(2,'0') + ':' + date.getMinutes().toString().padStart(2,'0');
-                            return '<div class="news-card" onclick="location.href=\'news.html\'">' +
+                            const title = (a.annTitle || a.title || '').trim();
+                            const url = a.annUrl || 'https://www.bitget.com/ko/announcement/';
+                            return '<div class="news-card" style="cursor:pointer;" onclick="window.open(\'' + url + '\',\'_blank\')">' +
                                 '<div class="time">' + time + '</div>' +
-                                '<div class="title">' + (a.title.length > 40 ? a.title.substring(0,40) + '...' : a.title) + '</div>' +
-                                '<span class="tag">Binance</span></div>';
-                        }).join('');
-                    }
-                    // 속보 탭 업데이트
-                    const breakingPanel = document.getElementById('newsTabBreaking');
-                    if (breakingPanel && articles.length > 0) {
-                        breakingPanel.innerHTML = articles.slice(0,6).map(a => {
-                            const date = new Date(a.releaseDate);
-                            const time = date.getHours().toString().padStart(2,'0') + ':' + date.getMinutes().toString().padStart(2,'0');
-                            const title = a.title.length > 28 ? a.title.substring(0,28) + '…' : a.title;
-                            return '<div class="breaking-item" onclick="location.href=\'news.html\'">' +
-                                '<span class="breaking-time">' + time + '</span>' +
-                                '<span class="breaking-dot"></span>' +
-                                '<span class="breaking-title">' + title + '</span></div>';
-                        }).join('');
-                    }
-                    // 뉴스 탭 업데이트
-                    const newsPanel = document.getElementById('newsTabNews');
-                    if (newsPanel && articles.length > 0) {
-                        newsPanel.innerHTML = articles.slice(0,4).map(a => {
-                            const title = a.title.length > 32 ? a.title.substring(0,32) + '…' : a.title;
-                            return '<div class="sl-news-item" onclick="location.href=\'news.html\'">' +
-                                '<div class="sl-news-tag">Binance</div>' +
-                                '<div class="sl-news-title">' + title + '</div></div>';
+                                '<div class="title">' + (title.length > 40 ? title.substring(0,40) + '...' : title) + '</div>' +
+                                '<span class="tag">Bitget</span></div>';
                         }).join('');
                     }
                 }
