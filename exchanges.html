@@ -383,45 +383,34 @@
 
                 <!-- Bitget 패널 -->
                 <div class="rj-panel active" id="panel-bitget">
-                    <div class="rj-card" id="bg-m1">
-                        <div class="rj-card-head" onclick="toggleCard('bg-m1')">
-                            <span class="rj-badge b-m1">방법 1 · 권장</span>
-                            <span class="rj-card-title">기존 계정 탈퇴 후 레퍼럴 재가입</span>
+                    <div class="rj-card open" id="bg-steps">
+                        <div class="rj-card-head" onclick="toggleCard('bg-steps')">
+                            <span class="rj-badge b-m1">재가입 절차</span>
+                            <span class="rj-card-title">5단계 가이드 — Bitget</span>
                             <span class="rj-card-arrow">▼</span>
                         </div>
                         <div class="rj-card-body">
-                            <div class="rj-step"><span class="rj-num">1</span><span>기존 Bitget 계정의 <b>모든 자산을 먼저 출금</b>하고 오픈 포지션 및 주문을 모두 정리하세요.</span></div>
-                            <div class="rj-step"><span class="rj-num">2</span><span>Bitget 앱/웹 → 설정 → <b>계정 탈퇴(비활성화)</b> 진행 (이메일 인증 필요)</span></div>
-                            <div class="rj-step"><span class="rj-num">3</span><span>탈퇴 완료 후 아래 <b>1% Trading 레퍼럴 링크</b>로 접속 → 레퍼럴 코드 <span class="rj-code">pkju</span> 자동 적용 확인</span></div>
-                            <div class="rj-step"><span class="rj-num">4</span><span>이메일 인증 → KYC 완료 → 선물 거래 시작 → 수수료 <b>85%</b> 페이백 적용</span></div>
-                            <div class="rj-cta"><a href="https://www.bitget.com/referral/register?from=referral&clacCode=pkju" target="_blank" style="background:#009985;color:#000;">Bitget 재가입하기 →</a></div>
-                        </div>
-                    </div>
-                    <div class="rj-card" id="bg-m2">
-                        <div class="rj-card-head" onclick="toggleCard('bg-m2')">
-                            <span class="rj-badge b-m2">방법 2</span>
-                            <span class="rj-card-title">다른 이메일로 신규 계정 생성</span>
-                            <span class="rj-card-arrow">▼</span>
-                        </div>
-                        <div class="rj-card-body">
-                            <div class="rj-step"><span class="rj-num">1</span><span>기존 계정과 <b>다른 이메일 또는 전화번호</b> 준비 (Google 별칭 e.g. id<b>+1</b>@gmail.com 가능)</span></div>
-                            <div class="rj-step"><span class="rj-num">2</span><span>아래 가입 링크 클릭 → 레퍼럴 코드 <span class="rj-code">pkju</span> 자동 입력 확인</span></div>
-                            <div class="rj-step"><span class="rj-num">3</span><span>이메일 인증 완료 → KYC(신분증 인증) 진행 → 선물 거래 시작</span></div>
-                            <div class="rj-cta"><a href="https://www.bitget.com/referral/register?from=referral&clacCode=pkju" target="_blank" style="background:#009985;color:#000;">Bitget 신규 가입하기 →</a></div>
+                            <div class="rj-step"><span class="rj-num">1</span><span><b>자산 전액 출금</b> — USDT 등 모든 자산을 개인 지갑 또는 타 거래소로 출금. 오픈 포지션·미체결 주문 전량 정리.</span></div>
+                            <div class="rj-step"><span class="rj-num">2</span><span><b>탈퇴 신청</b> — Bitget 앱 → 설정 → 계정 보안 → <b>계정 비활성화</b> → 이메일 인증 완료. <span style="color:var(--accent-cyan);font-size:12px;">처리 1~7일 소요</span></span></div>
+                            <div class="rj-step"><span class="rj-num">3</span><span><b>탈퇴 완료 확인 후</b> 아래 1% Trading PRO 레퍼럴 링크로 신규 가입. 코드 <span class="rj-code">pkju</span> 자동 적용 확인.</span></div>
+                            <div class="rj-step"><span class="rj-num">4</span><span><b>KYC 인증</b> — 설정 → 신원인증 → 여권 또는 주민등록증 앞뒤 사진 + 셀피 촬영 업로드.</span></div>
+                            <div class="rj-step"><span class="rj-num">5</span><span><b>선물 거래 시작</b> → 거래 수수료의 <b>85%</b> 자동 페이백 적용 시작.</span></div>
+                            <div class="rj-cta"><a href="https://www.bitget.com/referral/register?from=referral&clacCode=pkju" target="_blank" style="background:#009985;color:#000;">Bitget 레퍼럴 링크로 가입하기 →</a></div>
                         </div>
                     </div>
                     <div class="rj-card" id="bg-warn">
                         <div class="rj-card-head" onclick="toggleCard('bg-warn')">
-                            <span class="rj-badge b-warn">주의사항</span>
-                            <span class="rj-card-title">꼭 확인하세요</span>
+                            <span class="rj-badge b-warn">⚠️ 주의사항</span>
+                            <span class="rj-card-title">반드시 확인하세요</span>
                             <span class="rj-card-arrow">▼</span>
                         </div>
                         <div class="rj-card-body">
                             <div class="rj-warn-list">
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span><b>탈퇴 전 모든 자산 출금을 먼저 완료하세요.</b> 탈퇴 후에는 자산 접근이 불가합니다.</span></div>
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일한 신분증(KYC)으로는 계정 중복 생성이 제한될 수 있습니다. 가족 명의 등 별도 인증 수단을 활용하세요.</span></div>
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>레퍼럴 페이백은 <b>가입 시점</b>에 코드가 등록되어야 적용됩니다. 가입 후 코드 사후 등록은 불가합니다.</span></div>
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>궁금한 점은 1% Trading 공식 채널로 문의주세요.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span><b>탈퇴 전 반드시 자산 출금 완료.</b> 탈퇴 후에는 자산 접근이 불가합니다.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일 신분증으로 계정 중복 생성 불가 — <b>탈퇴 후 재가입만 가능.</b></span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일 IP·기기에서 동시 로그인 시 제재 가능 → VPN 또는 다른 기기 사용 권장.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>레퍼럴 코드는 <b>가입 시점에만 적용</b> — 가입 후 사후 등록 불가.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>탈퇴 처리 완료 전 재가입 시 오류 발생 가능 — 완료 이메일 확인 후 재가입하세요.</span></div>
                             </div>
                         </div>
                     </div>
@@ -429,45 +418,34 @@
 
                 <!-- OKX 패널 -->
                 <div class="rj-panel" id="panel-okx">
-                    <div class="rj-card" id="okx-m1">
-                        <div class="rj-card-head" onclick="toggleCard('okx-m1')">
-                            <span class="rj-badge b-m1">방법 1 · 권장</span>
-                            <span class="rj-card-title">기존 계정 탈퇴 후 레퍼럴 재가입</span>
+                    <div class="rj-card open" id="okx-steps">
+                        <div class="rj-card-head" onclick="toggleCard('okx-steps')">
+                            <span class="rj-badge b-m1">재가입 절차</span>
+                            <span class="rj-card-title">5단계 가이드 — OKX</span>
                             <span class="rj-card-arrow">▼</span>
                         </div>
                         <div class="rj-card-body">
-                            <div class="rj-step"><span class="rj-num">1</span><span>기존 OKX 계정의 <b>모든 자산을 먼저 출금</b>하고 포지션·주문 전량 정리하세요.</span></div>
-                            <div class="rj-step"><span class="rj-num">2</span><span>OKX 앱 → 프로필 → 설정 → <b>계정 삭제</b> 진행 (이메일/SMS 인증 필요)</span></div>
-                            <div class="rj-step"><span class="rj-num">3</span><span>삭제 완료 후 아래 링크 접속 → 레퍼럴 코드 <span class="rj-code">84293762</span> 자동 적용 확인</span></div>
-                            <div class="rj-step"><span class="rj-num">4</span><span>이메일 인증 → KYC 완료 → 선물·현물 거래 시 <b>80%</b> 페이백 적용</span></div>
-                            <div class="rj-cta"><a href="https://okx.com/join/84293762" target="_blank" style="background:#fff;color:#000;">OKX 재가입하기 →</a></div>
-                        </div>
-                    </div>
-                    <div class="rj-card" id="okx-m2">
-                        <div class="rj-card-head" onclick="toggleCard('okx-m2')">
-                            <span class="rj-badge b-m2">방법 2</span>
-                            <span class="rj-card-title">다른 이메일로 신규 계정 생성</span>
-                            <span class="rj-card-arrow">▼</span>
-                        </div>
-                        <div class="rj-card-body">
-                            <div class="rj-step"><span class="rj-num">1</span><span>기존 계정과 <b>다른 이메일</b> 준비 (Google 별칭 id<b>+okx</b>@gmail.com 활용 가능)</span></div>
-                            <div class="rj-step"><span class="rj-num">2</span><span>아래 링크로 접속 → 레퍼럴 코드 <span class="rj-code">84293762</span> 자동 적용 확인</span></div>
-                            <div class="rj-step"><span class="rj-num">3</span><span>이메일 인증 → KYC 완료 → XAU(금) 선물 포함 300+ 선물 페어 이용 가능</span></div>
-                            <div class="rj-cta"><a href="https://okx.com/join/84293762" target="_blank" style="background:#fff;color:#000;">OKX 신규 가입하기 →</a></div>
+                            <div class="rj-step"><span class="rj-num">1</span><span><b>자산 전액 출금</b> — USDT 등 모든 자산을 개인 지갑 또는 타 거래소로 출금. 포지션·주문 전량 정리.</span></div>
+                            <div class="rj-step"><span class="rj-num">2</span><span><b>탈퇴 신청</b> — OKX 앱 → 프로필 → 설정 → <b>계정 삭제</b> → 이메일/SMS 인증 완료. <span style="color:var(--accent-cyan);font-size:12px;">처리 1~7일 소요</span></span></div>
+                            <div class="rj-step"><span class="rj-num">3</span><span><b>탈퇴 완료 확인 후</b> 아래 1% Trading PRO 레퍼럴 링크로 신규 가입. 코드 <span class="rj-code">84293762</span> 자동 적용 확인.</span></div>
+                            <div class="rj-step"><span class="rj-num">4</span><span><b>KYC 인증</b> — 프로필 → 인증 → 기본인증(이름·생년월일) → 고급인증(신분증 앞뒤 + 셀피).</span></div>
+                            <div class="rj-step"><span class="rj-num">5</span><span><b>선물 거래 시작</b> → XAU(금) 선물 포함 300+ 페어, 수수료 <b>80%</b> 자동 페이백 적용.</span></div>
+                            <div class="rj-cta"><a href="https://okx.com/join/84293762" target="_blank" style="background:#fff;color:#000;">OKX 레퍼럴 링크로 가입하기 →</a></div>
                         </div>
                     </div>
                     <div class="rj-card" id="okx-warn">
                         <div class="rj-card-head" onclick="toggleCard('okx-warn')">
-                            <span class="rj-badge b-warn">주의사항</span>
-                            <span class="rj-card-title">꼭 확인하세요</span>
+                            <span class="rj-badge b-warn">⚠️ 주의사항</span>
+                            <span class="rj-card-title">반드시 확인하세요</span>
                             <span class="rj-card-arrow">▼</span>
                         </div>
                         <div class="rj-card-body">
                             <div class="rj-warn-list">
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span><b>탈퇴 전 모든 자산 출금을 먼저 완료하세요.</b> 계정 삭제 후 자산 복구는 불가합니다.</span></div>
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>OKX는 동일 신분증으로 다중 계정 생성을 엄격히 제한합니다.</span></div>
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>한국 거주자의 경우 접속 환경(VPN 등)에 따라 이용이 제한될 수 있습니다.</span></div>
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>레퍼럴 코드는 <b>회원가입 시</b>에만 적용 가능하며, 가입 후 소급 적용은 불가합니다.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span><b>탈퇴 전 반드시 자산 출금 완료.</b> 계정 삭제 후 자산 복구 불가.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일 신분증으로 계정 중복 생성 불가 — <b>탈퇴 후 재가입만 가능.</b></span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일 IP·기기에서 동시 로그인 시 제재 가능 → VPN 또는 다른 기기 사용 권장.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>레퍼럴 코드는 <b>가입 시점에만 적용</b> — 가입 후 사후 등록 불가.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>탈퇴 처리 완료 전 재가입 시 오류 발생 가능 — 삭제 완료 이메일 확인 후 재가입.</span></div>
                             </div>
                         </div>
                     </div>
@@ -475,45 +453,34 @@
 
                 <!-- Gate.io 패널 -->
                 <div class="rj-panel" id="panel-gate">
-                    <div class="rj-card" id="gt-m1">
-                        <div class="rj-card-head" onclick="toggleCard('gt-m1')">
-                            <span class="rj-badge b-m1">방법 1 · 권장</span>
-                            <span class="rj-card-title">기존 계정 탈퇴 후 레퍼럴 재가입</span>
+                    <div class="rj-card open" id="gt-steps">
+                        <div class="rj-card-head" onclick="toggleCard('gt-steps')">
+                            <span class="rj-badge b-m1">재가입 절차</span>
+                            <span class="rj-card-title">5단계 가이드 — Gate.io</span>
                             <span class="rj-card-arrow">▼</span>
                         </div>
                         <div class="rj-card-body">
-                            <div class="rj-step"><span class="rj-num">1</span><span>기존 Gate.io 계정의 <b>모든 자산을 먼저 출금</b>하고 미체결 주문 전량 취소하세요.</span></div>
-                            <div class="rj-step"><span class="rj-num">2</span><span>Gate.io → 계정 설정 → <b>계정 비활성화/탈퇴</b> 신청 (이메일 인증 필요)</span></div>
-                            <div class="rj-step"><span class="rj-num">3</span><span>탈퇴 완료 후 아래 링크 접속 → 코드 <span class="rj-code">VQQVVAOMBG</span> 자동 적용 확인</span></div>
-                            <div class="rj-step"><span class="rj-num">4</span><span>이메일 인증 → KYC 완료 → 선물 거래 시 <b>80%</b> 페이백 적용</span></div>
-                            <div class="rj-cta"><a href="https://www.gate.com/share/VQQVVAOMBG" target="_blank" style="background:#009985;color:#000;">Gate.io 재가입하기 →</a></div>
-                        </div>
-                    </div>
-                    <div class="rj-card" id="gt-m2">
-                        <div class="rj-card-head" onclick="toggleCard('gt-m2')">
-                            <span class="rj-badge b-m2">방법 2</span>
-                            <span class="rj-card-title">다른 이메일로 신규 계정 생성</span>
-                            <span class="rj-card-arrow">▼</span>
-                        </div>
-                        <div class="rj-card-body">
-                            <div class="rj-step"><span class="rj-num">1</span><span>기존 계정과 <b>다른 이메일</b> 준비 (Google 별칭 id<b>+gate</b>@gmail.com 활용 가능)</span></div>
-                            <div class="rj-step"><span class="rj-num">2</span><span>아래 링크로 접속 → 레퍼럴 코드 <span class="rj-code">VQQVVAOMBG</span> 자동 적용 확인</span></div>
-                            <div class="rj-step"><span class="rj-num">3</span><span>이메일 인증 → KYC 완료 → 선물 거래 시작</span></div>
-                            <div class="rj-cta"><a href="https://www.gate.com/share/VQQVVAOMBG" target="_blank" style="background:#009985;color:#000;">Gate.io 신규 가입하기 →</a></div>
+                            <div class="rj-step"><span class="rj-num">1</span><span><b>자산 전액 출금</b> — USDT 등 모든 자산을 개인 지갑 또는 타 거래소로 출금. 미체결 주문 전량 취소.</span></div>
+                            <div class="rj-step"><span class="rj-num">2</span><span><b>탈퇴 신청</b> — Gate.io → 계정 → KYC 인증 → <b>계정 비활성화 신청</b> → 이메일 인증 완료. <span style="color:var(--accent-cyan);font-size:12px;">처리 1~7일 소요</span></span></div>
+                            <div class="rj-step"><span class="rj-num">3</span><span><b>탈퇴 완료 확인 후</b> 아래 1% Trading PRO 레퍼럴 링크로 신규 가입. 코드 <span class="rj-code">VQQVVAOMBG</span> 자동 적용 확인.</span></div>
+                            <div class="rj-step"><span class="rj-num">4</span><span><b>KYC 인증</b> — 계정 → KYC인증 → 개인인증 → 신분증(앞뒤) 업로드 + 셀피 촬영.</span></div>
+                            <div class="rj-step"><span class="rj-num">5</span><span><b>선물 거래 시작</b> → 수수료 <b>80%</b> 자동 페이백 적용 시작.</span></div>
+                            <div class="rj-cta"><a href="https://www.gate.com/share/VQQVVAOMBG" target="_blank" style="background:#009985;color:#000;">Gate.io 레퍼럴 링크로 가입하기 →</a></div>
                         </div>
                     </div>
                     <div class="rj-card" id="gt-warn">
                         <div class="rj-card-head" onclick="toggleCard('gt-warn')">
-                            <span class="rj-badge b-warn">주의사항</span>
-                            <span class="rj-card-title">꼭 확인하세요</span>
+                            <span class="rj-badge b-warn">⚠️ 주의사항</span>
+                            <span class="rj-card-title">반드시 확인하세요</span>
                             <span class="rj-card-arrow">▼</span>
                         </div>
                         <div class="rj-card-body">
                             <div class="rj-warn-list">
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span><b>탈퇴 전 모든 자산 출금을 먼저 완료하세요.</b> 탈퇴 후 자산 복구는 불가합니다.</span></div>
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일 KYC(신분증) 정보로 다중 계정 생성은 Gate.io 이용약관에 위배될 수 있습니다.</span></div>
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>레퍼럴 페이백은 <b>가입 시</b>에만 등록 가능하며 사후 변경은 불가합니다.</span></div>
-                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>문의사항은 1% Trading 공식 채널로 연락주세요.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span><b>탈퇴 전 반드시 자산 출금 완료.</b> 탈퇴 후 자산 복구 불가.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일 신분증으로 계정 중복 생성 불가 — <b>탈퇴 후 재가입만 가능.</b></span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일 IP·기기에서 동시 로그인 시 제재 가능 → VPN 또는 다른 기기 사용 권장.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>레퍼럴 코드는 <b>가입 시점에만 적용</b> — 가입 후 사후 등록 불가.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>탈퇴 처리 완료 전 재가입 시 오류 발생 가능 — 완료 이메일 확인 후 재가입.</span></div>
                             </div>
                         </div>
                     </div>
