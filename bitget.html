@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitget - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #00D4A0;
+            --accent-red: #dc2626;
+            --accent-bitget: #00C9A7;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; background-image: radial-gradient(ellipse at 20% 50%, rgba(0,201,167,0.03) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(0,184,217,0.03) 0%, transparent 60%); }
+
+        .header { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; padding: 0 20px; z-index: 1000; }
+        .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; margin-right: 32px; }
+        .logo-text { font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-menu { display: flex; gap: 4px; }
+        .nav-item { padding: 8px 14px; color: var(--text-secondary); font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 8px; transition: all 0.2s; text-decoration: none; }
+        .nav-item:hover { color: var(--text-primary); background: var(--bg-card); }
+
+        .hero { margin-top: 56px; padding: 48px 24px 40px; text-align: center; background: linear-gradient(180deg, rgba(0,201,167,0.08) 0%, transparent 100%); border-bottom: 1px solid var(--border-color); }
+        .hero-logo { width: 72px; height: 72px; border-radius: 18px; background: var(--accent-bitget); color: #000; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; margin: 0 auto 16px; }
+        .hero h1 { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+        .hero h1 span { color: var(--accent-bitget); }
+        .hero-tag { font-size: 13px; color: var(--accent-bitget); font-weight: 600; margin-bottom: 12px; }
+        .hero p { font-size: 15px; color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; line-height: 1.7; }
+        .hero-btn { display: inline-block; padding: 14px 40px; background: linear-gradient(135deg, #00C9A7, #00b8d9); color: #000; font-size: 16px; font-weight: 800; border-radius: 10px; text-decoration: none; transition: all 0.2s; }
+        .hero-btn:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,201,167,0.3); }
+        .hero-code { margin-top: 12px; font-size: 12px; color: var(--text-muted); }
+        .hero-code span { color: var(--accent-cyan); font-family: 'Orbitron', monospace; font-weight: 700; }
+
+        .content { max-width: 1100px; margin: 0 auto; padding: 40px 40px 60px; }
+        .section-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 40px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; }
+        .stat-value { font-family: 'Orbitron', monospace; font-size: 24px; font-weight: 800; color: var(--accent-bitget); margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: var(--text-muted); }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+        .info-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        .info-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--accent-bitget); }
+        .info-card ul { padding-left: 16px; }
+        .info-card li { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+
+        .fee-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+        .fee-table th { background: var(--bg-secondary); padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--text-muted); text-align: center; }
+        .fee-table th:first-child { text-align: left; }
+        .fee-table td { padding: 14px 16px; font-size: 13px; text-align: center; border-top: 1px solid var(--border-color); }
+        .fee-table td:first-child { text-align: left; font-weight: 600; }
+        .highlight { color: var(--accent-cyan); font-weight: 700; font-family: 'Orbitron', monospace; }
+
+        .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+        .step { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; text-align: center; }
+        .step-num { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-bitget), var(--accent-cyan)); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 800; color: #000; margin: 0 auto 12px; }
+        .step h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+        .step p { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+        .cta-box { text-align: center; padding: 40px 24px; background: linear-gradient(135deg, rgba(0,201,167,0.08), rgba(0,184,217,0.08)); border: 1px solid rgba(0,201,167,0.2); border-radius: 16px; margin-bottom: 40px; }
+        .cta-box h2 { font-size: 22px; margin-bottom: 8px; }
+        .cta-box p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+
+        .footer { border-top: 1px solid var(--border-color); padding: 24px; text-align: center; font-size: 12px; color: var(--text-muted); background: var(--bg-secondary); }
+        .footer a { color: var(--text-muted); text-decoration: none; margin: 0 8px; }
+        .footer a:hover { color: var(--text-secondary); }
+
+        @media (max-width: 768px) {
+            .nav-menu { display: none; }
+            .hero { padding: 32px 16px; }
+            .hero h1 { font-size: 24px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .info-grid { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: 1fr; }
+            .content { padding: 24px 14px 40px; }
+        }
+        /* ===== 계약 데이터 드롭다운 ===== */
+        .nav-item-dropdown { position: relative; display: flex; align-items: center; }
+        .nav-item-dropdown > .nav-item { display: flex; align-items: center; gap: 4px; position: relative; }
+        .menu-badge-dot { position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; background-color: #ff4444; border-radius: 50%; animation: pulse-dot 2s infinite; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .mega-dropdown { display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px 24px; min-width: 680px; z-index: 1100; box-shadow: 0 12px 40px rgba(0,0,0,0.5); grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .nav-item-dropdown:hover .mega-dropdown { display: grid; }
+        .mega-col-title { font-size: 12px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        .mega-col-item { display: block; padding: 6px 0; font-size: 13px; color: var(--text-secondary); cursor: pointer; transition: color 0.15s; text-decoration: none; white-space: nowrap; }
+        .mega-col-item:hover { color: var(--text-primary); }
+        .mega-col-item.soon { opacity: 0.45; cursor: default; }
+        .mega-col-item.soon:hover { color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="logo"><span class="logo-text">1% TRADING</span></a>
+        <div class="nav-menu">
+            <a class="nav-item" href="index.html">홈</a>
+            <div class="nav-item-dropdown">
+                <div class="nav-item" style="font-weight:700;">계약 데이터<span class="menu-badge-dot"></span></div>
+                <div class="mega-dropdown">
+                    <div class="mega-col"><div class="mega-col-title">청산 데이터 & 펀딩 비율</div><a class="mega-col-item" onclick="showPreparing()">청산 데이터 (실시간)</a><a class="mega-col-item soon" onclick="showPreparing()">청산 히트맵 🔜</a><a class="mega-col-item" onclick="showPreparing()">펀딩비 현황</a><a class="mega-col-item" onclick="showPreparing()">펀딩비 히스토리</a><a class="mega-col-item" onclick="showPreparing()">누적 펀딩비</a><a class="mega-col-item soon" onclick="showPreparing()">자금 수수료 히트맵 🔜</a></div>
+                    <div class="mega-col"><div class="mega-col-title">롱숏 비율</div><a class="mega-col-item" onclick="showPreparing()">실시간 롱숏 비율</a><a class="mega-col-item" onclick="showPreparing()">L/S Population Ratio</a><a class="mega-col-item" onclick="showPreparing()">대규모 롱숏 비율</a><a class="mega-col-item" onclick="showPreparing()">거래소별 롱숏 비교</a></div>
+                    <div class="mega-col"><div class="mega-col-title">포지션 & 주문서</div><a class="mega-col-item" onclick="showPreparing()">Open Interest (멀티거래소)</a><a class="mega-col-item" onclick="showPreparing()">OI 변화량 (1H/4H/24H)</a><a class="mega-col-item" onclick="showPreparing()">오더북 (BTC/ETH)</a><a class="mega-col-item" onclick="showPreparing()">Orderbook Depth Delta</a><a class="mega-col-item" onclick="showPreparing()">Aggregation Orderbook</a></div>
+                    <div class="mega-col"><div class="mega-col-title">종합</div><a class="mega-col-item" onclick="showPreparing()">고래 포지션 실시간</a><a class="mega-col-item" onclick="showPreparing()">거래소별 OI 점유율</a><a class="mega-col-item" onclick="showPreparing()">RSI Heatmap</a><a class="mega-col-item" onclick="showPreparing()">Visual Screener</a></div>
+                </div>
+            </div>
+            <a class="nav-item" href="exchanges.html">거래소</a>
+            <a class="nav-item" href="rewards.html">리워드</a>
+            <a class="nav-item" href="events.html">이벤트</a>
+        </div>
+    </div>
+
+    <div class="hero">
+        <div class="hero-logo">BG</div>
+        <h1><span>Bitget</span></h1>
+        <div class="hero-tag">MAIN PARTNER · 수수료 85% Reward</div>
+        <p>업계 최고 수준의 85% Reward! 1% Trading 전용 레퍼럴로 가입하면 선물 거래 수수료의 85%를 돌려받습니다.</p>
+        <a class="hero-btn" href="https://www.bitget.com/referral/register?from=referral&clacCode=pkju" target="_blank">Bitget 가입하기 →</a>
+        <div class="hero-code">레퍼럴 코드: <span>pkju</span></div>
+    </div>
+
+    <div class="content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">85%</div>
+                <div class="stat-label">Reward율</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">300+</div>
+                <div class="stat-label">선물 페어</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">125x</div>
+                <div class="stat-label">최대 레버리지</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">$100</div>
+                <div class="stat-label">가입 보너스</div>
+            </div>
+        </div>
+
+        <div class="section-title">수수료 구조</div>
+        <table class="fee-table">
+            <thead>
+                <tr><th>구분</th><th>일반 수수료</th><th>1% Trading Reward 후</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>지정가 (Maker)</td><td>0.02%</td><td class="highlight">0.003%</td></tr>
+                <tr><td>시장가 (Taker)</td><td>0.06%</td><td class="highlight">0.009%</td></tr>
+            </tbody>
+        </table>
+
+        <div class="section-title">주요 특징</div>
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>트레이딩</h3>
+                <ul>
+                    <li>USDT-M / Coin-M 선물</li>
+                    <li>300+ 선물 페어</li>
+                    <li>최대 125배 레버리지</li>
+                    <li>빠른 체결 엔진</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h3>부가 서비스</h3>
+                <ul>
+                    <li>카피 트레이딩 (업계 1위)</li>
+                    <li>봇 트레이딩 (그리드, DCA 등)</li>
+                    <li>런치패드 / 런치풀</li>
+                    <li>스테이킹</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h3>보안 & 신뢰</h3>
+                <ul>
+                    <li>Proof of Reserves 공개</li>
+                    <li>글로벌 Top 10 거래소</li>
+                    <li>보험 기금 운영</li>
+                    <li>2중 인증 (2FA)</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h3>한국 사용자 혜택</h3>
+                <ul>
+                    <li>한국어 완벽 지원</li>
+                    <li>원화 입금 지원 (P2P)</li>
+                    <li>24시간 한국어 고객 지원</li>
+                    <li>신규 가입 $100 USDT 보너스</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-title">가입 방법</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>가입하기 클릭</h3>
+                <p>위 버튼을 클릭하면<br>레퍼럴 코드가 자동 적용됩니다</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>이메일 인증</h3>
+                <p>이메일 입력 후<br>인증 코드 확인</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>거래 시작</h3>
+                <p>입금 후 거래하면<br>85% Reward 자동 적용</p>
+            </div>
+        </div>
+
+        <div class="cta-box">
+            <h2>지금 Bitget에서 시작하세요</h2>
+            <p>가입 즉시 $100 USDT 보너스 + 거래 수수료 85% Reward</p>
+            <a class="hero-btn" href="https://www.bitget.com/referral/register?from=referral&clacCode=pkju" target="_blank">Bitget 가입하기 →</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2026 1% Trading PRO. All rights reserved.</p>
+        <p style="margin-top:8px;">
+            <a href="index.html">홈</a>
+            <a href="exchanges.html">거래소</a>
+            <a href="terms.html">이용약관</a>
+            <a href="privacy.html">개인정보처리방침</a>
+        </p>
+    </div>
+    <div id="preparingModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;" onclick="this.style.display='none'">
+        <div style="background:#16161f;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px 32px;text-align:center;" onclick="event.stopPropagation()">
+            <div style="font-size:32px;margin-bottom:12px;">🚧</div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:6px;">준비중입니다</div>
+            <div style="font-size:13px;color:#9ca3af;">곧 업데이트 예정입니다.</div>
+            <button onclick="document.getElementById('preparingModal').style.display='none'" style="margin-top:16px;padding:8px 24px;background:linear-gradient(135deg,#00b8d9,#9333ea);border:none;border-radius:8px;color:#fff;font-size:13px;cursor:pointer;">확인</button>
+        </div>
+    </div>
+    <script>function showPreparing(){document.getElementById('preparingModal').style.display='flex';}</script>
+</body>
+</html>

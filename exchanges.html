@@ -114,12 +114,12 @@
             margin-right: 12px;
             font-size: 11px; font-weight: 700;
         }
-        .ex-logo.bitget { background: #009985; color: #000; }
+        .ex-logo.bitget { background: #009985; color: #fff; }
         .ex-logo.okx { background: #000; color: #fff; border: 1px solid #333; }
         .ex-logo.binance { background: #f0b90b; color: #000; }
         .ex-logo.mexc { background: #1972e2; color: #fff; }
         .ex-logo.bingx { background: #f7931a; color: #fff; }
-        .ex-logo.gate { background: #009985; color: #000; }
+        .ex-logo.gate { background: #009985; color: #fff; }
         .ex-logo.bitunix { background: #6366f1; color: #fff; }
         .ex-logo.bybit { background: #f7a600; color: #000; }
         .ex-info { flex: 1; min-width: 0; }
@@ -181,6 +181,64 @@
         .ex-rate.mexc { color: #1972e2; }
         .ex-rate.bingx { color: #f7931a; }
         .ex-rate.bitunix { color: #6366f1; }
+
+        /* ===== 재가입 가이드 ===== */
+        .rejoin-section { margin-top: 32px; }
+        .rejoin-toggle {
+            display: flex; align-items: center; gap: 10px;
+            background: var(--bg-card); border: 1px solid rgba(255,193,7,0.25);
+            border-radius: 12px; padding: 14px 16px;
+            cursor: pointer; user-select: none; transition: background 0.2s;
+        }
+        .rejoin-toggle:hover { background: var(--bg-card-hover); }
+        .rejoin-toggle-icon { font-size: 16px; }
+        .rejoin-toggle-text { flex: 1; }
+        .rejoin-toggle-text strong { font-size: 14px; font-weight: 700; color: var(--text-primary); display: block; }
+        .rejoin-toggle-text span { font-size: 11px; color: var(--text-muted); }
+        .rejoin-toggle-arrow { font-size: 11px; color: var(--text-muted); transition: transform 0.25s; }
+        .rejoin-toggle.open .rejoin-toggle-arrow { transform: rotate(180deg); }
+        .rejoin-body { display: none; padding-top: 12px; }
+        .rejoin-body.open { display: block; }
+
+        .rj-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+        .rj-tab {
+            padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            cursor: pointer; border: 1px solid var(--border-color);
+            background: var(--bg-card); color: var(--text-muted); transition: all 0.2s;
+        }
+        .rj-tab[data-ex="bitget"].active { background: rgba(0,153,133,0.15); border-color: #009985; color: #009985; }
+        .rj-tab[data-ex="okx"].active   { background: rgba(255,255,255,0.08); border-color: #aaa; color: #fff; }
+        .rj-tab[data-ex="gate"].active  { background: rgba(0,153,133,0.15); border-color: #009985; color: #009985; }
+        .rj-panel { display: none; }
+        .rj-panel.active { display: flex; flex-direction: column; gap: 8px; }
+
+        .rj-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
+        .rj-card-head {
+            display: flex; align-items: center; gap: 10px;
+            padding: 13px 16px; cursor: pointer; user-select: none; transition: background 0.15s;
+        }
+        .rj-card-head:hover { background: var(--bg-card-hover); }
+        .rj-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; flex-shrink: 0; }
+        .b-m1 { background: rgba(0,212,160,0.12); color: #00D4A0; border: 1px solid rgba(0,212,160,0.25); }
+        .b-m2 { background: rgba(0,184,217,0.12); color: #00b8d9;  border: 1px solid rgba(0,184,217,0.25); }
+        .b-warn{ background: rgba(255,193,7,0.12);  color: #FFC107;  border: 1px solid rgba(255,193,7,0.25); }
+        .rj-card-title { font-size: 13px; font-weight: 600; color: var(--text-primary); flex: 1; }
+        .rj-card-arrow { font-size: 11px; color: var(--text-muted); transition: transform 0.2s; }
+        .rj-card.open .rj-card-arrow { transform: rotate(180deg); }
+        .rj-card-body { display: none; padding: 0 16px 14px; border-top: 1px solid var(--border-color); }
+        .rj-card.open .rj-card-body { display: block; }
+
+        .rj-step { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; color: var(--text-secondary); line-height: 1.65; }
+        .rj-step:last-child { border-bottom: none; }
+        .rj-num { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--text-muted); flex-shrink: 0; margin-top: 2px; }
+        .rj-code { font-family: 'Orbitron', monospace; font-size: 11px; font-weight: 700; color: #00b8d9; background: rgba(0,184,217,0.08); padding: 1px 6px; border-radius: 4px; }
+        .rj-warn-list { padding-top: 6px; }
+        .rj-warn-item { display: flex; gap: 8px; padding: 5px 0; font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+        .rj-dot { color: #FFC107; font-size: 9px; margin-top: 5px; flex-shrink: 0; }
+        .rj-cta { margin-top: 12px; }
+        .rj-cta a { display: inline-block; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; transition: opacity 0.2s; }
+        .rj-cta a:hover { opacity: 0.85; }
+        @media (max-width: 600px) { .rj-tabs { flex-wrap: wrap; } .rj-tab { font-size: 12px; padding: 6px 12px; } }
     </style>
 </head>
 <body>
@@ -204,87 +262,281 @@
         </div>
         <div class="exchange-list">
             <div class="exchange-item">
+                <a href="bitget.html" style="display:flex;align-items:center;text-decoration:none;flex:1;min-width:0;">
                 <div class="ex-logo bitget">BG</div>
                 <div class="ex-info">
                     <div class="ex-name bitget">Bitget <span class="badge hot">🔥 추천</span></div>
-                    <div class="ex-desc">MAIN PARTNER</div>
+                    <div class="ex-desc">MAIN PARTNER · 85% Reward →</div>
                 </div>
+                </a>
                 <div class="ex-rate bitget">85%</div>
                 <div class="ex-fee">0.002%</div>
                 <div class="ex-fee">0.004%</div>
                 <button class="ex-btn bitget" onclick="window.open('https://www.bitget.com/referral/register?from=referral&clacCode=pkju')">가입</button>
             </div>
             <div class="exchange-item">
+                <a href="okx.html" style="display:flex;align-items:center;text-decoration:none;flex:1;min-width:0;">
+                <div class="ex-logo okx">OKX</div>
+                <div class="ex-info">
+                    <div class="ex-name okx">OKX <span class="badge new">NEW</span></div>
+                    <div class="ex-desc">XAU 금 선물 · 125x 레버리지 →</div>
+                </div>
+                </a>
+                <div class="ex-rate okx">80%</div>
+                <div class="ex-fee">0.004%</div>
+                <div class="ex-fee">0.01%</div>
+                <button class="ex-btn" style="background:#fff;color:#000;" onclick="window.open('https://okx.com/join/84293762')">가입</button>
+            </div>
+            <div class="exchange-item">
+                <a href="gate.html" style="display:flex;align-items:center;text-decoration:none;flex:1;min-width:0;">
                 <div class="ex-logo gate">GT</div>
                 <div class="ex-info">
                     <div class="ex-name gate">Gate.io</div>
+                    <div class="ex-desc">80% Reward →</div>
                 </div>
+                </a>
                 <div class="ex-rate gate">80%</div>
                 <div class="ex-fee">0.004%</div>
                 <div class="ex-fee">0.01%</div>
-                <button class="ex-btn gate" onclick="window.open('https://www.gate.io/signup/1percent')">가입</button>
+                <button class="ex-btn gate" onclick="window.open('https://www.gate.com/share/VQQVVAOMBG')">가입</button>
             </div>
-            <div class="exchange-item" style="opacity:0.5;">
-                <div class="ex-logo okx">OKX</div>
-                <div class="ex-info">
-                    <div class="ex-name okx">OKX <span class="badge new">준비중</span></div>
-                </div>
-                <div class="ex-rate okx">--%</div>
-                <div class="ex-fee">0.007%</div>
-                <div class="ex-fee">0.018%</div>
-                <button class="ex-btn disabled">준비중</button>
-            </div>
-            <div class="exchange-item" style="opacity:0.5;">
-                <div class="ex-logo binance">BN</div>
-                <div class="ex-info">
-                    <div class="ex-name binance">Binance <span class="badge new">준비중</span></div>
-                </div>
-                <div class="ex-rate binance">--%</div>
-                <div class="ex-fee">0.0096%</div>
-                <div class="ex-fee">0.024%</div>
-                <button class="ex-btn disabled">준비중</button>
-            </div>
-            <div class="exchange-item" style="opacity:0.5;">
+            <div class="exchange-item">
+                <div style="display:flex;align-items:center;flex:1;min-width:0;">
                 <div class="ex-logo bybit">BY</div>
                 <div class="ex-info">
-                    <div class="ex-name bybit">Bybit <span class="badge new">준비중</span></div>
+                    <div class="ex-name bybit">Bybit</div>
+                </div>
                 </div>
                 <div class="ex-rate bybit">--%</div>
                 <div class="ex-fee">0.01%</div>
                 <div class="ex-fee">0.03%</div>
-                <button class="ex-btn disabled">준비중</button>
+                <button class="ex-btn" style="background:#f7a600;color:#000;" onclick="window.open('https://www.bybit.com/register')">가입</button>
             </div>
-            <div class="exchange-item" style="opacity:0.5;">
+            <div class="exchange-item">
+                <div style="display:flex;align-items:center;flex:1;min-width:0;">
+                <div class="ex-logo binance">BN</div>
+                <div class="ex-info">
+                    <div class="ex-name binance">Binance</div>
+                </div>
+                </div>
+                <div class="ex-rate binance">--%</div>
+                <div class="ex-fee">0.0096%</div>
+                <div class="ex-fee">0.024%</div>
+                <button class="ex-btn" style="background:#f0b90b;color:#000;" onclick="window.open('https://www.binance.com/register')">가입</button>
+            </div>
+            <div class="exchange-item">
+                <div style="display:flex;align-items:center;flex:1;min-width:0;">
                 <div class="ex-logo mexc">MX</div>
                 <div class="ex-info">
-                    <div class="ex-name mexc">MEXC <span class="badge new">준비중</span></div>
+                    <div class="ex-name mexc">MEXC</div>
+                </div>
                 </div>
                 <div class="ex-rate mexc">--%</div>
                 <div class="ex-fee">0%</div>
                 <div class="ex-fee">0.01%</div>
-                <button class="ex-btn disabled">준비중</button>
+                <button class="ex-btn" style="background:#1972e2;color:#fff;" onclick="window.open('https://www.mexc.com/register')">가입</button>
             </div>
-            <div class="exchange-item" style="opacity:0.5;">
+            <div class="exchange-item">
+                <div style="display:flex;align-items:center;flex:1;min-width:0;">
                 <div class="ex-logo bingx">BX</div>
                 <div class="ex-info">
-                    <div class="ex-name bingx">BingX <span class="badge new">준비중</span></div>
+                    <div class="ex-name bingx">BingX</div>
+                </div>
                 </div>
                 <div class="ex-rate bingx">--%</div>
                 <div class="ex-fee">0.008%</div>
                 <div class="ex-fee">0.02%</div>
-                <button class="ex-btn disabled">준비중</button>
+                <button class="ex-btn" style="background:#f7931a;color:#000;" onclick="window.open('https://bingx.com/register')">가입</button>
             </div>
-            <div class="exchange-item" style="opacity:0.5;">
+            <div class="exchange-item">
+                <div style="display:flex;align-items:center;flex:1;min-width:0;">
                 <div class="ex-logo bitunix">BU</div>
                 <div class="ex-info">
-                    <div class="ex-name bitunix">Bitunix <span class="badge new">준비중</span></div>
+                    <div class="ex-name bitunix">Bitunix</div>
+                </div>
                 </div>
                 <div class="ex-rate bitunix">--%</div>
                 <div class="ex-fee">0.003%</div>
                 <div class="ex-fee">0.009%</div>
-                <button class="ex-btn disabled">준비중</button>
+                <button class="ex-btn" style="background:#6366f1;color:#fff;" onclick="window.open('https://www.bitunix.com/register')">가입</button>
             </div>
         </div>
+
+        <!-- 재가입 가이드 -->
+        <div class="rejoin-section">
+            <div class="rejoin-toggle" id="rejoinToggle" onclick="toggleRejoin()">
+                <span class="rejoin-toggle-icon">💡</span>
+                <div class="rejoin-toggle-text">
+                    <strong>이미 가입되어 있다면?</strong>
+                    <span>기존 계정으로 페이백 받는 방법 · 신규 계정 생성 가이드</span>
+                </div>
+                <span class="rejoin-toggle-arrow">▼</span>
+            </div>
+            <div class="rejoin-body" id="rejoinBody">
+                <div class="rj-tabs">
+                    <div class="rj-tab active" data-ex="bitget" onclick="switchTab('bitget')">Bitget</div>
+                    <div class="rj-tab" data-ex="okx" onclick="switchTab('okx')">OKX</div>
+                    <div class="rj-tab" data-ex="gate" onclick="switchTab('gate')">Gate.io</div>
+                </div>
+
+                <!-- Bitget 패널 -->
+                <div class="rj-panel active" id="panel-bitget">
+                    <div class="rj-card" id="bg-m1">
+                        <div class="rj-card-head" onclick="toggleCard('bg-m1')">
+                            <span class="rj-badge b-m1">방법 1 · 권장</span>
+                            <span class="rj-card-title">서브계정으로 페이백 받기</span>
+                            <span class="rj-card-arrow">▼</span>
+                        </div>
+                        <div class="rj-card-body">
+                            <div class="rj-step"><span class="rj-num">1</span><span>Bitget 기존 계정으로 로그인 후 우측 상단 프로필 → <b>서브계정 관리</b> 클릭</span></div>
+                            <div class="rj-step"><span class="rj-num">2</span><span><b>서브계정 생성</b> → 새 이메일 또는 전화번호로 등록 (메인 계정과 별개의 인증 수단 필요)</span></div>
+                            <div class="rj-step"><span class="rj-num">3</span><span>서브계정 로그아웃 후 <b>1% Trading 레퍼럴 링크</b>를 통해 새로 가입 — 레퍼럴 코드 <span class="rj-code">pkju</span> 자동 적용</span></div>
+                            <div class="rj-step"><span class="rj-num">4</span><span>서브계정에서 선물 거래 시작 → 거래 수수료의 <b>85%</b> 페이백 적용</span></div>
+                            <div class="rj-cta"><a href="https://www.bitget.com/referral/register?from=referral&clacCode=pkju" target="_blank" style="background:#009985;color:#000;">Bitget 서브계정 가입하기 →</a></div>
+                        </div>
+                    </div>
+                    <div class="rj-card" id="bg-m2">
+                        <div class="rj-card-head" onclick="toggleCard('bg-m2')">
+                            <span class="rj-badge b-m2">방법 2</span>
+                            <span class="rj-card-title">신규 계정 생성</span>
+                            <span class="rj-card-arrow">▼</span>
+                        </div>
+                        <div class="rj-card-body">
+                            <div class="rj-step"><span class="rj-num">1</span><span>기존 계정과 <b>다른 이메일 또는 전화번호</b> 준비 (Google 별칭 e.g. id<b>+1</b>@gmail.com 가능)</span></div>
+                            <div class="rj-step"><span class="rj-num">2</span><span>아래 가입 링크 클릭 → 레퍼럴 코드 <span class="rj-code">pkju</span> 자동 입력 확인</span></div>
+                            <div class="rj-step"><span class="rj-num">3</span><span>이메일 인증 완료 → KYC(신분증 인증) 진행 → 선물 거래 시작</span></div>
+                            <div class="rj-cta"><a href="https://www.bitget.com/referral/register?from=referral&clacCode=pkju" target="_blank" style="background:#009985;color:#000;">Bitget 신규 가입하기 →</a></div>
+                        </div>
+                    </div>
+                    <div class="rj-card" id="bg-warn">
+                        <div class="rj-card-head" onclick="toggleCard('bg-warn')">
+                            <span class="rj-badge b-warn">주의사항</span>
+                            <span class="rj-card-title">꼭 확인하세요</span>
+                            <span class="rj-card-arrow">▼</span>
+                        </div>
+                        <div class="rj-card-body">
+                            <div class="rj-warn-list">
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일한 신분증(KYC)으로는 계정 중복 생성이 제한될 수 있습니다. 가족 명의 등 별도 인증 수단을 활용하세요.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일 IP·기기에서 여러 계정 동시 로그인 시 거래소 제재 가능성이 있습니다. VPN 또는 별도 기기 사용을 권장합니다.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>레퍼럴 페이백은 <b>가입 시점</b>에 코드가 등록되어야 적용됩니다. 가입 후 코드 사후 등록은 불가합니다.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>궁금한 점은 1% Trading 공식 채널로 문의주세요.</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- OKX 패널 -->
+                <div class="rj-panel" id="panel-okx">
+                    <div class="rj-card" id="okx-m1">
+                        <div class="rj-card-head" onclick="toggleCard('okx-m1')">
+                            <span class="rj-badge b-m1">방법 1 · 권장</span>
+                            <span class="rj-card-title">서브계정으로 페이백 받기</span>
+                            <span class="rj-card-arrow">▼</span>
+                        </div>
+                        <div class="rj-card-body">
+                            <div class="rj-step"><span class="rj-num">1</span><span>OKX 기존 계정 로그인 → 우측 상단 프로필 → <b>서브계정</b> → <b>서브계정 생성</b></span></div>
+                            <div class="rj-step"><span class="rj-num">2</span><span>서브계정은 최대 30개까지 생성 가능, 독립적인 거래 환경 제공</span></div>
+                            <div class="rj-step"><span class="rj-num">3</span><span>서브계정 전용 이메일로 OKX 재가입 시 레퍼럴 코드 <span class="rj-code">84293762</span> 입력</span></div>
+                            <div class="rj-step"><span class="rj-num">4</span><span>서브계정에서 선물·현물 거래 시 <b>80%</b> 페이백 적용</span></div>
+                            <div class="rj-cta"><a href="https://okx.com/join/84293762" target="_blank" style="background:#fff;color:#000;">OKX 서브계정 가입하기 →</a></div>
+                        </div>
+                    </div>
+                    <div class="rj-card" id="okx-m2">
+                        <div class="rj-card-head" onclick="toggleCard('okx-m2')">
+                            <span class="rj-badge b-m2">방법 2</span>
+                            <span class="rj-card-title">신규 계정 생성</span>
+                            <span class="rj-card-arrow">▼</span>
+                        </div>
+                        <div class="rj-card-body">
+                            <div class="rj-step"><span class="rj-num">1</span><span>기존 계정과 <b>다른 이메일</b> 준비 (Google 별칭 id<b>+okx</b>@gmail.com 활용 가능)</span></div>
+                            <div class="rj-step"><span class="rj-num">2</span><span>아래 링크로 접속 → 레퍼럴 코드 <span class="rj-code">84293762</span> 자동 적용 확인</span></div>
+                            <div class="rj-step"><span class="rj-num">3</span><span>이메일 인증 → KYC 완료 → XAU(금) 선물 포함 300+ 선물 페어 이용 가능</span></div>
+                            <div class="rj-cta"><a href="https://okx.com/join/84293762" target="_blank" style="background:#fff;color:#000;">OKX 신규 가입하기 →</a></div>
+                        </div>
+                    </div>
+                    <div class="rj-card" id="okx-warn">
+                        <div class="rj-card-head" onclick="toggleCard('okx-warn')">
+                            <span class="rj-badge b-warn">주의사항</span>
+                            <span class="rj-card-title">꼭 확인하세요</span>
+                            <span class="rj-card-arrow">▼</span>
+                        </div>
+                        <div class="rj-card-body">
+                            <div class="rj-warn-list">
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>OKX는 동일 신분증으로 다중 계정 생성을 엄격히 제한합니다. 가족 명의 활용 시 별도 KYC 필요합니다.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>한국 거주자의 경우 접속 환경(VPN 등)에 따라 이용이 제한될 수 있습니다.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>레퍼럴 코드는 <b>회원가입 시</b>에만 적용 가능하며, 가입 후 변경 또는 소급 적용은 불가합니다.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>기존 계정의 자산·포지션과 신규 계정은 완전히 분리됩니다.</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gate.io 패널 -->
+                <div class="rj-panel" id="panel-gate">
+                    <div class="rj-card" id="gt-m1">
+                        <div class="rj-card-head" onclick="toggleCard('gt-m1')">
+                            <span class="rj-badge b-m1">방법 1 · 권장</span>
+                            <span class="rj-card-title">서브계정으로 페이백 받기</span>
+                            <span class="rj-card-arrow">▼</span>
+                        </div>
+                        <div class="rj-card-body">
+                            <div class="rj-step"><span class="rj-num">1</span><span>Gate.io 기존 계정 로그인 → 우측 상단 프로필 → <b>계정 설정</b> → <b>서브계정 추가</b></span></div>
+                            <div class="rj-step"><span class="rj-num">2</span><span>새 이메일로 서브계정 생성 → 서브계정 전용 로그인 자격증명 설정</span></div>
+                            <div class="rj-step"><span class="rj-num">3</span><span>서브계정으로 레퍼럴 링크 통해 가입 → 코드 <span class="rj-code">VQQVVAOMBG</span> 자동 적용</span></div>
+                            <div class="rj-step"><span class="rj-num">4</span><span>서브계정에서 선물 거래 시 <b>80%</b> 페이백 적용</span></div>
+                            <div class="rj-cta"><a href="https://www.gate.com/share/VQQVVAOMBG" target="_blank" style="background:#009985;color:#000;">Gate.io 서브계정 가입하기 →</a></div>
+                        </div>
+                    </div>
+                    <div class="rj-card" id="gt-m2">
+                        <div class="rj-card-head" onclick="toggleCard('gt-m2')">
+                            <span class="rj-badge b-m2">방법 2</span>
+                            <span class="rj-card-title">신규 계정 생성</span>
+                            <span class="rj-card-arrow">▼</span>
+                        </div>
+                        <div class="rj-card-body">
+                            <div class="rj-step"><span class="rj-num">1</span><span>기존 계정과 <b>다른 이메일</b> 준비 (Google 별칭 id<b>+gate</b>@gmail.com 활용 가능)</span></div>
+                            <div class="rj-step"><span class="rj-num">2</span><span>아래 링크로 접속 → 레퍼럴 코드 <span class="rj-code">VQQVVAOMBG</span> 자동 적용 확인</span></div>
+                            <div class="rj-step"><span class="rj-num">3</span><span>이메일 인증 → KYC 완료 → 선물 거래 시작</span></div>
+                            <div class="rj-cta"><a href="https://www.gate.com/share/VQQVVAOMBG" target="_blank" style="background:#009985;color:#000;">Gate.io 신규 가입하기 →</a></div>
+                        </div>
+                    </div>
+                    <div class="rj-card" id="gt-warn">
+                        <div class="rj-card-head" onclick="toggleCard('gt-warn')">
+                            <span class="rj-badge b-warn">주의사항</span>
+                            <span class="rj-card-title">꼭 확인하세요</span>
+                            <span class="rj-card-arrow">▼</span>
+                        </div>
+                        <div class="rj-card-body">
+                            <div class="rj-warn-list">
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>동일 KYC(신분증) 정보로 다중 계정 생성은 Gate.io 이용약관에 위배될 수 있습니다.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>기존 계정 탈퇴 후 동일 이메일로 재가입 시 레퍼럴 코드 적용 여부를 반드시 확인하세요.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>레퍼럴 페이백은 <b>가입 시</b>에만 등록 가능하며 사후 변경은 불가합니다.</span></div>
+                                <div class="rj-warn-item"><span class="rj-dot">●</span><span>문의사항은 1% Trading 공식 채널로 연락주세요.</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
+
+    <script>
+        function toggleRejoin() {
+            const toggle = document.getElementById('rejoinToggle');
+            const body = document.getElementById('rejoinBody');
+            toggle.classList.toggle('open');
+            body.classList.toggle('open');
+        }
+        function switchTab(ex) {
+            document.querySelectorAll('.rj-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.rj-panel').forEach(p => p.classList.remove('active'));
+            document.querySelector('.rj-tab[data-ex="' + ex + '"]').classList.add('active');
+            document.getElementById('panel-' + ex).classList.add('active');
+        }
+        function toggleCard(id) {
+            document.getElementById(id).classList.toggle('open');
+        }
+    </script>
 </body>
 </html>
