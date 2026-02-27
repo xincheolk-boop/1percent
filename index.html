@@ -107,12 +107,23 @@
         .nav-dropdown { position: relative; }
         .nav-dropdown:hover .nav-dropdown-menu { display: block; }
         .nav-dropdown:hover .nav-mega-menu  { display: block; }
+        /* 갭 가교 - 마우스가 갭 통과 시 닫히는 것 방지 */
+        .nav-dropdown::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: -10px; right: -10px;
+            height: 10px;
+            background: transparent;
+            display: none;
+        }
+        .nav-dropdown:hover::after { display: block; }
 
         /* 일반 드롭다운 (CFD 등) */
         .nav-dropdown-menu {
             display: none;
             position: absolute;
-            top: calc(100% + 6px);
+            top: calc(100% + 8px);
             left: 0;
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
@@ -135,7 +146,7 @@
         .nav-mega-menu {
             display: none;
             position: absolute;
-            top: calc(100% + 6px);
+            top: calc(100% + 8px);
             left: -20px;
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
