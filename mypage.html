@@ -10,206 +10,720 @@
 :root{--bg:#0a0a0f;--bg2:#111118;--bg3:#16161f;--bg4:#1c1c28;--cyan:#00b8d9;--purple:#9333ea;--green:#00D4A0;--red:#dc2626;--yellow:#fbbf24;--txt:#fff;--txt2:#9ca3af;--txt3:#6b7280;--border:rgba(255,255,255,0.08);}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
-.top-bar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100;gap:12px;}
-.back-btn{display:flex;align-items:center;gap:6px;color:var(--txt2);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:8px;transition:all 0.2s;}
-.back-btn:hover{color:var(--cyan);background:var(--bg3);}
-.top-title{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-left:auto;}
-.page{max-width:680px;margin:0 auto;padding:76px 20px 60px;}
 
-/* profile card */
-.profile-card{background:linear-gradient(135deg,rgba(0,184,217,0.07),rgba(147,51,234,0.07));border:1px solid rgba(0,184,217,0.2);border-radius:20px;padding:28px;margin-bottom:20px;}
-.profile-top{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
-.profile-avatar{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#000;font-family:'Orbitron',monospace;}
-.profile-info h2{font-size:18px;font-weight:700;}
-.profile-info p{font-size:12px;color:var(--txt3);margin-top:2px;}
-.ref-row{display:flex;align-items:center;gap:10px;background:var(--bg2);border-radius:10px;padding:12px 16px;}
-.ref-label{font-size:11px;color:var(--txt3);}
-.ref-code{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--cyan);letter-spacing:2px;}
-.copy-btn{margin-left:auto;background:rgba(0,184,217,0.12);border:1px solid rgba(0,184,217,0.3);color:var(--cyan);border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;}
-.copy-btn:hover{background:rgba(0,184,217,0.2);}
+/* ── Header ── */
+.header{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:200;gap:16px;}
+.logo{font-family:'Orbitron',monospace;font-size:16px;font-weight:900;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-decoration:none;white-space:nowrap;}
+.header-right{display:flex;align-items:center;gap:8px;margin-left:auto;}
+.btn-login{background:transparent;border:1px solid var(--border);color:var(--txt2);padding:6px 16px;border-radius:8px;font-size:13px;cursor:pointer;transition:all 0.2s;}
+.btn-login:hover{border-color:var(--cyan);color:var(--cyan);}
+.btn-signup{background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;color:#fff;font-weight:700;padding:7px 18px;border-radius:8px;font-size:13px;cursor:pointer;}
+.user-row{display:flex;align-items:center;gap:8px;}
+.h-avatar{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#000;font-family:'Orbitron',monospace;}
+.h-nick{font-size:14px;font-weight:600;}
+.h-logout{background:transparent;border:none;color:var(--txt3);font-size:12px;cursor:pointer;padding:5px 8px;border-radius:6px;}
+.h-logout:hover{color:#f87171;}
 
-/* section */
-.section{background:var(--bg3);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
-.section-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
-.section-title{font-size:14px;font-weight:600;}
-.add-btn{background:var(--cyan);color:#000;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;}
+/* ── Auth Modal ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;}
+.mbox{background:var(--bg3);border:1px solid rgba(0,184,217,0.2);border-radius:20px;padding:32px;width:100%;max-width:420px;position:relative;max-height:90vh;overflow-y:auto;}
+.mbox::-webkit-scrollbar{width:4px;}
+.mbox::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.mtitle{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:24px;}
+.mclose{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--txt3);font-size:20px;cursor:pointer;line-height:1;}
+.mclose:hover{color:var(--txt);}
+.fg{margin-bottom:12px;}
+.fg label{display:block;font-size:11px;color:var(--txt3);margin-bottom:5px;font-weight:500;}
+.frow{display:flex;gap:6px;}
+.frow .finput{flex:1;}
+.finput{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--txt);padding:10px 13px;border-radius:8px;font-size:13px;outline:none;transition:border-color 0.2s;}
+.finput:focus{border-color:var(--cyan);}
+.ckbtn{background:transparent;border:1px solid var(--cyan);color:var(--cyan);padding:10px 11px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.ckbtn:hover{background:rgba(0,184,217,0.1);}
+.fok{font-size:11px;color:var(--green);margin-top:3px;display:none;}
+.ferr{font-size:11px;color:var(--red);margin-top:3px;display:none;}
+.chk-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt2);}
+.chk-row input{accent-color:var(--cyan);width:14px;height:14px;flex-shrink:0;}
+.chk-row a{color:var(--cyan);}
+.msubmit{width:100%;background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;color:#fff;font-weight:700;padding:13px;border-radius:10px;font-size:14px;cursor:pointer;margin-top:14px;}
+.msubmit:hover{opacity:0.9;}
+.mswitch{text-align:center;font-size:13px;color:var(--txt3);margin-top:14px;}
+.mswitch a{color:var(--cyan);cursor:pointer;}
+.merr-global{font-size:12px;color:var(--red);margin-top:6px;display:none;}
 
-/* uid list */
-.uid-item{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.04);}
-.uid-item:last-child{border-bottom:none;}
-.ex-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;}
-.ex-bitget{background:rgba(59,130,246,0.15);color:#3b82f6;}
-.ex-okx{background:rgba(255,255,255,0.08);color:#e5e7eb;}
-.ex-gate{background:rgba(248,113,113,0.15);color:#f87171;}
-.uid-val{font-family:monospace;font-size:13px;color:var(--txt2);}
-.uid-nick{font-size:13px;font-weight:600;}
-.uid-date{font-size:11px;color:var(--txt3);margin-left:auto;}
-.status-active{font-size:10px;background:rgba(0,212,160,0.12);color:var(--green);padding:2px 7px;border-radius:10px;}
+/* ── Page ── */
+.page{max-width:900px;margin:0 auto;padding:76px 20px 60px;}
 
-/* settlements */
-table{width:100%;border-collapse:collapse;}
-th{font-size:11px;color:var(--txt3);font-weight:500;text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);}
-td{font-size:13px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);}
-.empty{text-align:center;padding:32px;color:var(--txt3);font-size:13px;}
+/* ── Profile bar ── */
+.pbar{display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,rgba(0,184,217,0.06),rgba(147,51,234,0.06));border:1px solid rgba(0,184,217,0.15);border-radius:16px;padding:20px 24px;margin-bottom:16px;flex-wrap:wrap;}
+.pavatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#000;font-family:'Orbitron',monospace;flex-shrink:0;}
+.pinfo{flex:1;min-width:120px;}
+.pnick{font-size:17px;font-weight:700;}
+.pemail{font-size:12px;color:var(--txt3);margin-top:2px;}
+.pdate{font-size:11px;color:var(--txt3);margin-top:2px;}
+.pactions{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;}
+.pedit-btn{background:transparent;border:1px solid var(--border);color:var(--txt2);padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;}
+.pedit-btn:hover{border-color:var(--cyan);color:var(--cyan);}
+.plogout-btn{background:transparent;border:1px solid rgba(220,38,38,0.3);color:#f87171;padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;}
+.plogout-btn:hover{background:rgba(220,38,38,0.08);}
 
-/* logout btn */
-.logout-btn{width:100%;background:transparent;border:1px solid rgba(220,38,38,0.3);color:#f87171;border-radius:10px;padding:12px;font-size:13px;cursor:pointer;margin-top:8px;}
-.logout-btn:hover{background:rgba(220,38,38,0.08);}
+/* ── Reward banner ── */
+.rbanner{background:linear-gradient(135deg,rgba(147,51,234,0.08),rgba(0,184,217,0.05));border:1px solid rgba(147,51,234,0.2);border-radius:12px;padding:14px 18px;margin-bottom:16px;cursor:pointer;}
+.rb-inner{display:flex;align-items:center;gap:10px;}
+.rb-txt{font-size:13px;flex:1;}
+.rb-txt strong{color:var(--cyan);}
+.rb-chev{color:var(--txt3);font-size:14px;transition:transform 0.2s;flex-shrink:0;}
+.rb-chev.open{transform:rotate(180deg);}
+.rb-cta{margin-top:12px;display:none;}
+.rb-cta.show{display:block;}
+.rb-cta-btn{background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;color:#fff;font-weight:700;padding:9px 22px;border-radius:8px;font-size:13px;cursor:pointer;}
 
-@media(max-width:480px){.profile-top{flex-direction:column;text-align:center;}.ref-code{font-size:14px;}}
+/* ── Cards grid ── */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;}
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:16px;padding:20px;}
+.ctitle{font-size:12px;color:var(--txt3);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px;}
+.reward-total{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
+.reward-sub{font-size:11px;color:var(--txt3);margin-bottom:16px;}
+.cactions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.btn-detail{background:transparent;border:none;color:var(--cyan);font-size:13px;cursor:pointer;padding:0;}
+.btn-withdraw{background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;color:#fff;font-weight:700;padding:8px 18px;border-radius:8px;font-size:12px;cursor:pointer;}
+.btn-addex{width:100%;background:transparent;border:1px dashed rgba(0,184,217,0.3);color:var(--cyan);padding:10px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;transition:all 0.2s;}
+.btn-addex:hover{background:rgba(0,184,217,0.06);border-color:var(--cyan);}
+.ex-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.ex-item:last-child{border-bottom:none;}
+.ex-logo{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;}
+.ex-info{flex:1;min-width:0;}
+.ex-name{font-size:13px;font-weight:600;}
+.ex-uid{font-size:11px;color:var(--txt3);font-family:monospace;}
+.ex-reward{font-family:'Orbitron',monospace;font-size:12px;color:var(--cyan);white-space:nowrap;}
+.ex-status{font-size:10px;padding:2px 7px;border-radius:10px;margin-left:4px;}
+.ex-status.active{background:rgba(0,212,160,0.12);color:var(--green);}
+.ex-status.pending{background:rgba(251,191,36,0.12);color:var(--yellow);}
+.empty-ex{text-align:center;padding:20px;color:var(--txt3);font-size:13px;}
+
+/* ── Exchange grid modal ── */
+.ex-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
+.exg-item{background:var(--bg2);border:2px solid var(--border);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;transition:all 0.2s;}
+.exg-item:hover:not(.disabled){border-color:var(--cyan);}
+.exg-item.disabled{opacity:0.4;cursor:not-allowed;}
+.exg-logo{width:36px;height:36px;border-radius:10px;margin:0 auto 7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;}
+.exg-name{font-size:13px;font-weight:600;}
+.exg-badge{font-size:10px;padding:2px 7px;border-radius:4px;margin-top:4px;display:inline-block;}
+.uid-warn{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--yellow);margin-top:8px;}
+.mback{background:none;border:none;color:var(--cyan);font-size:13px;cursor:pointer;margin-top:12px;display:block;text-align:center;width:100%;}
+
+/* ── Withdrawal modal ── */
+.wlist{max-height:200px;overflow-y:auto;margin:10px 0;}
+.witem{display:flex;align-items:center;gap:10px;padding:10px;border-radius:8px;cursor:pointer;transition:background 0.15s;}
+.witem:hover{background:var(--bg2);}
+.witem input{accent-color:var(--cyan);}
+.wtotal{font-family:'Orbitron',monospace;font-size:24px;font-weight:700;color:var(--cyan);text-align:center;margin:12px 0 4px;}
+.wtotal-sub{font-size:11px;color:var(--txt3);text-align:center;margin-bottom:12px;}
+.memo-inp{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--txt);padding:10px 13px;border-radius:8px;font-size:13px;resize:none;outline:none;font-family:'Noto Sans KR',sans-serif;}
+.memo-inp:focus{border-color:var(--cyan);}
+.btn-row{display:flex;gap:8px;margin-top:14px;}
+.btn-cancel{flex:1;background:transparent;border:1px solid var(--border);color:var(--txt2);padding:11px;border-radius:10px;font-size:13px;cursor:pointer;}
+.btn-cfm{flex:1;background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;color:#fff;font-weight:700;padding:11px;border-radius:10px;font-size:13px;cursor:pointer;}
+
+/* ── History ── */
+.hist-panel{background:var(--bg3);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
+.hist-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+.hist-title{font-size:14px;font-weight:600;}
+.sort-btns{display:flex;gap:6px;}
+.sort-btn{background:transparent;border:1px solid var(--border);color:var(--txt3);padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;}
+.sort-btn.active{border-color:var(--cyan);color:var(--cyan);}
+.htable{width:100%;border-collapse:collapse;}
+.htable th{font-size:11px;color:var(--txt3);font-weight:500;text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);}
+.htable td{font-size:13px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.htable tr:last-child td{border-bottom:none;}
+.badge-w{background:rgba(147,51,234,0.15);color:#c084fc;font-size:10px;padding:2px 7px;border-radius:10px;}
+.badge-p{background:rgba(0,184,217,0.12);color:var(--cyan);font-size:10px;padding:2px 7px;border-radius:10px;}
+
+/* ── Not logged in ── */
+.not-logged{text-align:center;padding:80px 20px;}
+.not-logged h2{font-size:18px;font-weight:700;margin:16px 0 8px;}
+.not-logged p{font-size:13px;color:var(--txt3);margin-bottom:24px;}
+.btn-go-login{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#fff;font-weight:700;border-radius:10px;border:none;cursor:pointer;font-size:14px;}
+
+/* ── Responsive ── */
+@media(max-width:640px){
+  .cgrid{grid-template-columns:1fr;}
+  .pbar{flex-direction:column;align-items:flex-start;}
+  .pactions{margin-left:0;}
+}
 </style>
 </head>
 <body>
-<div class="top-bar">
-  <a href="index.html" class="back-btn">← 홈</a>
-  <span class="top-title">1% TRADING</span>
+
+<!-- Header -->
+<header class="header">
+  <a href="index.html" class="logo">1% TRADING</a>
+  <div class="header-right">
+    <div id="authBtns">
+      <button class="btn-login" onclick="openAuthModal('login')">로그인</button>
+      <button class="btn-signup" onclick="openAuthModal('signup')">회원가입</button>
+    </div>
+    <div id="userBtns" style="display:none;" class="user-row">
+      <div class="h-avatar" id="hAvatar">?</div>
+      <span class="h-nick" id="hNick">--</span>
+      <button class="h-logout" onclick="doLogout()">로그아웃</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Auth Modal ===== -->
+<div id="authModal" class="overlay" style="display:none;" onclick="if(event.target===this)closeAuthModal()">
+  <div class="mbox">
+    <button class="mclose" onclick="closeAuthModal()">✕</button>
+
+    <!-- Login view -->
+    <div id="loginView">
+      <div class="mtitle">로그인</div>
+      <div class="fg">
+        <label>아이디</label>
+        <input class="finput" id="loginId" type="text" placeholder="아이디 입력">
+      </div>
+      <div class="fg">
+        <label>비밀번호</label>
+        <input class="finput" id="loginPw" type="password" placeholder="비밀번호" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div id="loginErr" class="merr-global"></div>
+      <button class="msubmit" onclick="doLogin()">로그인</button>
+      <div class="mswitch">계정이 없으신가요? <a onclick="switchAuthView('signup')">회원가입</a></div>
+    </div>
+
+    <!-- Signup view -->
+    <div id="signupView" style="display:none;">
+      <div class="mtitle">회원가입</div>
+      <div class="fg">
+        <label>아이디</label>
+        <div class="frow">
+          <input class="finput" id="sId" type="text" placeholder="영문+숫자 4-20자">
+          <button class="ckbtn" onclick="checkDup('id')">중복확인</button>
+        </div>
+        <div id="idOk" class="fok">사용 가능한 아이디입니다.</div>
+        <div id="idErr" class="ferr">이미 사용 중인 아이디입니다.</div>
+      </div>
+      <div class="fg">
+        <label>비밀번호 <span style="color:var(--txt3)">(8자 이상)</span></label>
+        <input class="finput" id="sPw" type="password" placeholder="8자 이상">
+      </div>
+      <div class="fg">
+        <label>비밀번호 확인</label>
+        <input class="finput" id="sPw2" type="password" placeholder="비밀번호 재입력">
+        <div id="pwErr" class="ferr">비밀번호가 일치하지 않습니다.</div>
+      </div>
+      <div class="fg">
+        <label>이메일</label>
+        <div class="frow">
+          <input class="finput" id="sEmail" type="email" placeholder="이메일 주소">
+          <button class="ckbtn" onclick="checkDup('email')">중복확인</button>
+        </div>
+        <div id="emailOk" class="fok">사용 가능한 이메일입니다.</div>
+        <div id="emailErr" class="ferr">이미 사용 중인 이메일입니다.</div>
+      </div>
+      <div class="fg">
+        <label>닉네임</label>
+        <div class="frow">
+          <input class="finput" id="sNick" type="text" placeholder="2-12자">
+          <button class="ckbtn" onclick="checkDup('nick')">중복확인</button>
+        </div>
+        <div id="nickOk" class="fok">사용 가능한 닉네임입니다.</div>
+        <div id="nickErr" class="ferr">이미 사용 중인 닉네임입니다.</div>
+      </div>
+      <div class="fg">
+        <label>추천코드 <span style="color:var(--txt3)">(선택)</span></label>
+        <input class="finput" id="sRef" type="text" placeholder="추천코드 입력 (선택)">
+      </div>
+      <div class="fg chk-row">
+        <input type="checkbox" id="chkTerms">
+        <label for="chkTerms"><a href="#">개인정보처리방침</a> 및 <a href="#">이용약관</a>에 동의합니다</label>
+      </div>
+      <div id="cfTurnstile" style="margin-top:8px;"></div>
+      <div id="signupErr" class="merr-global"></div>
+      <button class="msubmit" onclick="doSignup()">회원가입</button>
+      <div class="mswitch">이미 계정이 있으신가요? <a onclick="switchAuthView('login')">로그인</a></div>
+    </div>
+  </div>
 </div>
 
+<!-- ===== Page ===== -->
 <div class="page">
 
-  <!-- 비로그인 상태 -->
-  <div id="notLoggedIn" style="display:none;text-align:center;padding:60px 20px;">
-    <div style="font-size:48px;margin-bottom:16px;">🔒</div>
-    <h2 style="font-size:18px;font-weight:700;margin-bottom:8px;">로그인이 필요합니다</h2>
-    <p style="font-size:13px;color:var(--txt3);margin-bottom:24px;">마이페이지를 이용하려면 로그인해주세요.</p>
-    <a href="index.html" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-weight:700;border-radius:10px;text-decoration:none;font-size:14px;">홈으로 돌아가기</a>
+  <!-- Not logged in -->
+  <div id="notLoggedIn" class="not-logged" style="display:none;">
+    <div style="font-size:52px;">🔐</div>
+    <h2>로그인이 필요합니다</h2>
+    <p>마이페이지를 이용하려면 로그인해주세요.</p>
+    <button class="btn-go-login" onclick="openAuthModal('login')">로그인하기</button>
   </div>
 
-  <!-- 로그인 상태 -->
-  <div id="loggedIn" style="display:none;">
+  <!-- Logged in -->
+  <div id="mypageContent" style="display:none;">
 
-    <!-- 프로필 카드 -->
-    <div class="profile-card">
-      <div class="profile-top">
-        <div class="profile-avatar" id="avatarLetter">?</div>
-        <div class="profile-info">
-          <h2 id="profileNick">--</h2>
-          <p id="profileEmail">--</p>
+    <!-- 프로필 바 -->
+    <div class="pbar">
+      <div class="pavatar" id="pAvatar">?</div>
+      <div class="pinfo">
+        <div class="pnick" id="pNick">--</div>
+        <div class="pemail" id="pEmail">--</div>
+        <div class="pdate" id="pDate">가입일: --</div>
+      </div>
+      <div class="pactions">
+        <button class="pedit-btn" onclick="openNickEdit()">✏️ 닉네임 편집</button>
+        <button class="plogout-btn" onclick="doLogout()">로그아웃</button>
+      </div>
+    </div>
+
+    <!-- 리워드 배너 -->
+    <div class="rbanner" onclick="toggleBanner()">
+      <div class="rb-inner">
+        <span style="font-size:18px;flex-shrink:0;">📋</span>
+        <div class="rb-txt">리워드 전용 거래소 회원가입 — 평균 <strong>월 $35 이상</strong>을 환급 받고 있습니다. 리워드 연동 해보세요</div>
+        <span class="rb-chev" id="rbChev">▾</span>
+      </div>
+      <div class="rb-cta" id="rbCta" onclick="event.stopPropagation()">
+        <button class="rb-cta-btn" onclick="openExModal()">거래소 연동 시작하기 →</button>
+      </div>
+    </div>
+
+    <!-- 2-col cards -->
+    <div class="cgrid">
+      <!-- 리워드 정보 -->
+      <div class="card">
+        <div class="ctitle">💰 리워드 정보</div>
+        <div class="reward-total" id="totalReward">$0.00</div>
+        <div class="reward-sub">총 누적 리워드 (USDT)</div>
+        <div class="cactions">
+          <button class="btn-detail" onclick="showHistory()">내역보기 →</button>
+          <button class="btn-withdraw" onclick="openWithdrawModal()">출금 요청</button>
         </div>
       </div>
-      <div class="ref-row">
-        <div>
-          <div class="ref-label">내 추천코드</div>
-          <div class="ref-code" id="myRefCode">------</div>
+
+      <!-- 내 거래소 -->
+      <div class="card">
+        <div class="ctitle">🔗 내 거래소</div>
+        <button class="btn-addex" onclick="openExModal()">+ 새 거래소 추가</button>
+        <div id="exList"><div class="empty-ex">연결된 거래소가 없습니다</div></div>
+      </div>
+    </div>
+
+    <!-- 리워드 내역 -->
+    <div id="histSection" style="display:none;">
+      <div class="hist-panel">
+        <div class="hist-hd">
+          <span class="hist-title">📊 리워드 내역</span>
+          <div class="sort-btns">
+            <button class="sort-btn active" id="sortDate" onclick="sortHist('date',this)">최신순</button>
+            <button class="sort-btn" id="sortAmt" onclick="sortHist('amount',this)">금액순</button>
+          </div>
         </div>
-        <button class="copy-btn" onclick="copyRefCode()">복사</button>
+        <div style="overflow-x:auto;">
+          <table class="htable">
+            <thead><tr><th>금액 (USDT)</th><th>거래소</th><th>상태</th><th>날짜</th></tr></thead>
+            <tbody id="histBody"></tbody>
+          </table>
+        </div>
       </div>
+      <button style="width:100%;background:transparent;border:1px solid var(--border);color:var(--txt3);padding:10px;border-radius:8px;font-size:13px;cursor:pointer;" onclick="hideHistory()">닫기 ▲</button>
     </div>
 
-    <!-- 등록된 UID -->
-    <div class="section">
-      <div class="section-hd">
-        <span class="section-title">🔗 등록된 UID</span>
-        <a href="register.html" class="add-btn">+ UID 추가</a>
-      </div>
-      <div id="uidList"><div class="empty">로딩 중...</div></div>
-    </div>
-
-    <!-- 정산 내역 -->
-    <div class="section">
-      <div class="section-hd">
-        <span class="section-title">💰 정산 내역</span>
-      </div>
-      <div id="settlList"><div class="empty">로딩 중...</div></div>
-    </div>
-
-    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
   </div>
-
 </div>
 
+<!-- ===== Exchange Modal ===== -->
+<div id="exModal" class="overlay" style="display:none;" onclick="if(event.target===this)closeExModal()">
+  <div class="mbox" style="max-width:480px;">
+    <button class="mclose" onclick="closeExModal()">✕</button>
+
+    <!-- Step 1 -->
+    <div id="exS1">
+      <div class="mtitle">거래소 선택</div>
+      <div class="ex-grid" id="exGrid"></div>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="exS2" style="display:none;">
+      <div class="mtitle" id="exS2Title">UID 입력</div>
+      <div class="fg">
+        <label>UID</label>
+        <input class="finput" id="uidInput" type="text" placeholder="거래소 UID를 입력하세요">
+      </div>
+      <div class="uid-warn">⚠️ 1% Trading 레퍼럴로 가입한 UID만 가능합니다. 다른 UID는 승인되지 않습니다.</div>
+      <button class="msubmit" onclick="submitUID()">인증 요청</button>
+      <button class="mback" onclick="goExS1()">← 거래소 목록으로 돌아가기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Withdrawal Modal ===== -->
+<div id="wModal" class="overlay" style="display:none;" onclick="if(event.target===this)closeWithdrawModal()">
+  <div class="mbox">
+    <button class="mclose" onclick="closeWithdrawModal()">✕</button>
+
+    <!-- Step 1 -->
+    <div id="wS1">
+      <div class="mtitle">출금 요청</div>
+      <div style="font-size:12px;color:var(--txt3);margin-bottom:8px;">거래소당 50 USDT 이상인 경우 선택 가능합니다.</div>
+      <div class="chk-row" style="padding:8px 0;">
+        <input type="checkbox" id="selAll" onchange="toggleSelAll(this)">
+        <label for="selAll" style="font-size:13px;font-weight:600;">전체 선택</label>
+      </div>
+      <div class="wlist" id="wList"></div>
+      <div class="fg" style="margin-top:10px;">
+        <label>메모 (선택)</label>
+        <textarea class="memo-inp" id="wMemo" rows="2" placeholder="출금 관련 메모를 입력하세요"></textarea>
+      </div>
+      <button class="msubmit" onclick="goWConfirm()">출금 요청</button>
+    </div>
+
+    <!-- Step 2 -->
+    <div id="wS2" style="display:none;">
+      <div class="mtitle">출금 확인</div>
+      <div class="wtotal" id="wTotal">$0.00</div>
+      <div class="wtotal-sub">출금 신청 금액</div>
+      <div id="wCfmList" style="margin-bottom:12px;"></div>
+      <div style="font-size:12px;color:var(--txt3);text-align:center;margin-bottom:4px;">출금 처리는 영업일 기준 1~3일 소요됩니다.</div>
+      <div class="btn-row">
+        <button class="btn-cancel" onclick="goWBack()">취소</button>
+        <button class="btn-cfm" onclick="confirmWithdraw()">확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Nick Edit Modal ===== -->
+<div id="nickModal" class="overlay" style="display:none;" onclick="if(event.target===this)closeNickEdit()">
+  <div class="mbox" style="max-width:340px;">
+    <button class="mclose" onclick="closeNickEdit()">✕</button>
+    <div class="mtitle">닉네임 변경</div>
+    <div class="fg">
+      <label>새 닉네임 (2-12자)</label>
+      <input class="finput" id="newNick" type="text" placeholder="새 닉네임" onkeydown="if(event.key==='Enter')saveNick()">
+    </div>
+    <button class="msubmit" onclick="saveNick()">변경 저장</button>
+  </div>
+</div>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script>
-const token = localStorage.getItem('authToken') || '';
+// ── Exchange definitions ──
+const EXCHANGES = [
+  { id:'bitget',  name:'Bitget',  color:'#00C9A7', bg:'rgba(0,201,167,0.15)',  border:'transparent', active:true,  badge:'85% 리워드' },
+  { id:'okx',     name:'OKX',     color:'#fff',    bg:'rgba(255,255,255,0.06)', border:'rgba(255,255,255,0.2)', active:true, badge:'리워드' },
+  { id:'gate',    name:'Gate.io', color:'#00C9A7', bg:'rgba(0,201,167,0.15)',  border:'transparent', active:true,  badge:'리워드' },
+  { id:'bybit',   name:'Bybit',   color:'#f7a600', bg:'rgba(247,166,0,0.1)',  border:'transparent', active:false, badge:'준비중' },
+  { id:'bingx',   name:'BingX',   color:'#f7931a', bg:'rgba(247,147,26,0.1)', border:'transparent', active:false, badge:'준비중' },
+  { id:'mexc',    name:'MEXC',    color:'#1972e2', bg:'rgba(25,114,226,0.12)',border:'transparent', active:false, badge:'준비중' },
+  { id:'binance', name:'Binance', color:'#f0b90b', bg:'rgba(240,185,11,0.1)', border:'transparent', active:false, badge:'준비중' },
+  { id:'bitunix', name:'Bitunix', color:'#6366f1', bg:'rgba(99,102,241,0.12)',border:'transparent', active:false, badge:'준비중' },
+];
 
-function exBadge(ex) {
-  const cls = ex==='Bitget'?'ex-bitget':ex==='OKX'?'ex-okx':'ex-gate';
-  return `<span class="ex-badge ${cls}">${ex}</span>`;
-}
+let CU = null;          // current user
+let selEx = null;       // selected exchange for modal
+let histData = [];
+let histSort = 'date';
 
-function fmtMoney(n) {
-  n = parseFloat(n)||0;
-  if (n>=1e6) return '$'+(n/1e6).toFixed(2)+'M';
-  if (n>=1e3) return '$'+(n/1e3).toFixed(1)+'K';
-  return '$'+n.toFixed(2);
-}
-
-async function loadPage() {
-  if (!token) {
+// ── Init ──
+function init() {
+  const u = localStorage.getItem('mpUser');
+  if (u) {
+    CU = JSON.parse(u);
+    renderMypage();
+  } else {
     document.getElementById('notLoggedIn').style.display = 'block';
-    return;
   }
-
-  const headers = { 'Authorization': 'Bearer ' + token };
-
-  // 프로필
-  try {
-    const r = await fetch('/api/mypage/profile', { headers });
-    const d = await r.json();
-    if (!d.ok) { document.getElementById('notLoggedIn').style.display='block'; return; }
-    document.getElementById('loggedIn').style.display = 'block';
-    document.getElementById('profileNick').textContent = d.nickname;
-    document.getElementById('profileEmail').textContent = d.email;
-    document.getElementById('myRefCode').textContent = d.my_referral_code;
-    document.getElementById('avatarLetter').textContent = d.nickname.charAt(0).toUpperCase();
-  } catch(e) {
-    document.getElementById('notLoggedIn').style.display = 'block';
-    return;
-  }
-
-  // UID 목록
-  try {
-    const r = await fetch('/api/mypage/uids', { headers });
-    const d = await r.json();
-    const list = d.uids || [];
-    document.getElementById('uidList').innerHTML = list.length ? list.map(u => `
-      <div class="uid-item">
-        ${exBadge(u.exchange)}
-        <div>
-          <div class="uid-nick">${u.nickname||'--'}</div>
-          <div class="uid-val">UID: ${u.uid}</div>
-        </div>
-        <span class="status-active">활성</span>
-        <span class="uid-date">${(u.join_date||'').slice(0,10)}</span>
-      </div>`).join('') : '<div class="empty">등록된 UID가 없습니다.<br><a href="register.html" style="color:var(--cyan);">지금 등록하기 →</a></div>';
-  } catch(e) { document.getElementById('uidList').innerHTML = '<div class="empty">불러오기 실패</div>'; }
-
-  // 정산 내역
-  try {
-    const r = await fetch('/api/mypage/settlements', { headers });
-    const d = await r.json();
-    const list = d.settlements || [];
-    document.getElementById('settlList').innerHTML = list.length ? `
-      <div style="overflow-x:auto;">
-        <table>
-          <thead><tr><th>월</th><th>거래량</th><th>수수료</th><th>환급액</th><th>상태</th></tr></thead>
-          <tbody>${list.map(s=>`<tr>
-            <td>${s.month}</td>
-            <td style="font-family:monospace;">${fmtMoney(s.volume)}</td>
-            <td style="font-family:monospace;">${fmtMoney(s.fee)}</td>
-            <td style="color:var(--green);font-weight:600;font-family:monospace;">${fmtMoney(s.payback_amount)}</td>
-            <td><span style="font-size:11px;padding:2px 8px;border-radius:10px;${s.status==='paid'?'background:rgba(0,212,160,0.12);color:var(--green)':'background:rgba(251,191,36,0.12);color:var(--yellow)'}">${s.status==='paid'?'지급완료':'대기중'}</span></td>
-          </tr>`).join('')}</tbody>
-        </table>
-      </div>` : '<div class="empty">정산 내역이 없습니다.</div>';
-  } catch(e) { document.getElementById('settlList').innerHTML = '<div class="empty">불러오기 실패</div>'; }
+  renderExGrid();
 }
 
-function copyRefCode() {
-  const code = document.getElementById('myRefCode').textContent;
-  navigator.clipboard.writeText(code).then(() => {
-    const btn = document.querySelector('.copy-btn');
-    btn.textContent = '복사됨!';
-    setTimeout(() => btn.textContent = '복사', 1500);
-  });
+function renderMypage() {
+  document.getElementById('notLoggedIn').style.display = 'none';
+  document.getElementById('mypageContent').style.display = 'block';
+  document.getElementById('authBtns').style.display = 'none';
+  document.getElementById('userBtns').style.display = 'flex';
+  const letter = CU.nick.charAt(0).toUpperCase();
+  document.getElementById('hAvatar').textContent = letter;
+  document.getElementById('hNick').textContent = CU.nick;
+  document.getElementById('pAvatar').textContent = letter;
+  document.getElementById('pNick').textContent = CU.nick;
+  document.getElementById('pEmail').textContent = CU.email;
+  document.getElementById('pDate').textContent = '가입일: ' + (CU.joinDate || '--');
+  renderExList();
+  calcTotal();
+}
+
+// ── Auth Modal ──
+function openAuthModal(view) {
+  document.getElementById('authModal').style.display = 'flex';
+  switchAuthView(view);
+}
+function closeAuthModal() {
+  document.getElementById('authModal').style.display = 'none';
+}
+function switchAuthView(v) {
+  document.getElementById('loginView').style.display  = v === 'login'  ? 'block' : 'none';
+  document.getElementById('signupView').style.display = v === 'signup' ? 'block' : 'none';
+}
+
+// ── Login ──
+function doLogin() {
+  const id = document.getElementById('loginId').value.trim();
+  const pw = document.getElementById('loginPw').value;
+  const err = document.getElementById('loginErr');
+  if (!id || !pw) { showErr(err, '아이디와 비밀번호를 입력하세요.'); return; }
+  const accs = JSON.parse(localStorage.getItem('mpAccounts') || '{}');
+  const acc = accs[id];
+  if (!acc || acc.pw !== btoa(unescape(encodeURIComponent(pw)))) {
+    showErr(err, '아이디 또는 비밀번호가 올바르지 않습니다.'); return;
+  }
+  err.style.display = 'none';
+  CU = { id, email: acc.email, nick: acc.nick, joinDate: acc.joinDate, exchanges: acc.exchanges || [] };
+  localStorage.setItem('mpUser', JSON.stringify(CU));
+  closeAuthModal();
+  renderMypage();
+}
+
+// ── Signup ──
+function checkDup(type) {
+  const accs = JSON.parse(localStorage.getItem('mpAccounts') || '{}');
+  if (type === 'id') {
+    const v = document.getElementById('sId').value.trim();
+    const ex = !!accs[v];
+    document.getElementById('idOk').style.display  = ex ? 'none' : 'block';
+    document.getElementById('idErr').style.display = ex ? 'block' : 'none';
+  } else if (type === 'email') {
+    const v = document.getElementById('sEmail').value.trim();
+    const ex = Object.values(accs).some(a => a.email === v);
+    document.getElementById('emailOk').style.display  = ex ? 'none' : 'block';
+    document.getElementById('emailErr').style.display = ex ? 'block' : 'none';
+  } else {
+    const v = document.getElementById('sNick').value.trim();
+    const ex = Object.values(accs).some(a => a.nick === v);
+    document.getElementById('nickOk').style.display  = ex ? 'none' : 'block';
+    document.getElementById('nickErr').style.display = ex ? 'block' : 'none';
+  }
+}
+
+function doSignup() {
+  const id    = document.getElementById('sId').value.trim();
+  const pw    = document.getElementById('sPw').value;
+  const pw2   = document.getElementById('sPw2').value;
+  const email = document.getElementById('sEmail').value.trim();
+  const nick  = document.getElementById('sNick').value.trim();
+  const ref   = document.getElementById('sRef').value.trim();
+  const terms = document.getElementById('chkTerms').checked;
+  const err   = document.getElementById('signupErr');
+  if (!id || !pw || !email || !nick) { showErr(err, '모든 필수 항목을 입력하세요.'); return; }
+  if (!/^[a-zA-Z0-9]{4,20}$/.test(id)) { showErr(err, '아이디는 영문+숫자 4-20자여야 합니다.'); return; }
+  if (pw.length < 8) { showErr(err, '비밀번호는 8자 이상이어야 합니다.'); return; }
+  if (pw !== pw2) { showErr(err, '비밀번호가 일치하지 않습니다.'); return; }
+  if (!terms) { showErr(err, '개인정보처리방침에 동의해주세요.'); return; }
+  const accs = JSON.parse(localStorage.getItem('mpAccounts') || '{}');
+  if (accs[id]) { showErr(err, '이미 사용 중인 아이디입니다.'); return; }
+  const joinDate = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' });
+  accs[id] = { pw: btoa(unescape(encodeURIComponent(pw))), email, nick, ref, joinDate, exchanges: [] };
+  localStorage.setItem('mpAccounts', JSON.stringify(accs));
+  err.style.display = 'none';
+  CU = { id, email, nick, joinDate, exchanges: [] };
+  localStorage.setItem('mpUser', JSON.stringify(CU));
+  closeAuthModal();
+  renderMypage();
 }
 
 function doLogout() {
-  fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }).catch(()=>{});
-  localStorage.removeItem('authToken');
-  location.href = 'index.html';
+  localStorage.removeItem('mpUser');
+  location.reload();
 }
 
-loadPage();
+function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
+
+// ── Banner ──
+function toggleBanner() {
+  const cta = document.getElementById('rbCta');
+  const ch  = document.getElementById('rbChev');
+  const open = cta.classList.toggle('show');
+  ch.classList.toggle('open', open);
+}
+
+// ── Exchange List ──
+function renderExList() {
+  const exs = CU.exchanges || [];
+  const el  = document.getElementById('exList');
+  if (!exs.length) { el.innerHTML = '<div class="empty-ex">연결된 거래소가 없습니다</div>'; return; }
+  el.innerHTML = exs.map(ex => {
+    const def = EXCHANGES.find(e => e.id === ex.id) || {};
+    return `<div class="ex-item">
+      <div class="ex-logo" style="background:${def.bg||'var(--bg2)'};color:${def.color||'var(--txt2)'};">${(def.name||'?').charAt(0)}</div>
+      <div class="ex-info">
+        <div class="ex-name">${def.name||ex.id}</div>
+        <div class="ex-uid">UID: ${ex.uid}</div>
+      </div>
+      <span class="ex-reward">$${(ex.reward||0).toFixed(2)}</span>
+      <span class="ex-status ${ex.status==='active'?'active':'pending'}">${ex.status==='active'?'연결됨':'대기중'}</span>
+    </div>`;
+  }).join('');
+}
+
+function calcTotal() {
+  const total = (CU.exchanges||[]).reduce((s,e) => s+(e.reward||0), 0);
+  document.getElementById('totalReward').textContent = '$' + total.toFixed(2);
+}
+
+// ── Exchange Modal ──
+function renderExGrid() {
+  document.getElementById('exGrid').innerHTML = EXCHANGES.map(ex => `
+    <div class="exg-item${ex.active?'':' disabled'}" onclick="${ex.active?'selExchange(\''+ex.id+'\')':''}">
+      <div class="exg-logo" style="background:${ex.bg};color:${ex.color};border:1px solid ${ex.border||'transparent'};">${ex.name.charAt(0)}</div>
+      <div class="exg-name">${ex.name}</div>
+      <div class="exg-badge" style="background:${ex.active?'rgba(0,184,217,0.1)':'rgba(255,255,255,0.05)'};color:${ex.active?'var(--cyan)':'var(--txt3)'};">${ex.badge}</div>
+    </div>`).join('');
+}
+
+function openExModal() {
+  document.getElementById('exModal').style.display = 'flex';
+  goExS1();
+}
+function closeExModal() { document.getElementById('exModal').style.display = 'none'; }
+
+function selExchange(id) {
+  selEx = EXCHANGES.find(e => e.id === id);
+  document.getElementById('exS2Title').textContent = selEx.name + ' UID 입력';
+  document.getElementById('uidInput').value = '';
+  document.getElementById('exS1').style.display = 'none';
+  document.getElementById('exS2').style.display = 'block';
+}
+function goExS1() {
+  document.getElementById('exS1').style.display = 'block';
+  document.getElementById('exS2').style.display = 'none';
+}
+function submitUID() {
+  const uid = document.getElementById('uidInput').value.trim();
+  if (!uid) { alert('UID를 입력하세요.'); return; }
+  const exs = CU.exchanges || [];
+  if (exs.find(e => e.id === selEx.id)) { alert('이미 등록된 거래소입니다.'); return; }
+  exs.push({ id: selEx.id, uid, status: 'pending', reward: 0 });
+  CU.exchanges = exs;
+  saveUser();
+  closeExModal();
+  renderExList();
+  calcTotal();
+  alert('UID 등록 완료!\n최대 48시간 내에 검토 후 연결됩니다.');
+}
+
+// ── Withdrawal Modal ──
+function openWithdrawModal() {
+  const avail = (CU.exchanges||[]).filter(e => (e.reward||0) >= 50);
+  const wl = document.getElementById('wList');
+  if (!avail.length) {
+    wl.innerHTML = '<div style="text-align:center;padding:20px;color:var(--txt3);font-size:13px;">출금 가능한 리워드가 없습니다.<br><small>거래소당 50 USDT 이상 필요</small></div>';
+  } else {
+    wl.innerHTML = avail.map(ex => {
+      const def = EXCHANGES.find(e => e.id === ex.id) || {};
+      return `<label class="witem">
+        <input type="checkbox" class="wchk" data-id="${ex.id}" data-amt="${ex.reward||0}" onchange="updateWTotal()">
+        <div class="ex-logo" style="background:${def.bg||'var(--bg2)'};color:${def.color||'#fff'};width:28px;height:28px;border-radius:7px;">${(def.name||'?').charAt(0)}</div>
+        <span style="flex:1;font-size:13px;">${def.name||ex.id}</span>
+        <span style="font-family:'Orbitron',monospace;font-size:12px;color:var(--cyan);">$${(ex.reward||0).toFixed(2)}</span>
+      </label>`;
+    }).join('');
+  }
+  document.getElementById('wS1').style.display = 'block';
+  document.getElementById('wS2').style.display = 'none';
+  document.getElementById('wModal').style.display = 'flex';
+}
+function closeWithdrawModal() { document.getElementById('wModal').style.display = 'none'; }
+
+function toggleSelAll(cb) {
+  document.querySelectorAll('.wchk').forEach(c => c.checked = cb.checked);
+  updateWTotal();
+}
+function updateWTotal() {
+  let t = 0;
+  document.querySelectorAll('.wchk:checked').forEach(c => t += parseFloat(c.dataset.amt||0));
+  // shown in confirm step
+}
+function goWConfirm() {
+  const sel = [];
+  document.querySelectorAll('.wchk:checked').forEach(c => {
+    const def = EXCHANGES.find(e => e.id === c.dataset.id) || {};
+    sel.push({ id: c.dataset.id, name: def.name||c.dataset.id, amt: parseFloat(c.dataset.amt||0) });
+  });
+  if (!sel.length) { alert('출금할 거래소를 선택하세요.'); return; }
+  const total = sel.reduce((s,e) => s+e.amt, 0);
+  document.getElementById('wTotal').textContent = '$' + total.toFixed(2);
+  document.getElementById('wCfmList').innerHTML = sel.map(e =>
+    `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;">
+      <span>${e.name}</span>
+      <span style="color:var(--cyan);font-family:'Orbitron',monospace;">$${e.amt.toFixed(2)}</span>
+    </div>`).join('');
+  document.getElementById('wS1').style.display = 'none';
+  document.getElementById('wS2').style.display = 'block';
+}
+function goWBack() {
+  document.getElementById('wS1').style.display = 'block';
+  document.getElementById('wS2').style.display = 'none';
+}
+function confirmWithdraw() {
+  const hist = JSON.parse(localStorage.getItem('mpHistory') || '[]');
+  document.querySelectorAll('.wchk:checked').forEach(c => {
+    const def = EXCHANGES.find(e => e.id === c.dataset.id) || {};
+    hist.unshift({ amt: parseFloat(c.dataset.amt||0), exName: def.name||c.dataset.id, status:'pending', date: new Date().toLocaleDateString('ko-KR') });
+  });
+  localStorage.setItem('mpHistory', JSON.stringify(hist));
+  closeWithdrawModal();
+  alert('출금 신청이 완료되었습니다.\n영업일 기준 1~3일 내 처리됩니다.');
+}
+
+// ── History ──
+function showHistory() {
+  histData = JSON.parse(localStorage.getItem('mpHistory') || '[]');
+  renderHistTable();
+  document.getElementById('histSection').style.display = 'block';
+  document.getElementById('histSection').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+function hideHistory() { document.getElementById('histSection').style.display = 'none'; }
+
+function sortHist(mode, btn) {
+  histSort = mode;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderHistTable();
+}
+function renderHistTable() {
+  const sorted = [...histData].sort((a,b) => histSort === 'amount' ? b.amt - a.amt : 0);
+  const tbody = document.getElementById('histBody');
+  if (!sorted.length) {
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:24px;color:var(--txt3);">내역이 없습니다.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = sorted.map(h => `<tr>
+    <td style="font-family:'Orbitron',monospace;color:var(--cyan);">$${(h.amt||0).toFixed(2)}</td>
+    <td>${h.exName||'--'}</td>
+    <td><span class="${h.status==='paid'?'badge-p':'badge-w'}">${h.status==='paid'?'입금완료':'출금신청'}</span></td>
+    <td style="color:var(--txt3);">${h.date||'--'}</td>
+  </tr>`).join('');
+}
+
+// ── Nick Edit ──
+function openNickEdit() {
+  document.getElementById('newNick').value = CU.nick;
+  document.getElementById('nickModal').style.display = 'flex';
+}
+function closeNickEdit() { document.getElementById('nickModal').style.display = 'none'; }
+function saveNick() {
+  const nn = document.getElementById('newNick').value.trim();
+  if (!nn || nn.length < 2 || nn.length > 12) { alert('닉네임은 2~12자여야 합니다.'); return; }
+  CU.nick = nn;
+  saveUser();
+  const accs = JSON.parse(localStorage.getItem('mpAccounts') || '{}');
+  if (CU.id && accs[CU.id]) { accs[CU.id].nick = nn; localStorage.setItem('mpAccounts', JSON.stringify(accs)); }
+  closeNickEdit();
+  renderMypage();
+}
+
+function saveUser() { localStorage.setItem('mpUser', JSON.stringify(CU)); }
+
+init();
 </script>
 </body>
 </html>

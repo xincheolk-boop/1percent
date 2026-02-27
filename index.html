@@ -1369,11 +1369,17 @@
     </header>
 
     <!-- 티커 -->
-    <div class="ticker-bar">
-        <div class="ticker-item"><span class="sym">BTC</span><span class="price">$104,235</span><span class="up">+2.14%</span></div>
-        <div class="ticker-item"><span class="sym">ETH</span><span class="price">$3,312</span><span class="up">+1.52%</span></div>
-        <div class="ticker-item"><span class="sym">SOL</span><span class="price">$198.45</span><span class="down">-0.62%</span></div>
-        <div class="ticker-item"><span class="sym">김프</span><span class="up">2.1%</span></div>
+    <div class="ticker-bar" id="tickerBar">
+        <div class="ticker-item"><span class="sym">BTC</span><span class="price">--</span><span class="up">--</span></div>
+        <div class="ticker-item"><span class="sym">ETH</span><span class="price">--</span><span class="up">--</span></div>
+        <div class="ticker-item"><span class="sym">SOL</span><span class="price">--</span><span class="up">--</span></div>
+        <div class="ticker-item"><span class="sym">XRP</span><span class="price">--</span><span class="up">--</span></div>
+        <div class="ticker-item"><span class="sym">DOGE</span><span class="price">--</span><span class="up">--</span></div>
+        <div class="ticker-item"><span class="sym">BNB</span><span class="price">--</span><span class="up">--</span></div>
+        <div class="ticker-item"><span class="sym">AVAX</span><span class="price">--</span><span class="up">--</span></div>
+        <div class="ticker-item"><span class="sym">SUI</span><span class="price">--</span><span class="up">--</span></div>
+        <div class="ticker-item"><span class="sym">LINK</span><span class="price">--</span><span class="up">--</span></div>
+        <div class="ticker-item"><span class="sym">DOT</span><span class="price">--</span><span class="up">--</span></div>
     </div>
 
     <!-- 레이아웃 -->
@@ -2521,6 +2527,14 @@
                 document.getElementById('coinListPrice').innerHTML = main.map((c,i) =>
                     renderCoin(i+1, getCoinName(c.symbol), c.lastPrice, c.priceChangePercent)
                 ).join('');
+
+                // 티커 바 업데이트
+                const tb = document.getElementById('tickerBar');
+                if (tb) tb.innerHTML = main.map(c => {
+                    const name = getCoinName(c.symbol);
+                    const cls = parseFloat(c.priceChangePercent) >= 0 ? 'up' : 'down';
+                    return '<div class="ticker-item"><span class="sym">' + name + '</span><span class="price">' + formatPrice(c.lastPrice) + '</span><span class="' + cls + '">' + formatChange(c.priceChangePercent) + '</span></div>';
+                }).join('');
 
                 // 급등 탭 (상위 10개)
                 const sorted = [...pairs].sort((a,b) => parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent));
