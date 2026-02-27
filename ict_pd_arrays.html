@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>ICT PD Arrays 완벽 가이드</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans CJK KR', sans-serif;
+            line-height: 1.8;
+            color: #333;
+            background: #fff;
+        }
+        
+        .page {
+            page-break-after: always;
+            padding: 40px;
+            min-height: 100vh;
+        }
+        
+        .page:last-child {
+            page-break-after: avoid;
+        }
+        
+        /* 표지 */
+        .cover {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: white;
+        }
+        
+        .cover h1 {
+            font-size: 48px;
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+        
+        .cover h2 {
+            font-size: 24px;
+            font-weight: 400;
+            margin-bottom: 60px;
+            color: #e94560;
+        }
+        
+        .toc {
+            text-align: left;
+            background: rgba(255,255,255,0.1);
+            padding: 30px 40px;
+            border-radius: 10px;
+            margin-top: 40px;
+        }
+        
+        .toc-item {
+            padding: 10px 0;
+            font-size: 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .toc-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* 콘텐츠 페이지 */
+        .content-page {
+            background: #fff;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            color: #1a1a2e;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #e94560;
+            margin-bottom: 10px;
+        }
+        
+        .page-subtitle {
+            font-size: 18px;
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .definition {
+            background: #f8f9fa;
+            padding: 20px;
+            border-left: 4px solid #e94560;
+            margin-bottom: 25px;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .definition strong {
+            color: #e94560;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            color: #16213e;
+            margin: 25px 0 15px 0;
+            padding-left: 15px;
+            border-left: 4px solid #0f3460;
+        }
+        
+        .term-box {
+            background: #fff3f5;
+            border: 1px solid #e94560;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        
+        .term-name {
+            font-weight: 700;
+            color: #e94560;
+            font-size: 14px;
+        }
+        
+        .term-desc {
+            color: #666;
+            font-size: 13px;
+            margin-top: 5px;
+            padding-left: 15px;
+        }
+        
+        ul {
+            padding-left: 25px;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        /* 요약 테이블 */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        th {
+            background: #1a1a2e;
+            color: white;
+            padding: 15px;
+            font-weight: 700;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .highlight {
+            color: #e94560;
+            font-weight: 700;
+        }
+        
+        /* 다이어그램 영역 */
+        .diagram-area {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .diagram-box {
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .diagram-label {
+            font-weight: 700;
+            color: #16213e;
+            margin-bottom: 10px;
+        }
+        
+        .bullish {
+            color: #26a69a;
+        }
+        
+        .bearish {
+            color: #ef5350;
+        }
+        
+        @media print {
+            .page {
+                page-break-after: always;
+                padding: 20mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 표지 -->
+<div class="page cover">
+    <h1>ICT PD Arrays</h1>
+    <h2>완벽 가이드 (한글판)</h2>
+    
+    <div class="toc">
+        <div class="toc-item">• Fair Value Gap (FVG) - 공정가치 갭</div>
+        <div class="toc-item">• Inverse Fair Value Gap (IFVG) - 역 공정가치 갭</div>
+        <div class="toc-item">• Balanced Price Range (BPR) - 균형가격대</div>
+        <div class="toc-item">• Change in State of Delivery (CISD) - 딜리버리 상태 변화</div>
+        <div class="toc-item">• Order Block (OB) - 오더블록</div>
+        <div class="toc-item">• Breaker Block (BB) - 브레이커 블록</div>
+        <div class="toc-item">• New Day Opening Gap (NDOG) - 신규일 갭</div>
+    </div>
+</div>
+
+<!-- FVG -->
+<div class="page content-page">
+    <h1 class="page-title">FAIR VALUE GAP (FVG)</h1>
+    <p class="page-subtitle">공정가치 갭</p>
+    
+    <div class="definition">
+        <strong>정의:</strong> 3개의 캔들에서 형성되는 가격 비효율 영역. 첫 번째 캔들의 고가/저가와 세 번째 캔들의 저가/고가 사이에 갭이 생기는 구간으로, 공격적인 매수 또는 매도로 인해 발생한다.
+    </div>
+    
+    <h3 class="section-title">핵심 용어</h3>
+    
+    <div class="term-box">
+        <div class="term-name">• BISI (Buyside Imbalance Sellside Inefficiency)</div>
+        <div class="term-desc">매수측 불균형 / 매도측 비효율 → <span class="bullish">상승 FVG</span> (강한 매수세로 형성)</div>
+    </div>
+    
+    <div class="term-box">
+        <div class="term-name">• SIBI (Sellside Imbalance Buyside Inefficiency)</div>
+        <div class="term-desc">매도측 불균형 / 매수측 비효율 → <span class="bearish">하락 FVG</span> (강한 매도세로 형성)</div>
+    </div>
+    
+    <h3 class="section-title">트레이딩 활용</h3>
+    <ul>
+        <li><span class="bullish">상승 추세:</span> BISI 영역에서 지지 기대 → 롱 진입 포인트</li>
+        <li><span class="bearish">하락 추세:</span> SIBI 영역에서 저항 기대 → 숏 진입 포인트</li>
+        <li>FVG는 가격이 되돌아와 '채우는(fill)' 경향이 있음</li>
+    </ul>
+    
+    <div class="diagram-area">
+        <div class="diagram-box">
+            <div class="diagram-label bullish">Bullish FVG (BISI)</div>
+            <p>1번 캔들 고가 ↔ 3번 캔들 저가 사이 갭</p>
+        </div>
+        <div class="diagram-box">
+            <div class="diagram-label bearish">Bearish FVG (SIBI)</div>
+            <p>1번 캔들 저가 ↔ 3번 캔들 고가 사이 갭</p>
+        </div>
+    </div>
+</div>
+
+<!-- IFVG -->
+<div class="page content-page">
+    <h1 class="page-title">INVERSE FAIR VALUE GAP (IFVG)</h1>
+    <p class="page-subtitle">역 공정가치 갭</p>
+    
+    <div class="definition">
+        <strong>정의:</strong> 이전에 지지 또는 저항으로 작용했던 FVG가 실패하고, 가격이 이를 무시하며 유동성 함정(Liquidity Trap)으로 활용한 뒤 방향을 반전시키는 현상.
+    </div>
+    
+    <h3 class="section-title">형성 과정</h3>
+    <ul>
+        <li>기존 FVG가 지지/저항 역할을 함</li>
+        <li>가격이 FVG를 돌파 (FVG 실패)</li>
+        <li>돌파 후 해당 영역이 반대 역할로 전환 (지지→저항 또는 저항→지지)</li>
+        <li>유동성 확보 후 원래 방향으로 반전</li>
+    </ul>
+    
+    <h3 class="section-title">트레이딩 활용</h3>
+    <ul>
+        <li><span class="highlight">강한 반전 신호</span>로 활용</li>
+        <li>FVG 돌파 후 되돌림 시 진입 기회</li>
+        <li>스탑헌팅 완료 후 방향성 확인에 유용</li>
+    </ul>
+    
+    <div class="diagram-area">
+        <div class="diagram-box">
+            <div class="diagram-label bullish">Bullish IFVG</div>
+            <p>하락 FVG 하방 돌파 → 반전 상승</p>
+        </div>
+        <div class="diagram-box">
+            <div class="diagram-label bearish">Bearish IFVG</div>
+            <p>상승 FVG 상방 돌파 → 반전 하락</p>
+        </div>
+    </div>
+</div>
+
+<!-- BPR -->
+<div class="page content-page">
+    <h1 class="page-title">BALANCED PRICE RANGE (BPR)</h1>
+    <p class="page-subtitle">균형가격대</p>
+    
+    <div class="definition">
+        <strong>정의:</strong> 두 개의 반대 방향 FVG가 겹치는 영역. 상승 FVG와 하락 FVG가 동일한 가격대에서 교차하면서 유동성이 집중되는 구간을 형성한다.
+    </div>
+    
+    <h3 class="section-title">특징</h3>
+    <ul>
+        <li>두 FVG의 겹침 → <span class="highlight">강한 유동성 집중 구간</span></li>
+        <li>가격이 반응할 가능성이 높은 핵심 영역</li>
+        <li>지지와 저항이 동시에 존재하는 구간</li>
+    </ul>
+    
+    <h3 class="section-title">트레이딩 활용</h3>
+    <ul>
+        <li>BPR 영역에서 가격 반응 관찰</li>
+        <li>추세 방향에 따라 지지/저항 판단</li>
+        <li>돌파 시 강한 움직임 기대</li>
+    </ul>
+    
+    <div class="diagram-area">
+        <div class="diagram-box">
+            <div class="diagram-label">BPR 형성</div>
+            <p>상승 FVG + 하락 FVG = 겹치는 영역이 BPR</p>
+        </div>
+    </div>
+</div>
+
+<!-- CISD -->
+<div class="page content-page">
+    <h1 class="page-title">CHANGE IN STATE OF DELIVERY (CISD)</h1>
+    <p class="page-subtitle">딜리버리 상태 변화</p>
+    
+    <div class="definition">
+        <strong>정의:</strong> 시장의 가격 딜리버리 방향이 전환되는 시점. 가격이 원래 매수측(Buy-side)으로 전달되고 있었다면, CISD는 이제 매도측(Sell-side)으로 전달됨을 신호한다. (반대도 동일)
+    </div>
+    
+    <h3 class="section-title">핵심 개념</h3>
+    <ul>
+        <li><span class="highlight">추세 전환</span>의 초기 신호</li>
+        <li>오더블록(OB)과 자주 함께 발생</li>
+        <li>기관의 포지션 변화를 나타냄</li>
+    </ul>
+    
+    <h3 class="section-title">트레이딩 활용</h3>
+    <ul>
+        <li><span class="highlight">CISD + OB 조합</span> = 고확률 진입 포인트</li>
+        <li>추세 전환 확인 후 역방향 포지션</li>
+        <li>MSS(Market Structure Shift)와 함께 확인</li>
+    </ul>
+    
+    <div class="diagram-area">
+        <div class="diagram-box">
+            <div class="diagram-label bullish">Bullish CISD</div>
+            <p>매도→매수 딜리버리 전환</p>
+        </div>
+        <div class="diagram-box">
+            <div class="diagram-label bearish">Bearish CISD</div>
+            <p>매수→매도 딜리버리 전환</p>
+        </div>
+    </div>
+</div>
+
+<!-- OB -->
+<div class="page content-page">
+    <h1 class="page-title">ORDER BLOCK (OB)</h1>
+    <p class="page-subtitle">오더블록</p>
+    
+    <div class="definition">
+        <strong>정의:</strong> 기관 투자자들의 대량 주문이 집행된 것으로 추정되는 캔들 또는 가격 영역. 강한 방향성 움직임 직전의 마지막 반대 캔들.
+    </div>
+    
+    <h3 class="section-title">종류</h3>
+    
+    <div class="term-box">
+        <div class="term-name bullish">• Bullish OB (+OB)</div>
+        <div class="term-desc">강한 상승 전 <span class="highlight">마지막 하락 캔들</span> → 지지 역할</div>
+    </div>
+    
+    <div class="term-box">
+        <div class="term-name bearish">• Bearish OB (-OB)</div>
+        <div class="term-desc">강한 하락 전 <span class="highlight">마지막 상승 캔들</span> → 저항 역할</div>
+    </div>
+    
+    <h3 class="section-title">트레이딩 활용</h3>
+    <ul>
+        <li>OB 영역 <span class="highlight">리테스트</span> 시 진입 기회</li>
+        <li>OB의 고가/저가를 손절 기준으로 활용</li>
+        <li>추세 방향 OB 우선 (상승추세 → Bullish OB)</li>
+    </ul>
+</div>
+
+<!-- BB -->
+<div class="page content-page">
+    <h1 class="page-title">BREAKER BLOCK (BB)</h1>
+    <p class="page-subtitle">브레이커 블록</p>
+    
+    <div class="definition">
+        <strong>정의:</strong> 오더블록이 지지 또는 저항 역할에 실패하고 돌파당했을 때, 시장 구조 변화(Market Structure Shift)가 발생하면서 해당 영역이 반대 역할로 전환되는 현상.
+    </div>
+    
+    <h3 class="section-title">형성 과정</h3>
+    <ul>
+        <li>기존 OB가 지지/저항으로 기능</li>
+        <li>가격이 OB를 돌파 (OB 실패)</li>
+        <li>시장 구조 변화 발생</li>
+        <li>실패한 OB가 <span class="highlight">Breaker Block</span>으로 전환</li>
+    </ul>
+    
+    <h3 class="section-title">트레이딩 활용</h3>
+    <ul>
+        <li>추세 반전 또는 지속의 <span class="highlight">강력한 신호</span></li>
+        <li>BB 리테스트 시 새로운 방향으로 진입</li>
+        <li>IFVG와 유사하지만 OB 기반</li>
+    </ul>
+</div>
+
+<!-- NDOG -->
+<div class="page content-page">
+    <h1 class="page-title">NEW DAY OPENING GAP (NDOG)</h1>
+    <p class="page-subtitle">신규일 갭</p>
+    
+    <div class="definition">
+        <strong>정의:</strong> 전일 종가와 금일 시가 사이에 형성되는 갭. 가격은 종종 이 갭을 '채우러' 되돌아오는 경향이 있어 핵심 관심 영역으로 활용된다.
+    </div>
+    
+    <h3 class="section-title">종류</h3>
+    
+    <div class="term-box">
+        <div class="term-name bullish">• Bullish NDOG</div>
+        <div class="term-desc">금일 시가 > 전일 종가 (갭 상승)</div>
+    </div>
+    
+    <div class="term-box">
+        <div class="term-name bearish">• Bearish NDOG</div>
+        <div class="term-desc">금일 시가 < 전일 종가 (갭 하락)</div>
+    </div>
+    
+    <h3 class="section-title">트레이딩 활용</h3>
+    <ul>
+        <li><span class="highlight">갭 채움(Gap Fill)</span> 방향 트레이딩</li>
+        <li>NDOG 영역을 지지/저항으로 활용</li>
+        <li>고확률 셋업으로 활용 가능</li>
+    </ul>
+</div>
+
+<!-- 요약 테이블 -->
+<div class="page content-page">
+    <h1 class="page-title">ICT PD Arrays 요약표</h1>
+    <p class="page-subtitle">한눈에 보는 핵심 개념</p>
+    
+    <table>
+        <tr>
+            <th>한글 용어</th>
+            <th>영문 약어</th>
+            <th>핵심 설명</th>
+        </tr>
+        <tr>
+            <td>공정가치 갭</td>
+            <td>FVG</td>
+            <td>3캔들 가격 비효율 영역 (BISI/SIBI)</td>
+        </tr>
+        <tr>
+            <td>역 공정가치 갭</td>
+            <td>IFVG</td>
+            <td>FVG 실패 후 유동성 함정 → 반전</td>
+        </tr>
+        <tr>
+            <td>균형가격대</td>
+            <td>BPR</td>
+            <td>두 FVG 겹침 영역 (유동성 집중)</td>
+        </tr>
+        <tr>
+            <td>딜리버리 변화</td>
+            <td>CISD</td>
+            <td>추세 전환 신호 (OB와 함께 확인)</td>
+        </tr>
+        <tr>
+            <td>오더블록</td>
+            <td>OB</td>
+            <td>기관 주문 영역 (방향성 직전 반대 캔들)</td>
+        </tr>
+        <tr>
+            <td>브레이커 블록</td>
+            <td>BB</td>
+            <td>OB 실패 후 역할 전환</td>
+        </tr>
+        <tr>
+            <td>신규일 갭</td>
+            <td>NDOG</td>
+            <td>전일 종가 vs 금일 시가 (갭 채움 경향)</td>
+        </tr>
+    </table>
+    
+    <div style="margin-top: 40px; padding: 20px; background: #f8f9fa; border-radius: 10px;">
+        <h3 style="color: #1a1a2e; margin-bottom: 15px;">📌 실전 팁</h3>
+        <ul>
+            <li>FVG + OB 겹침 = 강한 진입 포인트</li>
+            <li>CISD 발생 시 추세 전환 대비</li>
+            <li>IFVG/BB = 실패한 레벨의 역할 전환 주목</li>
+            <li>NDOG = 세션 시작 시 갭 방향 체크</li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

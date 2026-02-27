@@ -1353,8 +1353,17 @@
                 </div>
             </div>
             
-            <button class="btn-login" onclick="openModal('login')">로그인</button>
-            <button class="btn-signup" onclick="openModal('signup')">회원가입</button>
+            <!-- 비로그인 -->
+            <div id="authBtns" style="display:flex;gap:6px;">
+              <button class="btn-login" onclick="openModal('login')">로그인</button>
+              <button class="btn-signup" onclick="openModal('signup')">회원가입</button>
+            </div>
+            <!-- 로그인 상태 -->
+            <div id="userBtns" style="display:none;align-items:center;gap:8px;">
+              <span id="userNickDisplay" onclick="location.href='mypage.html'" style="font-size:13px;color:var(--accent-cyan);font-weight:600;cursor:pointer;padding:4px 10px;border-radius:6px;background:rgba(0,184,217,0.08);"></span>
+              <button onclick="location.href='mypage.html'" style="font-size:12px;color:var(--text-secondary);background:var(--bg-card);border:1px solid var(--border-color);border-radius:6px;padding:6px 12px;cursor:pointer;">마이페이지</button>
+              <button onclick="doLogoutUser()" style="font-size:12px;color:var(--text-muted);background:transparent;border:none;cursor:pointer;padding:6px;">로그아웃</button>
+            </div>
             <button class="menu-btn" onclick="openLeftSidebar()">☰</button>
         </div>
     </header>
@@ -2361,18 +2370,103 @@
             }
         }
 
-        // 준비중 모달
-        function showPreparing() {
-            document.getElementById('preparingModal').style.display = 'flex';
-        }
-        function closePreparing() {
-            document.getElementById('preparingModal').style.display = 'none';
+        // ── Auth 상태 관리 ─────────────────────────────────────────────
+        let authToken = localStorage.getItem('authToken') || '';
+
+        function initAuthState() {
+            if (!authToken) return;
+            fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + authToken } })
+                .then(r => r.json()).then(d => {
+                    if (d.ok) setLoggedIn(d.nickname);
+                    else { authToken = ''; localStorage.removeItem('authToken'); }
+                }).catch(() => {});
         }
 
-        // 모달 (로그인/회원가입)
-        function openModal(type) {
-            document.getElementById('preparingModal').style.display = 'flex';
+        function setLoggedIn(nickname) {
+            document.getElementById('authBtns').style.display = 'none';
+            const ub = document.getElementById('userBtns');
+            ub.style.display = 'flex';
+            document.getElementById('userNickDisplay').textContent = nickname;
         }
+
+        function openModal(type) {
+            document.getElementById('authModal').style.display = 'flex';
+            switchAuthView(type || 'login');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        function switchAuthView(view) {
+            document.getElementById('viewLogin').style.display = view === 'login' ? 'block' : 'none';
+            document.getElementById('viewSignup').style.display = view === 'signup' ? 'block' : 'none';
+        }
+
+        async function doAuthLogin() {
+            const btn = document.getElementById('liBtn');
+            const errEl = document.getElementById('liErr');
+            const email = document.getElementById('liEmail').value.trim();
+            const pw = document.getElementById('liPw').value;
+            if (!email || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해주세요.'; return; }
+            btn.textContent = '로그인 중...'; btn.disabled = true; errEl.textContent = '';
+            try {
+                const r = await fetch('/api/auth/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email, password: pw }) });
+                const d = await r.json();
+                if (d.ok) {
+                    authToken = d.token;
+                    localStorage.setItem('authToken', d.token);
+                    setLoggedIn(d.nickname);
+                    closeAuthModal();
+                } else { errEl.textContent = d.error || '로그인 실패'; }
+            } catch(e) { errEl.textContent = '네트워크 오류가 발생했습니다.'; }
+            btn.textContent = '로그인'; btn.disabled = false;
+        }
+
+        async function doAuthSignup() {
+            const btn = document.getElementById('siBtn');
+            const errEl = document.getElementById('siErr');
+            const email = document.getElementById('siEmail').value.trim();
+            const pw = document.getElementById('siPw').value;
+            const pw2 = document.getElementById('siPw2').value;
+            const nick = document.getElementById('siNick').value.trim();
+            const ref = document.getElementById('siRef').value.trim().toUpperCase();
+            const terms = document.getElementById('siTerms').checked;
+            const privacy = document.getElementById('siPrivacy').checked;
+
+            if (!email || !pw || !nick) { errEl.textContent = '필수 항목을 모두 입력해주세요.'; return; }
+            if (pw !== pw2) { errEl.textContent = '비밀번호가 일치하지 않습니다.'; return; }
+            if (pw.length < 8) { errEl.textContent = '비밀번호는 8자 이상이어야 합니다.'; return; }
+            if (!terms || !privacy) { errEl.textContent = '약관에 동의해주세요.'; return; }
+
+            btn.textContent = '가입 중...'; btn.disabled = true; errEl.textContent = '';
+            try {
+                const r = await fetch('/api/auth/signup', { method: 'POST', headers: {'Content-Type':'application/json'},
+                    body: JSON.stringify({ email, password: pw, nickname: nick, referral_code: ref, agreed_terms: true, agreed_privacy: true }) });
+                const d = await r.json();
+                if (d.ok) {
+                    authToken = d.token;
+                    localStorage.setItem('authToken', d.token);
+                    setLoggedIn(d.nickname);
+                    closeAuthModal();
+                } else { errEl.textContent = d.error || '가입 실패'; }
+            } catch(e) { errEl.textContent = '네트워크 오류가 발생했습니다.'; }
+            btn.textContent = '가입하기'; btn.disabled = false;
+        }
+
+        function doLogoutUser() {
+            fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + authToken } }).catch(()=>{});
+            authToken = ''; localStorage.removeItem('authToken');
+            document.getElementById('authBtns').style.display = 'flex';
+            document.getElementById('userBtns').style.display = 'none';
+        }
+
+        // 모달 외부 클릭 닫기
+        document.getElementById('authModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAuthModal();
+        });
+
+        initAuthState();
         
         // ========== 실시간 데이터 ==========
         const MAIN_SYMBOLS = ['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','DOGEUSDT','BNBUSDT','AVAXUSDT','SUIUSDT','LINKUSDT','DOTUSDT'];
@@ -2838,14 +2932,64 @@
     </script>
 
     <!-- 준비중 모달 -->
-    <div id="preparingModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;">
-        <div style="background:#16161f; border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:36px 32px; max-width:380px; width:90%; text-align:center; position:relative;">
-            <span onclick="closePreparing()" style="position:absolute; top:14px; right:18px; font-size:18px; color:#6b7280; cursor:pointer;">&times;</span>
-            <div style="font-size:40px; margin-bottom:16px;">🚀</div>
-            <h3 style="font-size:18px; font-weight:700; margin-bottom:8px; color:#fff;">곧 오픈 예정입니다</h3>
-            <p style="font-size:14px; color:#9ca3af; line-height:1.7; margin-bottom:20px;">해당 기능을 준비중입니다.<br>텔레그램에서 최신 소식을 받아보세요!</p>
-            <a href="https://t.me/officialpercent" target="_blank" style="display:inline-block; padding:11px 28px; background:linear-gradient(135deg,#00d4ff,#a855f7); color:#000; font-size:14px; font-weight:700; border-radius:8px; text-decoration:none;">✈️ 텔레그램 참여하기</a>
+    <!-- ── Auth Modal ── -->
+    <div id="authModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;padding:16px;">
+      <div style="background:#16161f;border:1px solid rgba(255,255,255,0.1);border-radius:20px;width:100%;max-width:420px;overflow:hidden;position:relative;">
+        <button onclick="closeAuthModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#6b7280;font-size:22px;cursor:pointer;line-height:1;">&times;</button>
+
+        <!-- 로그인 -->
+        <div id="viewLogin" style="padding:36px 32px;">
+          <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:700;background:linear-gradient(90deg,#00b8d9,#9333ea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;">1% TRADING</div>
+          <p style="font-size:13px;color:#6b7280;margin-bottom:28px;">트레이더를 위한 수수료 환급 플랫폼</p>
+          <div style="margin-bottom:14px;">
+            <input id="liEmail" type="email" placeholder="이메일" autocomplete="email"
+              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:13px 16px;color:#fff;font-size:14px;outline:none;"
+              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'" onkeydown="if(event.key==='Enter')doAuthLogin()">
+          </div>
+          <div style="margin-bottom:8px;">
+            <input id="liPw" type="password" placeholder="비밀번호" autocomplete="current-password"
+              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:13px 16px;color:#fff;font-size:14px;outline:none;"
+              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'" onkeydown="if(event.key==='Enter')doAuthLogin()">
+          </div>
+          <div id="liErr" style="font-size:12px;color:#f87171;min-height:18px;margin-bottom:8px;"></div>
+          <button id="liBtn" onclick="doAuthLogin()"
+            style="width:100%;background:linear-gradient(135deg,#00b8d9,#9333ea);border:none;border-radius:10px;padding:14px;color:#000;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">로그인</button>
+          <p style="font-size:13px;color:#6b7280;text-align:center;">계정이 없으신가요? <span onclick="switchAuthView('signup')" style="color:#00b8d9;cursor:pointer;font-weight:600;">회원가입</span></p>
         </div>
+
+        <!-- 회원가입 -->
+        <div id="viewSignup" style="display:none;padding:32px;">
+          <h2 style="font-size:18px;font-weight:700;margin-bottom:20px;">회원가입</h2>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <input id="siEmail" type="email" placeholder="이메일 *" autocomplete="email"
+              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;outline:none;"
+              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+            <input id="siPw" type="password" placeholder="비밀번호 * (8자 이상)" autocomplete="new-password"
+              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;outline:none;"
+              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+            <input id="siPw2" type="password" placeholder="비밀번호 확인 *" autocomplete="new-password"
+              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;outline:none;"
+              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+            <input id="siNick" type="text" placeholder="닉네임 * (2자 이상)" maxlength="20"
+              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;outline:none;"
+              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+            <input id="siRef" type="text" placeholder="추천코드 (선택)" maxlength="6" style="text-transform:uppercase;width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;outline:none;"
+              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+            <label style="display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#9ca3af;cursor:pointer;line-height:1.5;">
+              <input type="checkbox" id="siTerms" style="margin-top:2px;accent-color:#00b8d9;">
+              <span><a href="terms.html" target="_blank" style="color:#00b8d9;">이용약관</a>에 동의합니다 <span style="color:#f87171;">(필수)</span></span>
+            </label>
+            <label style="display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#9ca3af;cursor:pointer;line-height:1.5;">
+              <input type="checkbox" id="siPrivacy" style="margin-top:2px;accent-color:#00b8d9;">
+              <span><a href="privacy.html" target="_blank" style="color:#00b8d9;">개인정보처리방침</a>에 동의합니다 <span style="color:#f87171;">(필수)</span></span>
+            </label>
+          </div>
+          <div id="siErr" style="font-size:12px;color:#f87171;min-height:18px;margin:10px 0 4px;"></div>
+          <button id="siBtn" onclick="doAuthSignup()"
+            style="width:100%;background:linear-gradient(135deg,#00b8d9,#9333ea);border:none;border-radius:10px;padding:14px;color:#000;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:14px;">가입하기</button>
+          <p style="font-size:13px;color:#6b7280;text-align:center;">이미 계정이 있으신가요? <span onclick="switchAuthView('login')" style="color:#00b8d9;cursor:pointer;font-weight:600;">로그인</span></p>
+        </div>
+      </div>
     </div>
 </body>
 </html>

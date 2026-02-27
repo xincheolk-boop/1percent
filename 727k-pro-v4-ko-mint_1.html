@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7.27k PRO - 프리미엄 레퍼럴 페이백 플랫폼</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #0a0a0a; --bg2: #111; --card: #1a1a1a; --sidebar: #0d0d0d;
+            --accent: #00ffd5; --text: #e8e8e8; --text2: #999; --muted: #666;
+            --border: #222; --success: #22c55e; --danger: #ef4444; --warning: #fbbf24;
+            --bitunix: #00E676; --bitget: #00F0FF; --bybit: #F7931A; --binance: #F0B90B;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans KR', 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 13px; }
+        
+        /* Ticker - 부드럽게 */
+        .ticker { background: var(--bg2); border-bottom: 1px solid var(--border); height: 32px; overflow: hidden; position: relative; }
+        .ticker-item { position: absolute; width: 100%; text-align: center; padding: 7px 0; font-size: 12px; color: var(--text2); animation: fadeSlide 4s ease-in-out infinite; opacity: 0; }
+        .ticker-item .amt { color: var(--success); font-weight: 600; }
+        @keyframes fadeSlide { 0%,100% { opacity: 0; transform: translateY(10px); } 20%,80% { opacity: 1; transform: translateY(0); } }
+        
+        /* Layout */
+        .app { display: flex; min-height: 100vh; }
+        .sidebar { width: 180px; background: var(--sidebar); border-right: 1px solid var(--border); position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
+        .sidebar-head { padding: 12px; border-bottom: 1px solid var(--border); }
+        .logo { display: flex; align-items: center; gap: 6px; cursor: pointer; text-decoration: none; }
+        .logo-icon { width: 26px; height: 26px; background: linear-gradient(135deg, var(--accent), #00e6c0); border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 6px; font-weight: 700; color: #000; }
+        .logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); }
+        .logo-text span { color: var(--accent); }
+        .nav { flex: 1; padding: 8px 0; overflow-y: auto; }
+        .nav-title { padding: 6px 12px; font-size: 9px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-item { display: flex; align-items: center; gap: 6px; padding: 8px 12px; color: var(--text2); font-size: 12px; cursor: pointer; border-left: 2px solid transparent; transition: all 0.15s; text-decoration: none; }
+        .nav-item:hover { background: var(--card); color: var(--text); }
+        .nav-item.active { background: rgba(17, 215, 239, 0.08); color: var(--accent); border-left-color: var(--accent); }
+        .nav-badge { margin-left: auto; background: var(--accent); color: #000; font-size: 8px; font-weight: 600; padding: 1px 4px; border-radius: 4px; }
+        .nav-badge.hot { background: var(--danger); color: white; }
+        
+        /* Main */
+        .main { flex: 1; margin-left: 180px; }
+        .header { height: 44px; background: var(--bg2); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 14px; position: sticky; top: 0; z-index: 50; }
+        .header-left { display: flex; align-items: center; gap: 8px; }
+        .header-right { display: flex; align-items: center; gap: 6px; }
+        .hbtn { width: 28px; height: 28px; background: var(--card); border: 1px solid var(--border); border-radius: 5px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 12px; }
+        .hbtn:hover { border-color: var(--accent); color: var(--accent); }
+        
+        /* User */
+        .user-menu { position: relative; }
+        .user-btn { display: flex; align-items: center; gap: 5px; padding: 3px 7px; background: var(--card); border: 1px solid var(--border); border-radius: 5px; cursor: pointer; }
+        .user-avatar { width: 22px; height: 22px; background: linear-gradient(135deg, var(--accent), #00e6c0); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 9px; color: #000; font-weight: 600; }
+        .user-name { font-size: 11px; }
+        .user-uid { font-size: 9px; color: var(--muted); }
+        .dropdown { position: absolute; top: 100%; right: 0; margin-top: 5px; width: 200px; background: var(--card); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); display: none; z-index: 1000; }
+        .dropdown.active { display: block; }
+        .dd-head { padding: 10px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+        .dd-avatar { width: 32px; height: 32px; background: linear-gradient(135deg, var(--accent), #00e6c0); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #000; font-weight: 600; }
+        .dd-info h4 { font-size: 12px; }
+        .dd-info p { font-size: 10px; color: var(--muted); }
+        .dd-bal { padding: 8px 10px; background: rgba(17, 215, 239, 0.08); border-bottom: 1px solid var(--border); }
+        .dd-bal-label { font-size: 9px; color: var(--muted); }
+        .dd-bal-val { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; color: var(--accent); }
+        .dd-item { display: flex; align-items: center; gap: 6px; padding: 8px 10px; color: var(--text2); font-size: 11px; cursor: pointer; }
+        .dd-item:hover { background: var(--bg2); color: var(--text); }
+        .dd-item.danger { color: var(--danger); }
+        .dd-div { height: 1px; background: var(--border); margin: 3px 0; }
+        
+        /* Content */
+        .content { flex: 1; padding: 14px; padding-bottom: 60px; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .page-head { margin-bottom: 14px; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 3px; }
+        .page-sub { color: var(--text2); font-size: 11px; }
+        
+        /* Cards */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+        .card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .card-title { font-size: 12px; font-weight: 600; }
+        
+        /* Stats */
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+        .stat { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px; }
+        .stat-label { font-size: 9px; color: var(--muted); margin-bottom: 3px; }
+        .stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; }
+        .stat-val.accent { color: var(--accent); }
+        
+        /* Buttons */
+        .btn { padding: 7px 14px; border-radius: 5px; font-weight: 600; font-size: 11px; cursor: pointer; border: none; font-family: inherit; display: inline-flex; align-items: center; gap: 4px; transition: all 0.15s; }
+        .btn-primary { background: linear-gradient(135deg, var(--accent), #00e6c0); color: #000; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 3px 12px rgba(17, 215, 239, 0.25); }
+        .btn-secondary { background: var(--bg2); border: 1px solid var(--border); color: var(--text); }
+        .btn-bitunix { background: var(--bitunix); color: #000; }
+        .btn-bitget { background: var(--bitget); color: #000; }
+        
+        /* Exchange Table */
+        .ex-table { width: 100%; border-collapse: collapse; }
+        .ex-table th { text-align: left; padding: 8px; font-size: 10px; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); }
+        .ex-table td { padding: 10px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+        .ex-table tr:hover { background: var(--bg2); }
+        .ex-row { display: flex; align-items: center; gap: 8px; }
+        .ex-logo { width: 28px; height: 28px; border-radius: 6px; }
+        .ex-logo img { width: 100%; height: 100%; object-fit: contain; }
+        .ex-name { font-weight: 600; font-size: 12px; }
+        .ex-name.bitunix { color: var(--bitunix); }
+        .ex-name.bitget { color: var(--bitget); }
+        .ex-tag { font-size: 9px; color: var(--muted); }
+        .ex-badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; background: rgba(17, 215, 239, 0.1); border: 1px solid rgba(17, 215, 239, 0.3); }
+        .ex-badge.bitunix { color: var(--bitunix); background: rgba(0, 230, 118, 0.1); border-color: rgba(0, 230, 118, 0.3); }
+        .ex-badge.bitget { color: var(--bitget); background: rgba(0, 240, 255, 0.1); border-color: rgba(0, 240, 255, 0.3); }
+        
+        /* PnL */
+        .pnl-box { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+        .pnl-label { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+        .pnl-val { font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; }
+        .pnl-val.positive { color: var(--success); }
+        .pnl-val.negative { color: var(--danger); }
+        .pnl-details { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 14px; }
+        .pnl-detail { text-align: center; }
+        .pnl-detail-label { font-size: 9px; color: var(--muted); margin-bottom: 2px; }
+        .pnl-detail-val { font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; }
+        
+        /* Ranking */
+        .rank-top { display: flex; justify-content: center; gap: 12px; margin-bottom: 14px; }
+        .rank-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px; text-align: center; min-width: 100px; }
+        .rank-card.gold { border-color: #FFD700; background: rgba(255, 215, 0, 0.03); }
+        .rank-badge { font-size: 22px; margin-bottom: 4px; }
+        .rank-label { font-size: 9px; color: var(--muted); }
+        .rank-pct { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
+        .rank-pct.gold { color: #FFD700; }
+        .rank-pct.silver { color: #C0C0C0; }
+        .rank-pct.bronze { color: #CD7F32; }
+        .rank-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .rank-item { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 10px; text-align: center; }
+        .rank-item-label { font-size: 9px; color: var(--muted); }
+        .rank-item-val { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; }
+        .rank-item-sub { font-size: 8px; color: var(--muted); }
+        
+        /* Journal */
+        .j-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 3px; }
+        .form-group.full { grid-column: span 4; }
+        .form-label { font-size: 10px; color: var(--text2); }
+        .form-input, .form-select { padding: 7px 8px; background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; color: var(--text); font-size: 11px; font-family: inherit; }
+        .form-input:focus { outline: none; border-color: var(--accent); }
+        .j-result { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; background: rgba(17, 215, 239, 0.03); border-radius: 6px; margin-bottom: 12px; }
+        .result-item { text-align: center; }
+        .result-label { font-size: 9px; color: var(--muted); }
+        .result-val { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; }
+        .result-val.positive { color: var(--success); }
+        .result-val.negative { color: var(--danger); }
+        .j-item { display: grid; grid-template-columns: 65px 45px 40px 1fr 65px 40px; align-items: center; padding: 8px; background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; margin-bottom: 5px; gap: 6px; font-size: 10px; }
+        .pos-badge { padding: 2px 5px; border-radius: 3px; font-size: 8px; font-weight: 600; }
+        .pos-badge.long { background: rgba(34, 197, 94, 0.12); color: var(--success); }
+        .pos-badge.short { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+        
+        /* Bottom */
+        .bottom { position: fixed; bottom: 0; left: 180px; right: 0; height: 50px; background: var(--bg2); border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; z-index: 50; }
+        .bottom-text { font-size: 12px; }
+        .bottom-text strong { color: var(--accent); }
+        
+        /* Telegram */
+        .tg-float { position: fixed; bottom: 62px; right: 14px; width: 40px; height: 40px; background: #0088cc; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; cursor: pointer; box-shadow: 0 3px 12px rgba(0, 136, 204, 0.35); z-index: 40; text-decoration: none; }
+        
+        /* Modal */
+        .modal-bg { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(3px); display: none; align-items: center; justify-content: center; z-index: 2000; }
+        .modal-bg.active { display: flex; }
+        .modal { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 18px; max-width: 340px; width: 90%; }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+        .modal-title { font-size: 15px; font-weight: 700; }
+        .modal-close { width: 26px; height: 26px; background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); font-size: 14px; }
+        .btn-social { width: 100%; padding: 9px; justify-content: center; margin-bottom: 7px; background: var(--bg2); border: 1px solid var(--border); color: var(--text); }
+        .btn-google { background: #fff; color: #333; }
+        .btn-apple { background: #000; color: #fff; }
+        .auth-div { display: flex; align-items: center; gap: 8px; margin: 10px 0; color: var(--muted); font-size: 10px; }
+        .auth-div::before, .auth-div::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .checkbox { display: flex; align-items: center; gap: 5px; margin: 8px 0; }
+        .checkbox input { accent-color: var(--accent); }
+        .checkbox label { font-size: 11px; color: var(--text2); }
+        .auth-foot { text-align: center; margin-top: 10px; font-size: 11px; color: var(--text2); }
+        .auth-foot a { color: var(--accent); text-decoration: none; }
+        
+        /* Lang */
+        .lang-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+        .lang-opt { display: flex; align-items: center; gap: 5px; padding: 7px; background: var(--bg2); border: 1px solid var(--border); border-radius: 5px; cursor: pointer; font-size: 11px; }
+        .lang-opt:hover, .lang-opt.active { border-color: var(--accent); }
+        .lang-flag { font-size: 13px; }
+        
+        /* Toast */
+        .toast { position: fixed; bottom: 62px; right: 14px; padding: 8px 14px; background: var(--card); border: 1px solid var(--border); border-radius: 6px; display: flex; align-items: center; gap: 6px; transform: translateY(80px); opacity: 0; transition: all 0.25s; z-index: 3000; font-size: 11px; }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { border-color: var(--success); }
+        .toast.error { border-color: var(--danger); }
+        
+        /* Info Box */
+        .info-box { background: rgba(17, 215, 239, 0.05); border: 1px solid rgba(17, 215, 239, 0.2); border-radius: 8px; padding: 12px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+        .info-icon { font-size: 20px; }
+        .info-content h4 { font-size: 13px; margin-bottom: 2px; }
+        .info-content p { font-size: 11px; color: var(--text2); }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main { margin-left: 0; }
+            .bottom { left: 0; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .pnl-details { grid-template-columns: repeat(3, 1fr); }
+            .rank-grid { grid-template-columns: repeat(2, 1fr); }
+            .j-form { grid-template-columns: repeat(2, 1fr); }
+            .j-form .form-group.full { grid-column: span 2; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ticker -->
+    <div class="ticker" id="ticker-wrap"></div>
+
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-head">
+                <a class="logo" href="#" onclick="go('home');return false;">
+                    <div class="logo-icon">7.27k</div>
+                    <div class="logo-text">7.27k <span>PRO</span></div>
+                </a>
+            </div>
+            <nav class="nav">
+                <div class="nav-title">메뉴</div>
+                <div class="nav-item active" onclick="go('home')">🏠 홈</div>
+                <div class="nav-item" onclick="go('guide')">📖 이용가이드 <span class="nav-badge">필독</span></div>
+                <div class="nav-item" onclick="go('exchanges')">🏦 거래소</div>
+                <div class="nav-item" onclick="go('about')">ℹ️ 서비스소개</div>
+                <div class="nav-title">내 계정</div>
+                <div class="nav-item" onclick="go('dashboard')">📊 대시보드</div>
+                <div class="nav-item" onclick="go('journal')">📝 매매일지</div>
+                <div class="nav-item" onclick="go('referral')">👥 친구초대 <span class="nav-badge hot">+수익</span></div>
+                <div class="nav-title">커뮤니티</div>
+                <div class="nav-item" onclick="go('community')">💬 라운지 <span class="nav-badge">준비중</span></div>
+                <div class="nav-title">지원</div>
+                <a class="nav-item" href="https://t.me/your_telegram" target="_blank">✈️ 텔레그램</a>
+                <div class="nav-item" onclick="go('faq')">❓ 자주묻는질문</div>
+            </nav>
+        </aside>
+
+        <!-- Main -->
+        <main class="main">
+            <header class="header">
+                <div class="header-left">
+                    <button class="hbtn" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+                    <div style="display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:5px;padding:5px 10px;">
+                        <span style="color:var(--muted)">🔍</span>
+                        <input type="text" placeholder="검색..." style="background:transparent;border:none;outline:none;color:var(--text);font-size:11px;width:120px;">
+                    </div>
+                </div>
+                <div class="header-right">
+                    <button class="hbtn" onclick="document.documentElement.requestFullscreen()">⛶</button>
+                    <button class="hbtn" id="theme-btn">🌙</button>
+                    <button class="hbtn" onclick="openLang()">🌐</button>
+                    <div class="user-menu">
+                        <div class="user-btn" onclick="toggleDD()">
+                            <div class="user-avatar" id="u-avatar">?</div>
+                            <div>
+                                <div class="user-name" id="u-name">로그인</div>
+                                <div class="user-uid" id="u-uid">UID: -</div>
+                            </div>
+                        </div>
+                        <div class="dropdown" id="dropdown">
+                            <div class="dd-head">
+                                <div class="dd-avatar" id="dd-avatar">?</div>
+                                <div class="dd-info"><h4 id="dd-name">Guest</h4><p id="dd-uid">로그인해주세요</p></div>
+                            </div>
+                            <div class="dd-bal">
+                                <div class="dd-bal-label">리워드 잔액</div>
+                                <div class="dd-bal-val" id="dd-bal">0.00 USDT</div>
+                            </div>
+                            <div id="menu-out">
+                                <div class="dd-item" onclick="openAuth('login')">🔑 로그인</div>
+                                <div class="dd-item" onclick="openAuth('register')">📝 회원가입</div>
+                            </div>
+                            <div id="menu-in" style="display:none">
+                                <div class="dd-item" onclick="go('mypage')">👤 내정보</div>
+                                <div class="dd-item" onclick="go('dashboard')">📊 대시보드</div>
+                                <div class="dd-item" onclick="go('referral')">👥 친구초대</div>
+                                <div class="dd-div"></div>
+                                <div class="dd-item danger" onclick="logout()">🚪 로그아웃</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="content">
+                <!-- Home -->
+                <div class="page active" id="p-home">
+                    <div class="page-head">
+                        <h1 class="page-title">안녕하세요! 👋</h1>
+                        <p class="page-sub">거래 수수료의 최대 75%를 돌려받으세요</p>
+                    </div>
+                    
+                    <div class="info-box">
+                        <div class="info-icon">💡</div>
+                        <div class="info-content">
+                            <h4>처음이신가요? 이용 가이드를 확인하세요</h4>
+                            <p>페이백 받는 방법을 자세히 알려드립니다</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="go('guide')">가이드 보기</button>
+                    </div>
+                    
+                    <div class="stats">
+                        <div class="stat"><div class="stat-label">활성 유저</div><div class="stat-val">12,450+</div></div>
+                        <div class="stat"><div class="stat-label">총 거래량</div><div class="stat-val">$52.4M</div></div>
+                        <div class="stat"><div class="stat-label">총 페이백</div><div class="stat-val accent">$2.8M</div></div>
+                        <div class="stat"><div class="stat-label">평균 페이백률</div><div class="stat-val">50%</div></div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-head"><h3 class="card-title">제휴 거래소</h3><button class="btn btn-secondary" onclick="go('exchanges')">전체보기</button></div>
+                        <table class="ex-table">
+                            <thead><tr><th>거래소</th><th>페이백</th><th>수수료 할인</th><th></th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td><div class="ex-row"><div class="ex-logo"><img src="https://static.bitunix.com/web/bitunix-assets/portal/bitunix-dark-logo.BhRiIshn.svg" alt="Bitunix"></div><div><div class="ex-name bitunix">Bitunix</div><div class="ex-tag">추천</div></div></div></td>
+                                    <td><span class="ex-badge bitunix">75%</span></td>
+                                    <td><span class="ex-badge bitunix">20%</span></td>
+                                    <td><button class="btn btn-bitunix" onclick="go('exchanges')">가입하기</button></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="ex-row"><div class="ex-logo" style="background:rgba(0,240,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;color:var(--bitget);">BG</div><div><div class="ex-name bitget">Bitget</div><div class="ex-tag">인기</div></div></div></td>
+                                    <td><span class="ex-badge bitget">50%</span></td>
+                                    <td><span class="ex-badge bitget">50%</span></td>
+                                    <td><button class="btn btn-bitget" onclick="go('exchanges')">가입하기</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Exchanges -->
+                <div class="page" id="p-exchanges">
+                    <div class="page-head"><h1 class="page-title">🏦 거래소</h1><p class="page-sub">제휴 거래소에서 거래하고 페이백을 받으세요</p></div>
+                    <div class="card">
+                        <table class="ex-table">
+                            <thead><tr><th>거래소</th><th>페이백</th><th>수수료 할인</th><th></th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td><div class="ex-row"><div class="ex-logo"><img src="https://static.bitunix.com/web/bitunix-assets/portal/bitunix-dark-logo.BhRiIshn.svg" alt="Bitunix"></div><div><div class="ex-name bitunix">Bitunix</div><div class="ex-tag">추천 🔥</div></div></div></td>
+                                    <td><span class="ex-badge bitunix">75%</span></td>
+                                    <td><span class="ex-badge bitunix">20%</span></td>
+                                    <td><button class="btn btn-bitunix">상세보기</button></td>
+                                </tr>
+                                <tr>
+                                    <td><div class="ex-row"><div class="ex-logo" style="background:rgba(0,240,255,0.1);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;color:var(--bitget);">BG</div><div><div class="ex-name bitget">Bitget</div><div class="ex-tag">인기</div></div></div></td>
+                                    <td><span class="ex-badge bitget">50%</span></td>
+                                    <td><span class="ex-badge bitget">50%</span></td>
+                                    <td><button class="btn btn-bitget">상세보기</button></td>
+                                </tr>
+                                <tr style="opacity:0.5">
+                                    <td><div class="ex-row"><div class="ex-logo" style="background:rgba(247,147,26,0.1);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;color:var(--bybit);">BB</div><div><div class="ex-name" style="color:var(--bybit)">Bybit</div><div class="ex-tag">준비중</div></div></div></td>
+                                    <td><span class="ex-badge" style="color:var(--bybit);background:rgba(247,147,26,0.1);border-color:rgba(247,147,26,0.3)">35%</span></td>
+                                    <td><span class="ex-badge" style="color:var(--bybit);background:rgba(247,147,26,0.1);border-color:rgba(247,147,26,0.3)">20%</span></td>
+                                    <td><button class="btn btn-secondary" disabled>준비중</button></td>
+                                </tr>
+                                <tr style="opacity:0.5">
+                                    <td><div class="ex-row"><div class="ex-logo" style="background:rgba(240,185,11,0.1);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:10px;color:var(--binance);">BN</div><div><div class="ex-name" style="color:var(--binance)">Binance</div><div class="ex-tag">준비중</div></div></div></td>
+                                    <td><span class="ex-badge" style="color:var(--binance);background:rgba(240,185,11,0.1);border-color:rgba(240,185,11,0.3)">20%</span></td>
+                                    <td><span class="ex-badge" style="color:var(--binance);background:rgba(240,185,11,0.1);border-color:rgba(240,185,11,0.3)">20%</span></td>
+                                    <td><button class="btn btn-secondary" disabled>준비중</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Dashboard -->
+                <div class="page" id="p-dashboard">
+                    <div class="page-head"><h1 class="page-title">📊 대시보드</h1><p class="page-sub">내 거래 현황을 확인하세요</p></div>
+                    <div class="pnl-box">
+                        <div class="pnl-label">Total realized PnL</div>
+                        <div class="pnl-val positive">+$2,989.82</div>
+                        <div class="pnl-details">
+                            <div class="pnl-detail"><div class="pnl-detail-label">Win rate</div><div class="pnl-detail-val" style="color:var(--success)">32.09%</div></div>
+                            <div class="pnl-detail"><div class="pnl-detail-label">Max profit</div><div class="pnl-detail-val" style="color:var(--success)">+$180.86</div></div>
+                            <div class="pnl-detail"><div class="pnl-detail-label">Max loss</div><div class="pnl-detail-val" style="color:var(--danger)">-$771.96</div></div>
+                            <div class="pnl-detail"><div class="pnl-detail-label">Trades</div><div class="pnl-detail-val"><span style="color:var(--success)">26</span> / <span style="color:var(--danger)">55</span></div></div>
+                            <div class="pnl-detail"><div class="pnl-detail-label">Long/Short</div><div class="pnl-detail-val">17 : 64</div></div>
+                            <div class="pnl-detail"><div class="pnl-detail-label">Fees</div><div class="pnl-detail-val" style="color:var(--danger)">-$275.35</div></div>
+                        </div>
+                    </div>
+                    <div class="card"><div class="card-title" style="margin-bottom:10px">Daily realized PnL</div><canvas id="pnlChart" height="160"></canvas></div>
+                </div>
+
+                <!-- Journal -->
+                <div class="page" id="p-journal">
+                    <div class="page-head"><h1 class="page-title">📝 매매일지</h1><p class="page-sub">매매 기록을 저장하고 분석하세요</p></div>
+                    <div class="card">
+                        <h3 class="card-title" style="margin-bottom:10px">새 매매 기록</h3>
+                        <div class="j-form">
+                            <div class="form-group"><label class="form-label">날짜</label><input type="date" class="form-input" id="j-date"></div>
+                            <div class="form-group"><label class="form-label">코인</label><select class="form-select" id="j-coin"><option>BTC</option><option>ETH</option><option>SOL</option><option>XRP</option></select></div>
+                            <div class="form-group"><label class="form-label">포지션</label><select class="form-select" id="j-pos"><option value="long">롱</option><option value="short">숏</option></select></div>
+                            <div class="form-group"><label class="form-label">레버리지</label><input type="number" class="form-input" id="j-lev" value="20"></div>
+                            <div class="form-group"><label class="form-label">진입가</label><input type="number" class="form-input" id="j-entry" oninput="calcPnL()"></div>
+                            <div class="form-group"><label class="form-label">청산가</label><input type="number" class="form-input" id="j-exit" oninput="calcPnL()"></div>
+                            <div class="form-group"><label class="form-label">수량(USDT)</label><input type="number" class="form-input" id="j-size" oninput="calcPnL()"></div>
+                            <div class="form-group"><label class="form-label">수수료%</label><input type="number" class="form-input" id="j-fee" value="0.06" oninput="calcPnL()"></div>
+                            <div class="form-group full"><label class="form-label">메모</label><input type="text" class="form-input" id="j-memo"></div>
+                        </div>
+                        <div class="j-result">
+                            <div class="result-item"><div class="result-label">PnL</div><div class="result-val" id="r-pnl">$0.00</div></div>
+                            <div class="result-item"><div class="result-label">ROI</div><div class="result-val" id="r-roi">0.00%</div></div>
+                            <div class="result-item"><div class="result-label">순수익</div><div class="result-val" id="r-net">$0.00</div></div>
+                        </div>
+                        <button class="btn btn-primary" onclick="saveJ()" style="width:100%">💾 저장하기</button>
+                    </div>
+                    <div class="card"><div class="card-head"><h3 class="card-title">매매 기록</h3><span style="color:var(--muted);font-size:10px" id="j-cnt">0건</span></div><div id="j-list"><p style="color:var(--muted);text-align:center;padding:16px 0;font-size:11px">저장된 매매 기록이 없습니다</p></div></div>
+                </div>
+
+                <!-- Referral -->
+                <div class="page" id="p-referral">
+                    <div class="page-head"><h1 class="page-title">👥 친구 초대</h1><p class="page-sub">친구를 초대하고 추가 수익을 받으세요</p></div>
+                    <div class="card" style="text-align:center">
+                        <h3 style="margin-bottom:4px">친구의 페이백에 비례한 추가 수익</h3>
+                        <p style="color:var(--text2);font-size:11px;margin-bottom:14px">친구가 받는 페이백의 일부를 보너스로 받으세요!</p>
+                        <div class="rank-top">
+                            <div class="rank-card"><div class="rank-badge">🥈</div><div class="rank-label">TOP 2</div><div class="rank-pct silver">12%</div></div>
+                            <div class="rank-card gold"><div class="rank-badge">🏆</div><div class="rank-label">TOP 1</div><div class="rank-pct gold">15%</div></div>
+                            <div class="rank-card"><div class="rank-badge">🥉</div><div class="rank-label">TOP 3</div><div class="rank-pct bronze">8%</div></div>
+                        </div>
+                        <div class="rank-grid">
+                            <div class="rank-item"><div class="rank-item-label">TOP 4</div><div class="rank-item-val">7%</div></div>
+                            <div class="rank-item"><div class="rank-item-label">TOP 5</div><div class="rank-item-val">5%</div></div>
+                            <div class="rank-item"><div class="rank-item-label">TOP 6</div><div class="rank-item-val">4%</div></div>
+                            <div class="rank-item"><div class="rank-item-label">TOP 7</div><div class="rank-item-val">3%</div></div>
+                            <div class="rank-item"><div class="rank-item-label">TOP 8</div><div class="rank-item-val">2.5%</div></div>
+                            <div class="rank-item"><div class="rank-item-label">TOP 9</div><div class="rank-item-val">2%</div></div>
+                            <div class="rank-item"><div class="rank-item-label">TOP 10</div><div class="rank-item-val">1.5%</div></div>
+                            <div class="rank-item"><div class="rank-item-label">11-20위</div><div class="rank-item-val">10%</div><div class="rank-item-sub">공동</div></div>
+                            <div class="rank-item"><div class="rank-item-label">21-50위</div><div class="rank-item-val">10%</div><div class="rank-item-sub">공동</div></div>
+                            <div class="rank-item"><div class="rank-item-label">51위+</div><div class="rank-item-val">10%</div><div class="rank-item-sub">공동</div></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3 class="card-title" style="margin-bottom:8px">내 초대 링크</h3>
+                        <div style="display:flex;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:6px 8px">
+                            <input type="text" id="ref-link" readonly value="https://727kpro.com/ref/GUEST" style="flex:1;background:transparent;border:none;color:var(--text);font-size:11px;outline:none">
+                            <button class="btn btn-primary" onclick="copyRef()">복사</button>
+                        </div>
+                        <div class="stats" style="grid-template-columns:repeat(3,1fr);margin-top:12px">
+                            <div class="stat" style="text-align:center"><div class="stat-label">초대한 친구</div><div class="stat-val">0명</div></div>
+                            <div class="stat" style="text-align:center"><div class="stat-label">친구 거래량</div><div class="stat-val">$0</div></div>
+                            <div class="stat" style="text-align:center"><div class="stat-label">추가 수익</div><div class="stat-val accent">$0</div></div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="width:100%;padding:12px;font-size:13px" onclick="copyRef()">친구 초대하고 추가 수익 받기</button>
+                </div>
+
+                <!-- Community -->
+                <div class="page" id="p-community">
+                    <div class="page-head"><h1 class="page-title">💬 라운지</h1><p class="page-sub">트레이더들과 소통하세요</p></div>
+                    <div class="card" style="text-align:center;padding:30px">
+                        <div style="font-size:40px;margin-bottom:10px">🚧</div>
+                        <h3 style="margin-bottom:6px">준비 중입니다</h3>
+                        <p style="color:var(--text2);font-size:12px">커뮤니티 기능이 곧 출시됩니다!</p>
+                    </div>
+                </div>
+
+                <!-- Guide -->
+                <div class="page" id="p-guide">
+                    <div class="page-head"><h1 class="page-title">📖 이용 가이드</h1><p class="page-sub">페이백 받는 방법을 알려드립니다</p></div>
+                    <div class="card">
+                        <h3 class="card-title" style="margin-bottom:12px">🚀 3단계로 시작하기</h3>
+                        <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+                            <div class="stat" style="text-align:center"><div style="font-size:28px;margin-bottom:6px">1️⃣</div><h4 style="font-size:12px;margin-bottom:3px">회원가입</h4><p style="color:var(--text2);font-size:10px">7.27k PRO에 가입</p></div>
+                            <div class="stat" style="text-align:center"><div style="font-size:28px;margin-bottom:6px">2️⃣</div><h4 style="font-size:12px;margin-bottom:3px">거래소 연동</h4><p style="color:var(--text2);font-size:10px">전용 링크로 가입 후 UID 등록</p></div>
+                            <div class="stat" style="text-align:center"><div style="font-size:28px;margin-bottom:6px">3️⃣</div><h4 style="font-size:12px;margin-bottom:3px">페이백 수령</h4><p style="color:var(--text2);font-size:10px">거래할 때마다 자동 적립</p></div>
+                        </div>
+                    </div>
+                    <div style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:6px;padding:10px;margin-top:10px">
+                        <h4 style="color:var(--warning);font-size:11px;margin-bottom:4px">⚠️ 주의사항</h4>
+                        <p style="font-size:10px;color:var(--text2);line-height:1.5">• 반드시 7.27k PRO 전용 링크로 거래소에 가입해야 합니다<br>• 이미 계정이 있는 경우 새 이메일로 가입해주세요<br>• 전용 링크를 통해 가입 또는 UID를 입력하셔야만 혜택이 적용됩니다</p>
+                    </div>
+                </div>
+
+                <!-- FAQ -->
+                <div class="page" id="p-faq">
+                    <div class="page-head"><h1 class="page-title">❓ 자주 묻는 질문</h1></div>
+                    <div class="card">
+                        <h4 style="font-size:12px;margin-bottom:5px">Q. 페이백은 어떻게 받나요?</h4>
+                        <p style="color:var(--text2);margin-bottom:12px;font-size:11px">A. 7.27k PRO 전용 링크로 거래소에 가입하고 UID를 등록하면 자동으로 적립됩니다.</p>
+                        <h4 style="font-size:12px;margin-bottom:5px">Q. 페이백 정산은 언제 되나요?</h4>
+                        <p style="color:var(--text2);margin-bottom:12px;font-size:11px">A. 거래소별로 정산 주기가 다릅니다. 거래소 상세 페이지를 확인해주세요.</p>
+                        <h4 style="font-size:12px;margin-bottom:5px">Q. 이미 거래소 계정이 있는데 어떻게 하나요?</h4>
+                        <p style="color:var(--text2);font-size:11px">A. 새로운 이메일로 7.27k PRO 전용 링크를 통해 가입해주세요.</p>
+                    </div>
+                </div>
+
+                <!-- About -->
+                <div class="page" id="p-about">
+                    <div class="page-head"><h1 class="page-title">ℹ️ 서비스 소개</h1></div>
+                    <div class="card" style="text-align:center;padding:20px">
+                        <div style="display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+                            <div style="padding:10px 16px;background:var(--bg2);border-radius:6px;border:1px dashed var(--accent)"><div style="font-size:9px;color:var(--muted)">압도적인 규모의</div><div style="font-size:13px;font-weight:700">서비스</div></div>
+                            <span style="font-size:16px">+</span>
+                            <div style="padding:10px 16px;background:var(--bg2);border-radius:6px;border:1px dashed var(--accent)"><div style="font-size:9px;color:var(--muted)">주요 거래소와</div><div style="font-size:13px;font-weight:700">공식 파트너십</div></div>
+                            <span style="font-size:16px">=</span>
+                            <div style="padding:10px 16px;background:var(--accent);border-radius:6px;color:#000"><div style="font-size:9px">최고의</div><div style="font-size:13px;font-weight:700">페이백율 제공</div></div>
+                        </div>
+                        <h3 style="color:var(--accent);font-size:14px;margin-bottom:5px">24시간 자동 출금 지원</h3>
+                        <p style="color:var(--text2);font-size:11px">거래소와 직접 연결된 API로 즉시 페이백 처리</p>
+                    </div>
+                </div>
+
+                <!-- My Page -->
+                <div class="page" id="p-mypage">
+                    <div class="page-head"><h1 class="page-title">👤 내 정보</h1></div>
+                    <div class="card">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+                            <div class="dd-avatar" style="width:48px;height:48px;font-size:18px" id="mp-avatar">?</div>
+                            <div><h2 style="font-size:16px" id="mp-name">Guest</h2><p style="color:var(--muted);font-size:11px" id="mp-email">-</p></div>
+                        </div>
+                        <div class="stats" style="grid-template-columns:repeat(2,1fr)">
+                            <div class="stat"><div class="stat-label">UID</div><div class="stat-val" style="font-size:13px" id="mp-uid">-</div></div>
+                            <div class="stat"><div class="stat-label">리워드 잔액</div><div class="stat-val accent" style="font-size:13px" id="mp-bal">0.00 USDT</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom">
+                <div class="bottom-text">지금 페이백 받아볼까요? <strong>최대 75%</strong> 돌려받기</div>
+                <button class="btn btn-primary" onclick="go('exchanges')">바로 시작하기</button>
+            </div>
+        </main>
+    </div>
+
+    <a class="tg-float" href="https://t.me/your_telegram" target="_blank">✈️</a>
+
+    <!-- Auth Modal -->
+    <div class="modal-bg" id="auth-modal">
+        <div class="modal">
+            <div class="modal-head"><h3 class="modal-title" id="auth-title">로그인</h3><button class="modal-close" onclick="closeAuth()">×</button></div>
+            <button class="btn btn-social btn-google" onclick="social('google')"><svg width="14" height="14" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> Google로 계속하기</button>
+            <button class="btn btn-social btn-apple" onclick="social('apple')"> Apple로 계속하기</button>
+            <div class="auth-div">또는</div>
+            <form onsubmit="handleAuth(event)">
+                <div class="form-group" id="name-g" style="display:none"><label class="form-label">이름</label><input type="text" class="form-input" id="a-name"></div>
+                <div class="form-group"><label class="form-label">이메일</label><input type="email" class="form-input" id="a-email" required></div>
+                <div class="form-group"><label class="form-label">비밀번호</label><input type="password" class="form-input" id="a-pw" required></div>
+                <div class="checkbox" id="terms-g" style="display:none"><input type="checkbox" id="a-terms"><label for="a-terms">이용약관에 동의합니다</label></div>
+                <div class="checkbox"><input type="checkbox" id="a-rem" checked><label for="a-rem">자동 로그인</label></div>
+                <button type="submit" class="btn btn-primary" style="width:100%" id="a-btn">로그인</button>
+            </form>
+            <div class="auth-foot" id="a-foot">계정이 없으신가요? <a href="#" onclick="switchAuth(event)">회원가입</a></div>
+        </div>
+    </div>
+
+    <!-- Lang Modal -->
+    <div class="modal-bg" id="lang-modal">
+        <div class="modal">
+            <div class="modal-head"><h3 class="modal-title">언어 선택</h3><button class="modal-close" onclick="closeLang()">×</button></div>
+            <div class="lang-grid">
+                <div class="lang-opt active" onclick="setLang('ko')"><span class="lang-flag">🇰🇷</span>한국어</div>
+                <div class="lang-opt" onclick="setLang('en')"><span class="lang-flag">🇺🇸</span>English</div>
+                <div class="lang-opt" onclick="setLang('ja')"><span class="lang-flag">🇯🇵</span>日本語</div>
+                <div class="lang-opt" onclick="setLang('zh')"><span class="lang-flag">🇨🇳</span>中文</div>
+                <div class="lang-opt" onclick="setLang('vi')"><span class="lang-flag">🇻🇳</span>Tiếng Việt</div>
+                <div class="lang-opt" onclick="setLang('th')"><span class="lang-flag">🇹🇭</span>ไทย</div>
+                <div class="lang-opt" onclick="setLang('es')"><span class="lang-flag">🇪🇸</span>Español</div>
+                <div class="lang-opt" onclick="setLang('pt')"><span class="lang-flag">🇧🇷</span>Português</div>
+                <div class="lang-opt" onclick="setLang('ru')"><span class="lang-flag">🇷🇺</span>Русский</div>
+                <div class="lang-opt" onclick="setLang('ar')"><span class="lang-flag">🇸🇦</span>العربية</div>
+                <div class="lang-opt" onclick="setLang('id')"><span class="lang-flag">🇮🇩</span>Indonesia</div>
+                <div class="lang-opt" onclick="setLang('tr')"><span class="lang-flag">🇹🇷</span>Türkçe</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"><span id="t-icon">✓</span><span id="t-msg">OK</span></div>
+
+    <script>
+        let isLogin=true,loggedIn=false,user=null,journal=[];
+        const tickers=[
+            {u:'tra*****',a:500,t:'방금'},
+            {u:'kim*****',a:1234.5,t:'2분전'},
+            {u:'btc*****',a:233.45,t:'5분전'},
+            {u:'eth*****',a:2000,t:'12분전'},
+            {u:'sol*****',a:633.2,t:'25분전'},
+            {u:'dbc*****',a:58.64,t:'4시간전'}
+        ];
+        let tickerIdx=0;
+        
+        document.addEventListener('DOMContentLoaded',()=>{
+            // Ticker - 한 줄씩 부드럽게
+            const tw=document.getElementById('ticker-wrap');
+            function showTicker(){
+                const t=tickers[tickerIdx];
+                tw.innerHTML=`<div class="ticker-item" style="animation-delay:0s">[${t.t}] ${t.u} 님이 <span class="amt">$${t.a.toFixed(2)} USDT</span> 출금</div>`;
+                tickerIdx=(tickerIdx+1)%tickers.length;
+            }
+            showTicker();
+            setInterval(showTicker,4000);
+            
+            // Chart
+            const ctx=document.getElementById('pnlChart');
+            if(ctx)new Chart(ctx,{type:'bar',data:{labels:['1','2','3','4','5','6','7','8','9','10','11','12'],datasets:[{data:[-150,-200,-180,-350,120,-80,-100,450,280,-200,-150,0],backgroundColor:c=>c.raw>=0?'#22c55e':'#ef4444'}]},options:{plugins:{legend:{display:false}},scales:{y:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#666',font:{size:10}}},x:{grid:{display:false},ticks:{color:'#666',font:{size:10}}}}}});
+            
+            const s=localStorage.getItem('user');if(s){user=JSON.parse(s);loggedIn=true;updateUI();}
+            const j=localStorage.getItem('journal');if(j){journal=JSON.parse(j);renderJ();}
+            document.getElementById('j-date').valueAsDate=new Date();
+        });
+        
+        function go(p){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));document.getElementById('p-'+p)?.classList.add('active');closeDD();window.scrollTo(0,0);}
+        function toggleDD(){document.getElementById('dropdown').classList.toggle('active');}
+        function closeDD(){document.getElementById('dropdown').classList.remove('active');}
+        document.addEventListener('click',e=>{if(!e.target.closest('.user-menu'))closeDD();});
+        
+        function openAuth(m){isLogin=m==='login';updateAuthUI();document.getElementById('auth-modal').classList.add('active');closeDD();}
+        function closeAuth(){document.getElementById('auth-modal').classList.remove('active');}
+        function updateAuthUI(){
+            document.getElementById('auth-title').textContent=isLogin?'로그인':'회원가입';
+            document.getElementById('name-g').style.display=isLogin?'none':'block';
+            document.getElementById('terms-g').style.display=isLogin?'none':'block';
+            document.getElementById('a-btn').textContent=isLogin?'로그인':'회원가입';
+            document.getElementById('a-foot').innerHTML=isLogin?"계정이 없으신가요? <a href='#' onclick='switchAuth(event)'>회원가입</a>":"이미 계정이 있으신가요? <a href='#' onclick='switchAuth(event)'>로그인</a>";
+        }
+        function switchAuth(e){e.preventDefault();isLogin=!isLogin;updateAuthUI();}
+        function handleAuth(e){
+            e.preventDefault();
+            const email=document.getElementById('a-email').value,pw=document.getElementById('a-pw').value,rem=document.getElementById('a-rem').checked;
+            if(!isLogin){
+                const name=document.getElementById('a-name').value;
+                if(!document.getElementById('a-terms').checked)return toast('이용약관에 동의해주세요','error');
+                const users=JSON.parse(localStorage.getItem('users')||'[]');
+                if(users.find(u=>u.email===email))return toast('이미 가입된 이메일입니다','error');
+                const uid='UID'+Math.random().toString(36).substr(2,8).toUpperCase();
+                const ref=Math.random().toString(36).substr(2,8).toUpperCase();
+                user={name,email,pw,uid,ref,bal:0};
+                users.push(user);localStorage.setItem('users',JSON.stringify(users));
+                toast('가입 완료!','success');
+            }else{
+                const users=JSON.parse(localStorage.getItem('users')||'[]');
+                const f=users.find(u=>u.email===email&&u.pw===pw);
+                if(!f)return toast('이메일 또는 비밀번호가 틀렸습니다','error');
+                user=f;toast('환영합니다!','success');
+            }
+            loggedIn=true;if(rem)localStorage.setItem('user',JSON.stringify(user));
+            updateUI();closeAuth();
+        }
+        function social(p){
+            const uid='UID'+Math.random().toString(36).substr(2,8).toUpperCase();
+            const ref=Math.random().toString(36).substr(2,8).toUpperCase();
+            user={name:p+' 사용자',email:p+'@example.com',uid,ref,bal:0};
+            loggedIn=true;localStorage.setItem('user',JSON.stringify(user));
+            updateUI();closeAuth();toast(p+' 로그인 성공!','success');
+        }
+        function logout(){loggedIn=false;user=null;localStorage.removeItem('user');updateUI();closeDD();go('home');toast('로그아웃 되었습니다','success');}
+        function updateUI(){
+            const av=user?user.name.charAt(0).toUpperCase():'?';
+            const nm=user?user.name:'로그인';
+            const uid=user?user.uid:'UID: -';
+            const bal=user?(user.bal||0).toFixed(2)+' USDT':'0.00 USDT';
+            const ref=user?'https://727kpro.com/ref/'+user.ref:'https://727kpro.com/ref/GUEST';
+            document.getElementById('u-avatar').textContent=av;
+            document.getElementById('u-name').textContent=nm;
+            document.getElementById('u-uid').textContent='UID: '+(user?user.uid:'-');
+            document.getElementById('dd-avatar').textContent=av;
+            document.getElementById('dd-name').textContent=user?.name||'Guest';
+            document.getElementById('dd-uid').textContent=user?user.uid:'로그인해주세요';
+            document.getElementById('dd-bal').textContent=bal;
+            document.getElementById('menu-out').style.display=loggedIn?'none':'block';
+            document.getElementById('menu-in').style.display=loggedIn?'block':'none';
+            document.getElementById('mp-avatar').textContent=av;
+            document.getElementById('mp-name').textContent=user?.name||'Guest';
+            document.getElementById('mp-email').textContent=user?.email||'-';
+            document.getElementById('mp-uid').textContent=user?.uid||'-';
+            document.getElementById('mp-bal').textContent=bal;
+            document.getElementById('ref-link').value=ref;
+        }
+        function openLang(){document.getElementById('lang-modal').classList.add('active');}
+        function closeLang(){document.getElementById('lang-modal').classList.remove('active');}
+        function setLang(l){localStorage.setItem('lang',l);document.querySelectorAll('.lang-opt').forEach(x=>x.classList.remove('active'));event.target.closest('.lang-opt').classList.add('active');closeLang();toast('언어가 변경되었습니다','success');}
+        
+        function calcPnL(){
+            const pos=document.getElementById('j-pos').value;
+            const entry=parseFloat(document.getElementById('j-entry').value)||0;
+            const exit=parseFloat(document.getElementById('j-exit').value)||0;
+            const size=parseFloat(document.getElementById('j-size').value)||0;
+            const lev=parseFloat(document.getElementById('j-lev').value)||1;
+            const fee=parseFloat(document.getElementById('j-fee').value)||0;
+            if(!entry||!exit||!size){document.getElementById('r-pnl').textContent='$0.00';document.getElementById('r-roi').textContent='0.00%';document.getElementById('r-net').textContent='$0.00';return;}
+            const diff=pos==='long'?exit-entry:entry-exit;
+            const roi=(diff/entry)*100*lev;
+            const pnl=(size*lev)*(diff/entry);
+            const feeAmt=(size*lev*2)*(fee/100);
+            const net=pnl-feeAmt;
+            const pE=document.getElementById('r-pnl'),rE=document.getElementById('r-roi'),nE=document.getElementById('r-net');
+            pE.textContent=(pnl>=0?'+':'')+'$'+pnl.toFixed(2);pE.className='result-val '+(pnl>=0?'positive':'negative');
+            rE.textContent=(roi>=0?'+':'')+roi.toFixed(2)+'%';rE.className='result-val '+(roi>=0?'positive':'negative');
+            nE.textContent=(net>=0?'+':'')+'$'+net.toFixed(2);nE.className='result-val '+(net>=0?'positive':'negative');
+        }
+        function saveJ(){
+            const date=document.getElementById('j-date').value,coin=document.getElementById('j-coin').value,pos=document.getElementById('j-pos').value;
+            const entry=parseFloat(document.getElementById('j-entry').value),exit=parseFloat(document.getElementById('j-exit').value);
+            const size=parseFloat(document.getElementById('j-size').value),lev=parseFloat(document.getElementById('j-lev').value);
+            const fee=parseFloat(document.getElementById('j-fee').value),memo=document.getElementById('j-memo').value;
+            if(!date||!entry||!exit||!size)return toast('필수 항목을 입력해주세요','error');
+            const diff=pos==='long'?exit-entry:entry-exit;
+            const pnl=(size*lev)*(diff/entry),feeAmt=(size*lev*2)*(fee/100),net=pnl-feeAmt,roi=(diff/entry)*100*lev;
+            journal.unshift({id:Date.now(),date,coin,pos,entry,exit,size,lev,pnl:net,roi,memo});
+            localStorage.setItem('journal',JSON.stringify(journal));
+            document.getElementById('j-entry').value='';document.getElementById('j-exit').value='';document.getElementById('j-size').value='';document.getElementById('j-memo').value='';
+            calcPnL();renderJ();toast('저장되었습니다!','success');
+        }
+        function renderJ(){
+            const list=document.getElementById('j-list');
+            document.getElementById('j-cnt').textContent=journal.length+'건';
+            if(!journal.length){list.innerHTML='<p style="color:var(--muted);text-align:center;padding:16px 0;font-size:11px">저장된 매매 기록이 없습니다</p>';return;}
+            list.innerHTML=journal.map(t=>`<div class="j-item"><div>${t.date}</div><div style="font-weight:600">${t.coin}</div><div><span class="pos-badge ${t.pos}">${t.pos==='long'?'롱':'숏'}</span></div><div style="color:var(--muted)">${t.entry}→${t.exit}</div><div style="font-weight:600;color:${t.pnl>=0?'var(--success)':'var(--danger)'}">${t.pnl>=0?'+':''}$${t.pnl.toFixed(2)}</div><button class="btn btn-secondary" style="padding:2px 5px;font-size:9px" onclick="delJ(${t.id})">X</button></div>`).join('');
+        }
+        function delJ(id){journal=journal.filter(t=>t.id!==id);localStorage.setItem('journal',JSON.stringify(journal));renderJ();toast('삭제되었습니다','success');}
+        function copyRef(){const i=document.getElementById('ref-link');i.select();document.execCommand('copy');toast('복사되었습니다!','success');}
+        function toast(m,t='success'){const e=document.getElementById('toast');document.getElementById('t-icon').textContent=t==='success'?'✓':'✕';document.getElementById('t-msg').textContent=m;e.className='toast '+t+' show';setTimeout(()=>e.classList.remove('show'),2500);}
+        document.querySelectorAll('.modal-bg').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('active');}));
+    </script>
+</body>
+</html>

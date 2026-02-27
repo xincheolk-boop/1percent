@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>금·은 시세 - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #00D4A0;
+            --accent-red: #dc2626;
+            --accent-gold: #FFD700;
+            --accent-silver: #C0C0C0;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* 헤더 */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: rgba(10,10,15,0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+        }
+        .logo {
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none; margin-right: 32px;
+        }
+        .logo-text {
+            font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .nav-menu { display: flex; gap: 4px; }
+        .nav-item {
+            padding: 8px 14px; color: var(--text-secondary); font-size: 14px;
+            font-weight: 500; cursor: pointer; border-radius: 8px;
+            transition: all 0.2s; text-decoration: none;
+        }
+        .nav-item:hover { color: var(--text-primary); background: var(--bg-card); }
+        .nav-item.active { color: var(--accent-gold); font-weight: 700; }
+
+        /* 컨텐츠 */
+        .content {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 76px 24px 60px;
+        }
+
+        /* 페이지 헤더 */
+        .page-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .page-header h1 {
+            font-size: 28px; font-weight: 800; margin-bottom: 8px;
+        }
+        .page-header p { font-size: 14px; color: var(--text-secondary); }
+        .update-time {
+            font-size: 12px; color: var(--text-muted); margin-top: 8px;
+        }
+
+        /* 시세 라인업 카드 */
+        .lineup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+        .lineup-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .lineup-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        }
+        .lineup-card.gold::before { background: linear-gradient(90deg, #FFD700, #FFA500); }
+        .lineup-card.silver::before { background: linear-gradient(90deg, #C0C0C0, #A0A0A0); }
+        .lineup-card.platinum::before { background: linear-gradient(90deg, #E5E4E2, #B0B0B0); }
+        .lineup-card-header {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 14px;
+        }
+        .lineup-icon { font-size: 24px; }
+        .lineup-name { font-size: 15px; font-weight: 700; }
+        .lineup-badge {
+            font-size: 10px; padding: 2px 6px; border-radius: 4px;
+            font-weight: 600; margin-left: auto;
+        }
+        .lineup-change-info {
+            display: flex; align-items: center; gap: 6px;
+            margin-bottom: 14px;
+            padding: 8px 10px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+        }
+        .lineup-change-per {
+            font-family: 'Orbitron', monospace;
+            font-size: 16px; font-weight: 800;
+        }
+        .lineup-change-amt {
+            font-size: 12px; color: var(--text-secondary);
+        }
+        .lineup-prices {
+            display: flex; flex-direction: column; gap: 8px;
+        }
+        .lineup-price-row {
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .lineup-price-label {
+            font-size: 12px; color: var(--text-muted);
+        }
+        .lineup-price-val {
+            font-family: 'Orbitron', monospace;
+            font-size: 15px; font-weight: 700;
+        }
+        .price-sell { color: var(--accent-red); }
+        .price-buy { color: var(--accent-green); }
+        .lineup-unit { font-size: 10px; color: var(--text-muted); text-align: right; margin-top: 6px; }
+
+        .up { color: var(--accent-green); }
+        .down { color: var(--accent-red); }
+
+        /* 섹션 제목 */
+        .section-title {
+            font-size: 18px; font-weight: 700; margin-bottom: 16px;
+            display: flex; align-items: center; gap: 8px;
+        }
+
+        /* 국내 시세 테이블 */
+        .price-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+        .price-table th {
+            background: var(--bg-secondary);
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+        }
+        .price-table th:first-child { text-align: left; }
+        .price-table td {
+            padding: 14px 16px;
+            font-size: 13px;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+        .price-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+        }
+        .price-val {
+            font-family: 'Orbitron', monospace;
+            font-weight: 600;
+        }
+
+        /* 국제 시세 카드 */
+        .intl-section { margin-bottom: 32px; }
+        .intl-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .intl-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .intl-card-name { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+        .intl-card-prices { margin-bottom: 6px; }
+        .intl-bid-ask {
+            display: flex; justify-content: center; gap: 12px;
+            font-size: 11px; color: var(--text-muted); margin-bottom: 4px;
+        }
+        .intl-card-price {
+            font-family: 'Orbitron', monospace;
+            font-size: 16px; font-weight: 700; margin-bottom: 4px;
+        }
+        .intl-card-change { font-size: 12px; font-family: 'Orbitron', monospace; }
+        .intl-card-unit { font-size: 10px; color: var(--text-muted); margin-top: 4px; }
+
+        /* 안내 박스 */
+        .info-box {
+            padding: 20px;
+            background: rgba(255,215,0,0.04);
+            border: 1px solid rgba(255,215,0,0.12);
+            border-radius: 12px;
+            margin-bottom: 32px;
+        }
+        .info-box h3 { font-size: 14px; margin-bottom: 10px; color: var(--accent-gold); }
+        .info-box li {
+            font-size: 13px; color: var(--text-secondary); padding: 4px 0;
+            line-height: 1.7;
+        }
+        .info-box ul { padding-left: 18px; }
+
+        /* 푸터 */
+        .footer {
+            border-top: 1px solid var(--border-color);
+            padding: 24px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        .footer a { color: var(--text-muted); text-decoration: none; margin: 0 8px; }
+        .footer a:hover { color: var(--text-secondary); }
+
+        .loading { color: var(--text-muted); font-size: 13px; }
+
+        @media (max-width: 768px) {
+            .nav-menu { display: none; }
+            .content { padding: 68px 14px 40px; }
+            .lineup-grid { grid-template-columns: 1fr; gap: 10px; }
+            .intl-cards { grid-template-columns: 1fr 1fr; }
+            .page-header h1 { font-size: 22px; }
+        }
+        @media (max-width: 480px) {
+            .intl-card-price { font-size: 13px; }
+            .lineup-price-val { font-size: 13px; }
+        }
+        /* ===== 계약 데이터 드롭다운 ===== */
+        .nav-item-dropdown { position: relative; display: flex; align-items: center; }
+        .nav-item-dropdown > .nav-item { display: flex; align-items: center; gap: 4px; position: relative; }
+        .menu-badge-dot { position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; background-color: #ff4444; border-radius: 50%; animation: pulse-dot 2s infinite; }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .mega-dropdown { display: none; position: absolute; top: 100%; left: 0; margin-top: 4px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px 24px; min-width: 680px; z-index: 1100; box-shadow: 0 12px 40px rgba(0,0,0,0.5); grid-template-columns: repeat(4, 1fr); gap: 20px; }
+        .nav-item-dropdown:hover .mega-dropdown { display: grid; }
+        .mega-col-title { font-size: 12px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border-color); white-space: nowrap; }
+        .mega-col-item { display: block; padding: 6px 0; font-size: 13px; color: var(--text-secondary); cursor: pointer; transition: color 0.15s; text-decoration: none; white-space: nowrap; }
+        .mega-col-item:hover { color: var(--text-primary); }
+        .mega-col-item.soon { opacity: 0.45; cursor: default; }
+        .mega-col-item.soon:hover { color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <!-- 헤더 -->
+    <div class="header">
+        <a href="index.html" class="logo">
+            <span class="logo-text">1% TRADING</span>
+        </a>
+        <div class="nav-menu">
+            <a class="nav-item" href="index.html">홈</a>
+            <div class="nav-item-dropdown">
+                <div class="nav-item" style="font-weight:700;">계약 데이터<span class="menu-badge-dot"></span></div>
+                <div class="mega-dropdown">
+                    <div class="mega-col"><div class="mega-col-title">청산 데이터 & 펀딩 비율</div><a class="mega-col-item" onclick="showPreparing()">청산 데이터 (실시간)</a><a class="mega-col-item soon" onclick="showPreparing()">청산 히트맵 🔜</a><a class="mega-col-item" onclick="showPreparing()">펀딩비 현황</a><a class="mega-col-item" onclick="showPreparing()">펀딩비 히스토리</a><a class="mega-col-item" onclick="showPreparing()">누적 펀딩비</a><a class="mega-col-item soon" onclick="showPreparing()">자금 수수료 히트맵 🔜</a></div>
+                    <div class="mega-col"><div class="mega-col-title">롱숏 비율</div><a class="mega-col-item" onclick="showPreparing()">실시간 롱숏 비율</a><a class="mega-col-item" onclick="showPreparing()">L/S Population Ratio</a><a class="mega-col-item" onclick="showPreparing()">대규모 롱숏 비율</a><a class="mega-col-item" onclick="showPreparing()">거래소별 롱숏 비교</a></div>
+                    <div class="mega-col"><div class="mega-col-title">포지션 & 주문서</div><a class="mega-col-item" onclick="showPreparing()">Open Interest (멀티거래소)</a><a class="mega-col-item" onclick="showPreparing()">OI 변화량 (1H/4H/24H)</a><a class="mega-col-item" onclick="showPreparing()">오더북 (BTC/ETH)</a><a class="mega-col-item" onclick="showPreparing()">Orderbook Depth Delta</a><a class="mega-col-item" onclick="showPreparing()">Aggregation Orderbook</a></div>
+                    <div class="mega-col"><div class="mega-col-title">종합</div><a class="mega-col-item" onclick="showPreparing()">고래 포지션 실시간</a><a class="mega-col-item" onclick="showPreparing()">거래소별 OI 점유율</a><a class="mega-col-item" onclick="showPreparing()">RSI Heatmap</a><a class="mega-col-item" onclick="showPreparing()">Visual Screener</a></div>
+                </div>
+            </div>
+            <a class="nav-item" href="kimp.html">김프</a>
+            <a class="nav-item active" href="gold.html">금시세</a>
+            <a class="nav-item" href="news.html">뉴스</a>
+            <a class="nav-item" href="exchanges.html">거래소</a>
+            <a class="nav-item" href="rewards.html">리워드</a>
+            <a class="nav-item" href="events.html">이벤트</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="page-header">
+            <h1>금·은·귀금속 시세</h1>
+            <p>한국금거래소 기준 실시간 귀금속 시세</p>
+            <div class="update-time" id="updateTime">데이터 로딩 중...</div>
+        </div>
+
+        <!-- 시세 라인업 -->
+        <div class="lineup-grid">
+            <!-- 순금 24K -->
+            <div class="lineup-card gold">
+                <div class="lineup-card-header">
+                    <span class="lineup-icon">🥇</span>
+                    <span class="lineup-name">순금 (24K)</span>
+                </div>
+                <div class="lineup-change-info" id="goldChangeBox">
+                    <span class="lineup-change-per" id="goldChangePer">--</span>
+                    <span class="lineup-change-amt" id="goldChangeAmt"></span>
+                </div>
+                <div class="lineup-prices">
+                    <div class="lineup-price-row">
+                        <span class="lineup-price-label">살 때 (매도)</span>
+                        <span class="lineup-price-val price-sell" id="goldSell">--</span>
+                    </div>
+                    <div class="lineup-price-row">
+                        <span class="lineup-price-label">팔 때 (매입)</span>
+                        <span class="lineup-price-val price-buy" id="goldBuy">--</span>
+                    </div>
+                </div>
+                <div class="lineup-unit">원 / 1돈 (3.75g)</div>
+            </div>
+
+            <!-- 순은 -->
+            <div class="lineup-card silver">
+                <div class="lineup-card-header">
+                    <span class="lineup-icon">🥈</span>
+                    <span class="lineup-name">순은</span>
+                </div>
+                <div class="lineup-change-info" id="silverChangeBox">
+                    <span class="lineup-change-per" id="silverChangePer">--</span>
+                    <span class="lineup-change-amt" id="silverChangeAmt"></span>
+                </div>
+                <div class="lineup-prices">
+                    <div class="lineup-price-row">
+                        <span class="lineup-price-label">살 때 (매도)</span>
+                        <span class="lineup-price-val price-sell" id="silverSell">--</span>
+                    </div>
+                    <div class="lineup-price-row">
+                        <span class="lineup-price-label">팔 때 (매입)</span>
+                        <span class="lineup-price-val price-buy" id="silverBuy">--</span>
+                    </div>
+                </div>
+                <div class="lineup-unit">원 / 1돈 (3.75g)</div>
+            </div>
+
+            <!-- 백금 -->
+            <div class="lineup-card platinum">
+                <div class="lineup-card-header">
+                    <span class="lineup-icon">💎</span>
+                    <span class="lineup-name">백금</span>
+                </div>
+                <div class="lineup-change-info" id="platinumChangeBox">
+                    <span class="lineup-change-per" id="platinumChangePer">--</span>
+                    <span class="lineup-change-amt" id="platinumChangeAmt"></span>
+                </div>
+                <div class="lineup-prices">
+                    <div class="lineup-price-row">
+                        <span class="lineup-price-label">살 때 (매도)</span>
+                        <span class="lineup-price-val price-sell" id="platinumSell">--</span>
+                    </div>
+                    <div class="lineup-price-row">
+                        <span class="lineup-price-label">팔 때 (매입)</span>
+                        <span class="lineup-price-val price-buy" id="platinumBuy">--</span>
+                    </div>
+                </div>
+                <div class="lineup-unit">원 / 1돈 (3.75g)</div>
+            </div>
+        </div>
+
+        <!-- 제품 시세 (18K, 14K) -->
+        <div class="section-title">제품 시세</div>
+        <table class="price-table">
+            <thead>
+                <tr>
+                    <th>품목</th>
+                    <th>살 때 (매도)</th>
+                    <th>팔 때 (매입)</th>
+                    <th>등락률</th>
+                    <th>등락금액</th>
+                </tr>
+            </thead>
+            <tbody id="productTable">
+                <tr><td colspan="5" class="loading" style="text-align:center;">데이터 로딩 중...</td></tr>
+            </tbody>
+        </table>
+
+        <!-- 국제 시세 (LIVE SPOT PRICES) -->
+        <div class="intl-section">
+            <div class="section-title">LIVE SPOT PRICES (국제시세)</div>
+            <div class="intl-cards">
+                <div class="intl-card">
+                    <div class="intl-card-name">Gold</div>
+                    <div class="intl-bid-ask">
+                        <span>Bid: <span id="intlGoldBid">--</span></span>
+                        <span>Ask: <span id="intlGoldAsk">--</span></span>
+                    </div>
+                    <div class="intl-card-price" id="intlGold" style="color:var(--accent-gold);">--</div>
+                    <div class="intl-card-change" id="intlGoldChg">--</div>
+                    <div class="intl-card-unit">USD / T.oz</div>
+                </div>
+                <div class="intl-card">
+                    <div class="intl-card-name">Silver</div>
+                    <div class="intl-bid-ask">
+                        <span>Bid: <span id="intlSilverBid">--</span></span>
+                        <span>Ask: <span id="intlSilverAsk">--</span></span>
+                    </div>
+                    <div class="intl-card-price" id="intlSilver" style="color:var(--accent-silver);">--</div>
+                    <div class="intl-card-change" id="intlSilverChg">--</div>
+                    <div class="intl-card-unit">USD / T.oz</div>
+                </div>
+                <div class="intl-card">
+                    <div class="intl-card-name">Platinum</div>
+                    <div class="intl-bid-ask">
+                        <span>Bid: <span id="intlPlatinumBid">--</span></span>
+                        <span>Ask: <span id="intlPlatinumAsk">--</span></span>
+                    </div>
+                    <div class="intl-card-price" id="intlPlatinum" style="color:#E5E4E2;">--</div>
+                    <div class="intl-card-change" id="intlPlatinumChg">--</div>
+                    <div class="intl-card-unit">USD / T.oz</div>
+                </div>
+                <div class="intl-card">
+                    <div class="intl-card-name">Palladium</div>
+                    <div class="intl-bid-ask">
+                        <span>Bid: <span id="intlPalladiumBid">--</span></span>
+                        <span>Ask: <span id="intlPalladiumAsk">--</span></span>
+                    </div>
+                    <div class="intl-card-price" id="intlPalladium" style="color:#CED0CE;">--</div>
+                    <div class="intl-card-change" id="intlPalladiumChg">--</div>
+                    <div class="intl-card-unit">USD / T.oz</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 유가증권 판매시세 -->
+        <div class="section-title">유가증권 판매시세</div>
+        <table class="price-table">
+            <thead>
+                <tr>
+                    <th>품목</th>
+                    <th>판매가 (g당)</th>
+                    <th>총 판매가</th>
+                    <th>프리미엄</th>
+                    <th>등락률</th>
+                </tr>
+            </thead>
+            <tbody id="securityTable">
+                <tr><td colspan="5" class="loading" style="text-align:center;">데이터 로딩 중...</td></tr>
+            </tbody>
+        </table>
+
+        <!-- 안내 -->
+        <div class="info-box">
+            <h3>안내 사항</h3>
+            <ul>
+                <li>시세는 한국금거래소 기준이며, 약 1분 간격으로 자동 갱신됩니다.</li>
+                <li>"살 때" = 고객이 구매하는 가격 (매도가) / "팔 때" = 고객이 판매하는 가격 (매입가)</li>
+                <li>국내 시세 단위: 원 / 1돈 (3.75g)</li>
+                <li>국제 시세 단위: USD / Troy Ounce (31.1g)</li>
+                <li>실제 거래 시 수수료, 부가세 등이 추가될 수 있습니다.</li>
+                <li>투자에 대한 판단과 책임은 본인에게 있습니다.</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <div class="footer">
+        <p>&copy; 2026 1% Trading PRO. All rights reserved.</p>
+        <p style="margin-top:8px;">
+            <a href="index.html">홈</a>
+            <a href="terms.html">이용약관</a>
+            <a href="privacy.html">개인정보처리방침</a>
+            <a href="https://t.me/officialpercent" target="_blank">텔레그램</a>
+        </p>
+        <p style="margin-top:6px;font-size:11px;">시세 출처: 한국금거래소 (koreagoldx.co.kr)</p>
+    </div>
+
+    <script>
+        function fmt(n) {
+            return Number(n).toLocaleString('ko-KR');
+        }
+
+        async function fetchGoldData() {
+            try {
+                const res = await fetch('https://www.koreagoldx.co.kr/api/main');
+                const data = await res.json();
+
+                // 업데이트 시간
+                document.getElementById('updateTime').textContent = '마지막 업데이트: ' + (data.date || new Date().toLocaleString('ko-KR'));
+
+                // === 국내 시세 라인업 (officialPrice4) ===
+                if (data.officialPrice4) {
+                    const op = data.officialPrice4;
+
+                    // 순금 24K
+                    document.getElementById('goldSell').textContent = fmt(op.s_pure) + '원';
+                    document.getElementById('goldBuy').textContent = fmt(op.p_pure) + '원';
+                    const goldPer = parseFloat(op.per_s_pure) || 0;
+                    const goldAmt = parseInt(op.turm_s_pure) || 0;
+                    document.getElementById('goldChangePer').textContent = (goldPer >= 0 ? '+' : '') + goldPer.toFixed(2) + '%';
+                    document.getElementById('goldChangePer').className = 'lineup-change-per ' + (goldPer >= 0 ? 'up' : 'down');
+                    document.getElementById('goldChangeAmt').textContent = (goldAmt >= 0 ? '▲' : '▼') + ' ' + fmt(Math.abs(goldAmt)) + '원';
+
+                    // 순은
+                    document.getElementById('silverSell').textContent = fmt(op.s_silver) + '원';
+                    document.getElementById('silverBuy').textContent = fmt(op.p_silver) + '원';
+                    const silverPer = parseFloat(op.per_s_silver) || 0;
+                    const silverAmt = parseInt(op.turm_s_silver) || 0;
+                    document.getElementById('silverChangePer').textContent = (silverPer >= 0 ? '+' : '') + silverPer.toFixed(2) + '%';
+                    document.getElementById('silverChangePer').className = 'lineup-change-per ' + (silverPer >= 0 ? 'up' : 'down');
+                    document.getElementById('silverChangeAmt').textContent = (silverAmt >= 0 ? '▲' : '▼') + ' ' + fmt(Math.abs(silverAmt)) + '원';
+
+                    // 백금
+                    document.getElementById('platinumSell').textContent = fmt(op.s_white) + '원';
+                    document.getElementById('platinumBuy').textContent = fmt(op.p_white) + '원';
+                    const platPer = parseFloat(op.per_s_white) || 0;
+                    const platAmt = parseInt(op.turm_s_white) || 0;
+                    document.getElementById('platinumChangePer').textContent = (platPer >= 0 ? '+' : '') + platPer.toFixed(2) + '%';
+                    document.getElementById('platinumChangePer').className = 'lineup-change-per ' + (platPer >= 0 ? 'up' : 'down');
+                    document.getElementById('platinumChangeAmt').textContent = (platAmt >= 0 ? '▲' : '▼') + ' ' + fmt(Math.abs(platAmt)) + '원';
+
+                    // 제품 시세 (18K, 14K)
+                    let productHTML = '';
+                    const products = [
+                        { name: '18K 금', sell: op.s_18k, buy: op.p_18k, per: op.per_s_18k, turm: op.turm_s_18k },
+                        { name: '14K 금', sell: op.s_14k, buy: op.p_14k, per: op.per_s_14k, turm: op.turm_s_14k }
+                    ];
+                    products.forEach(function(p) {
+                        if (p.sell) {
+                            const per = parseFloat(p.per) || 0;
+                            const turm = parseInt(p.turm) || 0;
+                            const cls = per >= 0 ? 'up' : 'down';
+                            productHTML += '<tr>';
+                            productHTML += '<td>' + p.name + '</td>';
+                            productHTML += '<td class="price-val">' + fmt(p.sell) + '원</td>';
+                            productHTML += '<td class="price-val">' + fmt(p.buy) + '원</td>';
+                            productHTML += '<td class="' + cls + '">' + (per >= 0 ? '+' : '') + per.toFixed(2) + '%</td>';
+                            productHTML += '<td class="' + cls + '">' + (turm >= 0 ? '▲' : '▼') + ' ' + fmt(Math.abs(turm)) + '원</td>';
+                            productHTML += '</tr>';
+                        }
+                    });
+                    if (productHTML) {
+                        document.getElementById('productTable').innerHTML = productHTML;
+                    } else {
+                        document.getElementById('productTable').innerHTML = '<tr><td colspan="5" style="text-align:center;color:#6b7280;">데이터 없음</td></tr>';
+                    }
+                }
+
+                // === 국제 시세 (marketPriceList) ===
+                if (data.marketPriceList && data.marketPriceList.length > 0) {
+                    var typeMap = {};
+                    data.marketPriceList.forEach(function(item) {
+                        typeMap[item.type] = item;
+                    });
+
+                    var intlItems = [
+                        { key: 'au', id: 'Gold' },
+                        { key: 'ag', id: 'Silver' },
+                        { key: 'pt', id: 'Platinum' },
+                        { key: 'pd', id: 'Palladium' }
+                    ];
+
+                    intlItems.forEach(function(it) {
+                        var d = typeMap[it.key];
+                        if (!d) return;
+                        // Ask price as main
+                        document.getElementById('intl' + it.id).textContent = '$' + fmt(d.ask);
+                        // Bid/Ask
+                        var bidEl = document.getElementById('intl' + it.id + 'Bid');
+                        var askEl = document.getElementById('intl' + it.id + 'Ask');
+                        if (bidEl) bidEl.textContent = '$' + fmt(d.bid);
+                        if (askEl) askEl.textContent = '$' + fmt(d.ask);
+                        // Change
+                        var diff = parseFloat(d.askDiffPer) || 0;
+                        var el = document.getElementById('intl' + it.id + 'Chg');
+                        el.textContent = (diff >= 0 ? '+' : '') + diff.toFixed(2) + '%';
+                        el.className = 'intl-card-change ' + (diff >= 0 ? 'up' : 'down');
+                    });
+                }
+
+                // === 유가증권 판매시세 (securityList) ===
+                if (data.securityList && data.securityList.length > 0) {
+                    var html = '';
+                    data.securityList.forEach(function(item) {
+                        var diff = parseFloat(item.diffPer) || 0;
+                        var cls = diff >= 0 ? 'up' : 'down';
+                        var totalPrice = item.price ? fmt(item.price) + '원' : '-';
+                        var premium = item.premium ? item.premium.toFixed(2) + '%' : '-';
+                        html += '<tr>';
+                        html += '<td>' + (item.typeName || item.type) + '</td>';
+                        html += '<td class="price-val">' + fmt(item.gprice || item.ask) + '원</td>';
+                        html += '<td class="price-val">' + totalPrice + '</td>';
+                        html += '<td>' + premium + '</td>';
+                        html += '<td class="' + cls + '">' + (diff >= 0 ? '+' : '') + diff.toFixed(2) + '%</td>';
+                        html += '</tr>';
+                    });
+                    document.getElementById('securityTable').innerHTML = html;
+                }
+
+            } catch(e) {
+                console.warn('Gold data fetch fail:', e);
+                document.getElementById('updateTime').textContent = '데이터를 불러오지 못했습니다. 새로고침 해주세요.';
+            }
+        }
+
+        fetchGoldData();
+        setInterval(fetchGoldData, 60000);
+    </script>
+    <div id="preparingModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:9999;align-items:center;justify-content:center;" onclick="this.style.display='none'">
+        <div style="background:#16161f;border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:24px 32px;text-align:center;" onclick="event.stopPropagation()">
+            <div style="font-size:32px;margin-bottom:12px;">🚧</div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:6px;">준비중입니다</div>
+            <div style="font-size:13px;color:#9ca3af;">곧 업데이트 예정입니다.</div>
+            <button onclick="document.getElementById('preparingModal').style.display='none'" style="margin-top:16px;padding:8px 24px;background:linear-gradient(135deg,#00b8d9,#9333ea);border:none;border-radius:8px;color:#fff;font-size:13px;cursor:pointer;">확인</button>
+        </div>
+    </div>
+    <script>function showPreparing(){document.getElementById('preparingModal').style.display='flex';}</script>
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>마이페이지 - 1% Trading PRO</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--bg2:#111118;--bg3:#16161f;--bg4:#1c1c28;--cyan:#00b8d9;--purple:#9333ea;--green:#00D4A0;--red:#dc2626;--yellow:#fbbf24;--txt:#fff;--txt2:#9ca3af;--txt3:#6b7280;--border:rgba(255,255,255,0.08);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;}
+.top-bar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100;gap:12px;}
+.back-btn{display:flex;align-items:center;gap:6px;color:var(--txt2);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:8px;transition:all 0.2s;}
+.back-btn:hover{color:var(--cyan);background:var(--bg3);}
+.top-title{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-left:auto;}
+.page{max-width:680px;margin:0 auto;padding:76px 20px 60px;}
+
+/* profile card */
+.profile-card{background:linear-gradient(135deg,rgba(0,184,217,0.07),rgba(147,51,234,0.07));border:1px solid rgba(0,184,217,0.2);border-radius:20px;padding:28px;margin-bottom:20px;}
+.profile-top{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.profile-avatar{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#000;font-family:'Orbitron',monospace;}
+.profile-info h2{font-size:18px;font-weight:700;}
+.profile-info p{font-size:12px;color:var(--txt3);margin-top:2px;}
+.ref-row{display:flex;align-items:center;gap:10px;background:var(--bg2);border-radius:10px;padding:12px 16px;}
+.ref-label{font-size:11px;color:var(--txt3);}
+.ref-code{font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:var(--cyan);letter-spacing:2px;}
+.copy-btn{margin-left:auto;background:rgba(0,184,217,0.12);border:1px solid rgba(0,184,217,0.3);color:var(--cyan);border-radius:6px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;}
+.copy-btn:hover{background:rgba(0,184,217,0.2);}
+
+/* section */
+.section{background:var(--bg3);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
+.section-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border);}
+.section-title{font-size:14px;font-weight:600;}
+.add-btn{background:var(--cyan);color:#000;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;}
+
+/* uid list */
+.uid-item{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.uid-item:last-child{border-bottom:none;}
+.ex-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.ex-bitget{background:rgba(59,130,246,0.15);color:#3b82f6;}
+.ex-okx{background:rgba(255,255,255,0.08);color:#e5e7eb;}
+.ex-gate{background:rgba(248,113,113,0.15);color:#f87171;}
+.uid-val{font-family:monospace;font-size:13px;color:var(--txt2);}
+.uid-nick{font-size:13px;font-weight:600;}
+.uid-date{font-size:11px;color:var(--txt3);margin-left:auto;}
+.status-active{font-size:10px;background:rgba(0,212,160,0.12);color:var(--green);padding:2px 7px;border-radius:10px;}
+
+/* settlements */
+table{width:100%;border-collapse:collapse;}
+th{font-size:11px;color:var(--txt3);font-weight:500;text-align:left;padding:10px 16px;border-bottom:1px solid var(--border);}
+td{font-size:13px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);}
+.empty{text-align:center;padding:32px;color:var(--txt3);font-size:13px;}
+
+/* logout btn */
+.logout-btn{width:100%;background:transparent;border:1px solid rgba(220,38,38,0.3);color:#f87171;border-radius:10px;padding:12px;font-size:13px;cursor:pointer;margin-top:8px;}
+.logout-btn:hover{background:rgba(220,38,38,0.08);}
+
+@media(max-width:480px){.profile-top{flex-direction:column;text-align:center;}.ref-code{font-size:14px;}}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <a href="index.html" class="back-btn">← 홈</a>
+  <span class="top-title">1% TRADING</span>
+</div>
+
+<div class="page">
+
+  <!-- 비로그인 상태 -->
+  <div id="notLoggedIn" style="display:none;text-align:center;padding:60px 20px;">
+    <div style="font-size:48px;margin-bottom:16px;">🔒</div>
+    <h2 style="font-size:18px;font-weight:700;margin-bottom:8px;">로그인이 필요합니다</h2>
+    <p style="font-size:13px;color:var(--txt3);margin-bottom:24px;">마이페이지를 이용하려면 로그인해주세요.</p>
+    <a href="index.html" style="display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-weight:700;border-radius:10px;text-decoration:none;font-size:14px;">홈으로 돌아가기</a>
+  </div>
+
+  <!-- 로그인 상태 -->
+  <div id="loggedIn" style="display:none;">
+
+    <!-- 프로필 카드 -->
+    <div class="profile-card">
+      <div class="profile-top">
+        <div class="profile-avatar" id="avatarLetter">?</div>
+        <div class="profile-info">
+          <h2 id="profileNick">--</h2>
+          <p id="profileEmail">--</p>
+        </div>
+      </div>
+      <div class="ref-row">
+        <div>
+          <div class="ref-label">내 추천코드</div>
+          <div class="ref-code" id="myRefCode">------</div>
+        </div>
+        <button class="copy-btn" onclick="copyRefCode()">복사</button>
+      </div>
+    </div>
+
+    <!-- 등록된 UID -->
+    <div class="section">
+      <div class="section-hd">
+        <span class="section-title">🔗 등록된 UID</span>
+        <a href="register.html" class="add-btn">+ UID 추가</a>
+      </div>
+      <div id="uidList"><div class="empty">로딩 중...</div></div>
+    </div>
+
+    <!-- 정산 내역 -->
+    <div class="section">
+      <div class="section-hd">
+        <span class="section-title">💰 정산 내역</span>
+      </div>
+      <div id="settlList"><div class="empty">로딩 중...</div></div>
+    </div>
+
+    <button class="logout-btn" onclick="doLogout()">로그아웃</button>
+  </div>
+
+</div>
+
+<script>
+const token = localStorage.getItem('authToken') || '';
+
+function exBadge(ex) {
+  const cls = ex==='Bitget'?'ex-bitget':ex==='OKX'?'ex-okx':'ex-gate';
+  return `<span class="ex-badge ${cls}">${ex}</span>`;
+}
+
+function fmtMoney(n) {
+  n = parseFloat(n)||0;
+  if (n>=1e6) return '$'+(n/1e6).toFixed(2)+'M';
+  if (n>=1e3) return '$'+(n/1e3).toFixed(1)+'K';
+  return '$'+n.toFixed(2);
+}
+
+async function loadPage() {
+  if (!token) {
+    document.getElementById('notLoggedIn').style.display = 'block';
+    return;
+  }
+
+  const headers = { 'Authorization': 'Bearer ' + token };
+
+  // 프로필
+  try {
+    const r = await fetch('/api/mypage/profile', { headers });
+    const d = await r.json();
+    if (!d.ok) { document.getElementById('notLoggedIn').style.display='block'; return; }
+    document.getElementById('loggedIn').style.display = 'block';
+    document.getElementById('profileNick').textContent = d.nickname;
+    document.getElementById('profileEmail').textContent = d.email;
+    document.getElementById('myRefCode').textContent = d.my_referral_code;
+    document.getElementById('avatarLetter').textContent = d.nickname.charAt(0).toUpperCase();
+  } catch(e) {
+    document.getElementById('notLoggedIn').style.display = 'block';
+    return;
+  }
+
+  // UID 목록
+  try {
+    const r = await fetch('/api/mypage/uids', { headers });
+    const d = await r.json();
+    const list = d.uids || [];
+    document.getElementById('uidList').innerHTML = list.length ? list.map(u => `
+      <div class="uid-item">
+        ${exBadge(u.exchange)}
+        <div>
+          <div class="uid-nick">${u.nickname||'--'}</div>
+          <div class="uid-val">UID: ${u.uid}</div>
+        </div>
+        <span class="status-active">활성</span>
+        <span class="uid-date">${(u.join_date||'').slice(0,10)}</span>
+      </div>`).join('') : '<div class="empty">등록된 UID가 없습니다.<br><a href="register.html" style="color:var(--cyan);">지금 등록하기 →</a></div>';
+  } catch(e) { document.getElementById('uidList').innerHTML = '<div class="empty">불러오기 실패</div>'; }
+
+  // 정산 내역
+  try {
+    const r = await fetch('/api/mypage/settlements', { headers });
+    const d = await r.json();
+    const list = d.settlements || [];
+    document.getElementById('settlList').innerHTML = list.length ? `
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>월</th><th>거래량</th><th>수수료</th><th>환급액</th><th>상태</th></tr></thead>
+          <tbody>${list.map(s=>`<tr>
+            <td>${s.month}</td>
+            <td style="font-family:monospace;">${fmtMoney(s.volume)}</td>
+            <td style="font-family:monospace;">${fmtMoney(s.fee)}</td>
+            <td style="color:var(--green);font-weight:600;font-family:monospace;">${fmtMoney(s.payback_amount)}</td>
+            <td><span style="font-size:11px;padding:2px 8px;border-radius:10px;${s.status==='paid'?'background:rgba(0,212,160,0.12);color:var(--green)':'background:rgba(251,191,36,0.12);color:var(--yellow)'}">${s.status==='paid'?'지급완료':'대기중'}</span></td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>` : '<div class="empty">정산 내역이 없습니다.</div>';
+  } catch(e) { document.getElementById('settlList').innerHTML = '<div class="empty">불러오기 실패</div>'; }
+}
+
+function copyRefCode() {
+  const code = document.getElementById('myRefCode').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '복사됨!';
+    setTimeout(() => btn.textContent = '복사', 1500);
+  });
+}
+
+function doLogout() {
+  fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + token } }).catch(()=>{});
+  localStorage.removeItem('authToken');
+  location.href = 'index.html';
+}
+
+loadPage();
+</script>
+</body>
+</html>

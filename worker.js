@@ -24,6 +24,16 @@ export default {
       return handleAdmin(request, env, url);
     }
 
+    // Auth API
+    if (url.pathname.startsWith('/api/auth')) {
+      return handleAuth(request, env, url);
+    }
+
+    // Mypage API
+    if (url.pathname.startsWith('/api/mypage')) {
+      return handleMypage(request, env, url);
+    }
+
     // Public Register API
     if (url.pathname === '/api/register') {
       return handleRegister(request, env);
@@ -306,16 +316,22 @@ async function handleRegister(request, env) {
     const existing = await db.prepare('SELECT id FROM users WHERE uid=? AND exchange=?').bind(cleanUid, exchange).first();
     if (existing) return rjson({ error: '이미 등록된 UID입니다', code: 'DUPLICATE' }, 409);
 
+    // 로그인 상태면 account_id 연결
+    let accountId = null;
+    const authAccount = await getAccountFromRequest(request, db).catch(() => null);
+    if (authAccount) accountId = authAccount.id;
+
     const today = new Date().toISOString().slice(0, 10);
     const result = await db.prepare(
-      'INSERT INTO users (nickname, uid, exchange, telegram, join_date, status) VALUES (?,?,?,?,?,?)'
+      'INSERT INTO users (nickname, uid, exchange, telegram, join_date, status, account_id) VALUES (?,?,?,?,?,?,?)'
     ).bind(
       String(nickname || '').trim().slice(0, 30),
       cleanUid,
       exchange,
       String(telegram || '').trim().replace(/^@/, ''),
       today,
-      'active'
+      'active',
+      accountId
     ).run();
 
     return rjson({ ok: true, id: result.meta.last_row_id, message: 'UID 등록 완료' });
@@ -323,6 +339,177 @@ async function handleRegister(request, env) {
     console.error('Register error:', err);
     return rjson({ error: '등록 중 오류가 발생했습니다: ' + err.message }, 500);
   }
+}
+
+// ── Auth Helpers ──────────────────────────────────────────────────────────────
+
+async function hashPassword(password) {
+  const enc = new TextEncoder();
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, key, 256);
+  const toHex = arr => [...arr].map(b => b.toString(16).padStart(2,'0')).join('');
+  return toHex(salt) + ':' + toHex(new Uint8Array(bits));
+}
+
+async function verifyPassword(password, stored) {
+  const [saltHex, hashHex] = stored.split(':');
+  const salt = new Uint8Array(saltHex.match(/.{2}/g).map(b => parseInt(b,16)));
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']);
+  const bits = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' }, key, 256);
+  const newHash = [...new Uint8Array(bits)].map(b => b.toString(16).padStart(2,'0')).join('');
+  return newHash === hashHex;
+}
+
+function generateToken() {
+  return [...crypto.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+function generateReferralCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return [...crypto.getRandomValues(new Uint8Array(6))].map(b => chars[b % chars.length]).join('');
+}
+
+async function getAccountFromRequest(request, db) {
+  const h = request.headers.get('Authorization') || '';
+  if (!h.startsWith('Bearer ')) return null;
+  const token = h.slice(7);
+  const session = await db.prepare(
+    'SELECT * FROM sessions WHERE token=? AND expires_at > datetime("now")'
+  ).bind(token).first();
+  if (!session) return null;
+  return db.prepare('SELECT * FROM accounts WHERE id=?').bind(session.account_id).first();
+}
+
+const AH2 = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
+const aj2 = (d, s=200) => new Response(JSON.stringify(d), { status: s, headers: AH2 });
+
+// ── Auth Routes ────────────────────────────────────────────────────────────────
+
+async function handleAuth(request, env, url) {
+  const db = env.DB;
+  if (!db) return aj2({ error: 'DB 미연결' }, 500);
+  const path = url.pathname.replace('/api/auth', '');
+
+  // 회원가입
+  if (path === '/signup' && request.method === 'POST') {
+    let body;
+    try { body = await request.json(); } catch(e) { return aj2({ error: '잘못된 형식' }, 400); }
+
+    const { email, password, nickname, referral_code, agreed_terms, agreed_privacy } = body;
+    if (!email || !password || !nickname) return aj2({ error: '필수 항목을 입력해주세요' }, 400);
+    if (!agreed_terms || !agreed_privacy) return aj2({ error: '약관에 동의해주세요' }, 400);
+    if (password.length < 8) return aj2({ error: '비밀번호는 8자 이상이어야 합니다' }, 400);
+    if (nickname.trim().length < 2) return aj2({ error: '닉네임은 2자 이상이어야 합니다' }, 400);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return aj2({ error: '이메일 형식이 올바르지 않습니다' }, 400);
+
+    try {
+      const existing = await db.prepare('SELECT id FROM accounts WHERE email=?').bind(email.toLowerCase()).first();
+      if (existing) return aj2({ error: '이미 사용 중인 이메일입니다', code: 'DUP_EMAIL' }, 409);
+
+      if (referral_code) {
+        const ref = await db.prepare('SELECT id FROM accounts WHERE my_referral_code=?').bind(referral_code.toUpperCase()).first();
+        if (!ref) return aj2({ error: '존재하지 않는 추천코드입니다', code: 'INVALID_REF' }, 400);
+      }
+
+      const hash = await hashPassword(password);
+      let myCode;
+      for (let i = 0; i < 10; i++) {
+        myCode = generateReferralCode();
+        const check = await db.prepare('SELECT id FROM accounts WHERE my_referral_code=?').bind(myCode).first();
+        if (!check) break;
+      }
+
+      const result = await db.prepare(
+        'INSERT INTO accounts (email, password_hash, nickname, referral_code_used, my_referral_code, agreed_terms, agreed_privacy) VALUES (?,?,?,?,?,?,?)'
+      ).bind(email.toLowerCase(), hash, nickname.trim(), (referral_code||'').toUpperCase(), myCode, 1, 1).run();
+
+      const token = generateToken();
+      const expiresAt = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+      await db.prepare('INSERT INTO sessions (account_id, token, expires_at) VALUES (?,?,?)')
+        .bind(result.meta.last_row_id, token, expiresAt).run();
+
+      return aj2({ ok: true, token, nickname: nickname.trim(), my_referral_code: myCode });
+    } catch(err) {
+      return aj2({ error: '가입 중 오류: ' + err.message }, 500);
+    }
+  }
+
+  // 로그인
+  if (path === '/login' && request.method === 'POST') {
+    let body;
+    try { body = await request.json(); } catch(e) { return aj2({ error: '잘못된 형식' }, 400); }
+
+    const { email, password } = body;
+    if (!email || !password) return aj2({ error: '이메일과 비밀번호를 입력해주세요' }, 400);
+
+    try {
+      const account = await db.prepare('SELECT * FROM accounts WHERE email=?').bind(email.toLowerCase()).first();
+      if (!account) return aj2({ error: '이메일 또는 비밀번호가 올바르지 않습니다' }, 401);
+      if (account.status !== 'active') return aj2({ error: '비활성화된 계정입니다' }, 403);
+
+      const valid = await verifyPassword(password, account.password_hash);
+      if (!valid) return aj2({ error: '이메일 또는 비밀번호가 올바르지 않습니다' }, 401);
+
+      const token = generateToken();
+      const expiresAt = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+      await db.prepare('INSERT INTO sessions (account_id, token, expires_at) VALUES (?,?,?)')
+        .bind(account.id, token, expiresAt).run();
+
+      return aj2({ ok: true, token, nickname: account.nickname, my_referral_code: account.my_referral_code });
+    } catch(err) {
+      return aj2({ error: '로그인 중 오류: ' + err.message }, 500);
+    }
+  }
+
+  // 로그아웃
+  if (path === '/logout' && request.method === 'POST') {
+    const h = request.headers.get('Authorization') || '';
+    if (h.startsWith('Bearer ')) {
+      await db.prepare('DELETE FROM sessions WHERE token=?').bind(h.slice(7)).run().catch(()=>{});
+    }
+    return aj2({ ok: true });
+  }
+
+  // 내 정보
+  if (path === '/me' && request.method === 'GET') {
+    const account = await getAccountFromRequest(request, db);
+    if (!account) return aj2({ error: '로그인이 필요합니다' }, 401);
+    return aj2({ ok: true, id: account.id, email: account.email, nickname: account.nickname, my_referral_code: account.my_referral_code, created_at: account.created_at });
+  }
+
+  return aj2({ error: '알 수 없는 경로' }, 404);
+}
+
+// ── Mypage Routes ──────────────────────────────────────────────────────────────
+
+async function handleMypage(request, env, url) {
+  const db = env.DB;
+  if (!db) return aj2({ error: 'DB 미연결' }, 500);
+
+  const account = await getAccountFromRequest(request, db);
+  if (!account) return aj2({ error: '로그인이 필요합니다' }, 401);
+
+  const path = url.pathname.replace('/api/mypage', '') || '/';
+
+  if (path === '/' || path === '/profile') {
+    return aj2({ ok: true, id: account.id, email: account.email, nickname: account.nickname, my_referral_code: account.my_referral_code, created_at: account.created_at });
+  }
+
+  if (path === '/uids') {
+    const r = await db.prepare('SELECT * FROM users WHERE account_id=? ORDER BY created_at DESC').bind(account.id).all();
+    return aj2({ ok: true, uids: r.results || [] });
+  }
+
+  if (path === '/settlements') {
+    const r = await db.prepare(
+      'SELECT s.* FROM settlements s INNER JOIN users u ON s.user_id=u.id WHERE u.account_id=? ORDER BY s.month DESC'
+    ).bind(account.id).all();
+    return aj2({ ok: true, settlements: r.results || [] });
+  }
+
+  return aj2({ error: '알 수 없는 경로' }, 404);
 }
 
 // ── Calendar ──────────────────────────────────────────────────────────────────

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>장악형 캔들 패턴</title>
+    <style>
+        body {
+            background: #1a1a2e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        .container {
+            display: flex;
+            gap: 80px;
+        }
+        .pattern {
+            text-align: center;
+        }
+        .title {
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+        .bearish .title { color: #ff4757; }
+        .bullish .title { color: #2ed573; }
+        
+        .chart {
+            position: relative;
+            width: 300px;
+            height: 400px;
+            background: #16213e;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        
+        .candle {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .wick {
+            width: 2px;
+            background: #888;
+        }
+        
+        .body {
+            width: 30px;
+            border-radius: 2px;
+        }
+        
+        .green .body { background: #2ed573; }
+        .red .body { background: #ff4757; }
+        
+        .label {
+            color: #fff;
+            font-size: 12px;
+            margin-top: 5px;
+            white-space: nowrap;
+        }
+        
+        .arrow {
+            position: absolute;
+            color: #ffd700;
+            font-size: 30px;
+        }
+        
+        .result-label {
+            color: #ffd700;
+            font-size: 16px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 하락장악형 -->
+        <div class="pattern bearish">
+            <div class="title">🔴 하락장악형 (Bearish Engulfing)</div>
+            <div class="chart">
+                <!-- 작은 양봉 -->
+                <div class="candle green" style="left: 50px; top: 80px;">
+                    <div class="wick" style="height: 20px;"></div>
+                    <div class="body" style="height: 40px;"></div>
+                    <div class="wick" style="height: 15px;"></div>
+                    <div class="label">작은 양봉</div>
+                </div>
+                
+                <!-- 큰 음봉 (장악) -->
+                <div class="candle red" style="left: 110px; top: 50px;">
+                    <div class="wick" style="height: 15px;"></div>
+                    <div class="body" style="height: 80px; width: 40px;"></div>
+                    <div class="wick" style="height: 20px;"></div>
+                    <div class="label">큰 음봉 (장악)</div>
+                </div>
+                
+                <!-- 이후 하락 -->
+                <div class="candle red" style="left: 170px; top: 130px;">
+                    <div class="wick" style="height: 10px;"></div>
+                    <div class="body" style="height: 50px;"></div>
+                    <div class="wick" style="height: 15px;"></div>
+                </div>
+                
+                <div class="candle red" style="left: 220px; top: 190px;">
+                    <div class="wick" style="height: 10px;"></div>
+                    <div class="body" style="height: 45px;"></div>
+                    <div class="wick" style="height: 10px;"></div>
+                </div>
+                
+                <div class="arrow" style="right: 30px; top: 280px;">↓</div>
+                <div class="result-label" style="position: absolute; bottom: 20px; width: 100%; text-align: center;">
+                    → 숏 진입
+                </div>
+            </div>
+        </div>
+        
+        <!-- 상승장악형 -->
+        <div class="pattern bullish">
+            <div class="title">🟢 상승장악형 (Bullish Engulfing)</div>
+            <div class="chart">
+                <!-- 작은 음봉 -->
+                <div class="candle red" style="left: 50px; top: 180px;">
+                    <div class="wick" style="height: 15px;"></div>
+                    <div class="body" style="height: 40px;"></div>
+                    <div class="wick" style="height: 20px;"></div>
+                    <div class="label">작은 음봉</div>
+                </div>
+                
+                <!-- 큰 양봉 (장악) -->
+                <div class="candle green" style="left: 110px; top: 120px;">
+                    <div class="wick" style="height: 20px;"></div>
+                    <div class="body" style="height: 80px; width: 40px;"></div>
+                    <div class="wick" style="height: 15px;"></div>
+                    <div class="label">큰 양봉 (장악)</div>
+                </div>
+                
+                <!-- 이후 상승 -->
+                <div class="candle green" style="left: 170px; top: 80px;">
+                    <div class="wick" style="height: 15px;"></div>
+                    <div class="body" style="height: 50px;"></div>
+                    <div class="wick" style="height: 10px;"></div>
+                </div>
+                
+                <div class="candle green" style="left: 220px; top: 40px;">
+                    <div class="wick" style="height: 10px;"></div>
+                    <div class="body" style="height: 45px;"></div>
+                    <div class="wick" style="height: 10px;"></div>
+                </div>
+                
+                <div class="arrow" style="right: 30px; top: 30px;">↑</div>
+                <div class="result-label" style="position: absolute; bottom: 20px; width: 100%; text-align: center;">
+                    → 롱 진입
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

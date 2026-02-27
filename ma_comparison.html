@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이평선 정배열/역배열 비교</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0d1117;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #58a6ff;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+        .section-title {
+            text-align: center;
+            color: #8b949e;
+            margin: 30px 0 15px;
+            font-size: 18px;
+        }
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .chart-box {
+            background: #161b22;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #30363d;
+        }
+        .chart-title {
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #30363d;
+        }
+        .chart-title.bullish { color: #3fb950; }
+        .chart-title.bearish { color: #f85149; }
+        
+        canvas { width: 100%; height: 250px; }
+        
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #30363d;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #8b949e;
+        }
+        .legend-dot {
+            width: 20px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        
+        .summary {
+            background: #161b22;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #30363d;
+            margin-top: 20px;
+        }
+        .summary h3 {
+            color: #58a6ff;
+            margin-bottom: 15px;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .summary-item h4 {
+            color: #8b949e;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+        .summary-item p {
+            color: #c9d1d9;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .highlight { color: #ffc107; font-weight: bold; }
+        .green { color: #3fb950; }
+        .red { color: #f85149; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 이평선 정배열 vs 역배열</h1>
+        
+        <!-- 단타용 5/9/15/25 -->
+        <div class="section-title">🔥 단타용 (5분봉) - MA 5/9/15/25 <span style="color:#ffc107;">(촘촘함)</span></div>
+        <div class="comparison">
+            <div class="chart-box">
+                <div class="chart-title bullish">✅ 정배열 (상승 추세)</div>
+                <canvas id="short-bull"></canvas>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#ff4757;"></div>MA5</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#ffa502;"></div>MA9</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#fffa65;"></div>MA15</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#2ed573;"></div>MA25</div>
+                </div>
+            </div>
+            <div class="chart-box">
+                <div class="chart-title bearish">❌ 역배열 (하락 추세)</div>
+                <canvas id="short-bear"></canvas>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#ff4757;"></div>MA5</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#ffa502;"></div>MA9</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#fffa65;"></div>MA15</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#2ed573;"></div>MA25</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 스윙용 5/20/60/120 -->
+        <div class="section-title">📈 스윙용 (1시간봉+) - MA 5/20/60/120 <span style="color:#58a6ff;">(넓음)</span></div>
+        <div class="comparison">
+            <div class="chart-box">
+                <div class="chart-title bullish">✅ 정배열 (상승 추세)</div>
+                <canvas id="swing-bull"></canvas>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#ff4757;"></div>MA5</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#ffa502;"></div>MA20</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#1e90ff;"></div>MA60</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#9b59b6;"></div>MA120</div>
+                </div>
+            </div>
+            <div class="chart-box">
+                <div class="chart-title bearish">❌ 역배열 (하락 추세)</div>
+                <canvas id="swing-bear"></canvas>
+                <div class="legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#ff4757;"></div>MA5</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#ffa502;"></div>MA20</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#1e90ff;"></div>MA60</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#9b59b6;"></div>MA120</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 요약 -->
+        <div class="summary">
+            <h3>💡 정리</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <h4>5/9/15/25 (단타용)</h4>
+                    <p>
+                        선 간격 <span class="highlight">촘촘</span> → 빠른 반응<br>
+                        수렴/발산 잘 보임<br>
+                        <span class="green">5분봉, 15분봉</span>에 적합
+                    </p>
+                </div>
+                <div class="summary-item">
+                    <h4>5/20/60/120 (스윙용)</h4>
+                    <p>
+                        선 간격 <span class="highlight">넓음</span> → 큰 추세 확인<br>
+                        노이즈 필터링 good<br>
+                        <span class="green">1시간봉, 4시간봉, 일봉</span>에 적합
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function drawChart(canvasId, type, spacing) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // 고해상도 설정
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * 2;
+            canvas.height = 250 * 2;
+            ctx.scale(2, 2);
+            
+            const w = rect.width;
+            const h = 250;
+            
+            // 배경 그리드
+            ctx.strokeStyle = '#21262d';
+            ctx.lineWidth = 1;
+            for(let i = 0; i < 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(0, h * 0.2 + i * h * 0.15);
+                ctx.lineTo(w, h * 0.2 + i * h * 0.15);
+                ctx.stroke();
+            }
+            
+            const isBull = type === 'bull';
+            const isShort = spacing === 'short';
+            
+            // 간격 설정
+            const gaps = isShort ? [0, 8, 16, 24] : [0, 25, 55, 90];
+            
+            // MA 색상
+            const colors = isShort 
+                ? ['#ff4757', '#ffa502', '#fffa65', '#2ed573']
+                : ['#ff4757', '#ffa502', '#1e90ff', '#9b59b6'];
+            
+            // 곡선 생성
+            function generateMA(baseY, offset, amplitude) {
+                const points = [];
+                for(let x = 0; x <= w; x += 3) {
+                    let y = baseY + offset;
+                    // 파동 추가
+                    y += Math.sin(x * 0.02) * amplitude;
+                    y += Math.sin(x * 0.05) * (amplitude * 0.3);
+                    
+                    // 추세 방향
+                    if(isBull) {
+                        y -= (x / w) * 60; // 상승
+                    } else {
+                        y += (x / w) * 60; // 하락
+                    }
+                    points.push({x, y});
+                }
+                return points;
+            }
+            
+            // 캔들 그리기 (배경)
+            ctx.globalAlpha = 0.3;
+            for(let x = 20; x < w - 20; x += 12) {
+                const baseY = h * 0.5;
+                const trend = isBull ? -(x / w) * 60 : (x / w) * 60;
+                const candleY = baseY + trend + (Math.random() - 0.5) * 40;
+                const candleH = 15 + Math.random() * 25;
+                const isGreen = Math.random() > (isBull ? 0.35 : 0.65);
+                
+                ctx.fillStyle = isGreen ? '#3fb950' : '#f85149';
+                ctx.fillRect(x - 3, candleY - candleH/2, 6, candleH);
+                
+                // 꼬리
+                ctx.strokeStyle = isGreen ? '#3fb950' : '#f85149';
+                ctx.beginPath();
+                ctx.moveTo(x, candleY - candleH/2 - 5);
+                ctx.lineTo(x, candleY + candleH/2 + 5);
+                ctx.stroke();
+            }
+            ctx.globalAlpha = 1;
+            
+            // MA 선 그리기
+            const baseY = h * 0.5;
+            
+            for(let i = 3; i >= 0; i--) {
+                const offset = isBull ? gaps[i] : -gaps[i];
+                const amplitude = isShort ? 8 : 5;
+                const points = generateMA(baseY, offset, amplitude + i * 2);
+                
+                ctx.strokeStyle = colors[i];
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                points.forEach((p, idx) => {
+                    if(idx === 0) ctx.moveTo(p.x, p.y);
+                    else ctx.lineTo(p.x, p.y);
+                });
+                ctx.stroke();
+            }
+            
+            // 정배열/역배열 라벨
+            ctx.font = 'bold 12px sans-serif';
+            ctx.fillStyle = '#8b949e';
+            
+            if(isBull) {
+                ctx.fillText('5', w - 30, isShort ? 65 : 45);
+                ctx.fillText(isShort ? '9' : '20', w - 30, isShort ? 73 : 65);
+                ctx.fillText(isShort ? '15' : '60', w - 30, isShort ? 81 : 95);
+                ctx.fillText(isShort ? '25' : '120', w - 30, isShort ? 89 : 125);
+            } else {
+                ctx.fillText(isShort ? '25' : '120', w - 30, isShort ? 145 : 105);
+                ctx.fillText(isShort ? '15' : '60', w - 30, isShort ? 153 : 135);
+                ctx.fillText(isShort ? '9' : '20', w - 30, isShort ? 161 : 165);
+                ctx.fillText('5', w - 30, isShort ? 169 : 195);
+            }
+        }
+        
+        // 차트 그리기
+        setTimeout(() => {
+            drawChart('short-bull', 'bull', 'short');
+            drawChart('short-bear', 'bear', 'short');
+            drawChart('swing-bull', 'bull', 'swing');
+            drawChart('swing-bear', 'bear', 'swing');
+        }, 100);
+    </script>
+</body>
+</html>

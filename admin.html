@@ -156,9 +156,11 @@ tr:hover td{background:var(--bg4);}
   <div class="login-box">
     <div class="login-logo">1% TRADING</div>
     <p class="login-sub">관리자 전용 페이지</p>
-    <input type="password" id="loginPw" class="login-input" placeholder="비밀번호 입력" autocomplete="current-password">
-    <button class="login-btn" onclick="doLogin()">로그인</button>
-    <div class="login-err" id="loginErr"></div>
+    <form id="loginForm" onsubmit="doLogin(event)" autocomplete="off">
+      <input type="password" id="loginPw" class="login-input" placeholder="비밀번호 입력" autocomplete="current-password">
+      <button type="submit" class="login-btn" id="loginBtn">로그인</button>
+      <div class="login-err" id="loginErr"></div>
+    </form>
   </div>
 </div>
 
@@ -206,27 +208,39 @@ let currentPage = 'dashboard';
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 
-async function doLogin() {
-  const pw = document.getElementById('loginPw').value;
-  if (!pw) return;
-  const r = await fetch(BASE + '/auth', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ password: pw }),
-  });
-  const d = await r.json();
-  if (d.ok) {
-    TOKEN = pw;
-    sessionStorage.setItem('adminToken', pw);
-    document.getElementById('loginWrap').style.display = 'none';
-    document.getElementById('appWrap').style.display = 'flex';
-    showPage('dashboard');
-  } else {
-    document.getElementById('loginErr').textContent = d.error || '오류가 발생했습니다';
+async function doLogin(e) {
+  if (e) e.preventDefault();
+  const pw = document.getElementById('loginPw').value.trim();
+  const btn = document.getElementById('loginBtn');
+  const errEl = document.getElementById('loginErr');
+  if (!pw) { errEl.textContent = '비밀번호를 입력해주세요.'; return; }
+  btn.textContent = '로그인 중...';
+  btn.disabled = true;
+  errEl.textContent = '';
+  try {
+    const r = await fetch(BASE + '/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw }),
+    });
+    const d = await r.json();
+    if (d.ok) {
+      TOKEN = pw;
+      sessionStorage.setItem('adminToken', pw);
+      document.getElementById('loginWrap').style.display = 'none';
+      document.getElementById('appWrap').style.display = 'flex';
+      showPage('dashboard');
+    } else {
+      errEl.textContent = d.error || '비밀번호가 틀렸습니다.';
+      btn.textContent = '로그인';
+      btn.disabled = false;
+    }
+  } catch (err) {
+    errEl.textContent = '네트워크 오류: ' + err.message;
+    btn.textContent = '로그인';
+    btn.disabled = false;
   }
 }
-
-document.getElementById('loginPw').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
 
 function doLogout() {
   TOKEN = '';

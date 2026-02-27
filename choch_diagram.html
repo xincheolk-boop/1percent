@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChoCH 발생 조건</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #1a1a1a;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #2a2a2a;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 1200px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: #fff;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 32px;
+        }
+        .chart-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .chart {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+        }
+        .chart-title {
+            color: #fff;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.down {
+            background: #ff4444;
+            color: white;
+        }
+        .status.up {
+            background: #00ff88;
+            color: black;
+        }
+        svg {
+            width: 100%;
+            height: 400px;
+        }
+        .line {
+            fill: none;
+            stroke-width: 3;
+        }
+        .downtrend {
+            stroke: #ff4444;
+        }
+        .uptrend {
+            stroke: #00ff88;
+        }
+        .resistance {
+            stroke: #ff6b6b;
+            stroke-width: 2;
+            stroke-dasharray: 8,5;
+        }
+        .support-flip {
+            stroke: #00ff88;
+            stroke-width: 2;
+            stroke-dasharray: 8,5;
+        }
+        .point {
+            fill: #fff;
+            stroke: #000;
+            stroke-width: 2;
+        }
+        .label {
+            fill: #fff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        .arrow {
+            stroke: #ffd700;
+            stroke-width: 3;
+            fill: none;
+            marker-end: url(#arrowhead);
+        }
+        .arrow-big {
+            stroke: #00ff88;
+            stroke-width: 4;
+            fill: none;
+            marker-end: url(#arrowhead-big);
+        }
+        .annotation {
+            fill: #ffd700;
+            font-size: 14px;
+        }
+        .annotation-box {
+            fill: rgba(255, 215, 0, 0.1);
+            stroke: #ffd700;
+            stroke-width: 2;
+        }
+        .steps {
+            background: #1a1a1a;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #2a2a2a;
+            border-radius: 10px;
+            border-left: 5px solid #00ff88;
+        }
+        .step-number {
+            background: #00ff88;
+            color: black;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        .step-text {
+            color: #fff;
+            font-size: 18px;
+        }
+        .highlight {
+            color: #ffd700;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 하락장 → 상승장 전환 (ChoCH 발생)</h1>
+        
+        <div class="chart-container">
+            <!-- 왼쪽: 하락 구조 -->
+            <div class="chart">
+                <div class="chart-title">
+                    ❌ 현재 (하락 구조)
+                    <span class="status down">DOWN TREND</span>
+                </div>
+                <svg viewBox="0 0 500 400">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                            <polygon points="0 0, 10 3, 0 6" fill="#ffd700" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- 저항선 (직전 고점) -->
+                    <line x1="0" y1="150" x2="500" y2="150" class="resistance"/>
+                    <text x="10" y="140" class="annotation">직전 고점 (저항선)</text>
+                    
+                    <!-- 하락 구조 -->
+                    <polyline points="50,80 100,120 150,60 200,140 250,100 300,180 350,140 400,220 450,180" class="line downtrend"/>
+                    
+                    <!-- 주요 포인트 -->
+                    <circle cx="50" cy="80" r="8" class="point"/>
+                    <circle cx="150" cy="60" r="8" class="point"/>
+                    <circle cx="250" cy="100" r="8" class="point"/>
+                    <circle cx="350" cy="140" r="8" class="point"/>
+                    
+                    <!-- 라벨 -->
+                    <text x="150" y="45" class="label" text-anchor="middle">고점1</text>
+                    <text x="250" y="85" class="label" text-anchor="middle">고점2 ↓</text>
+                    <text x="350" y="125" class="label" text-anchor="middle">고점3 ↓</text>
+                    
+                    <!-- 화살표 (고점 낮아짐) -->
+                    <path d="M 180 65 Q 210 75 240 95" class="arrow"/>
+                    <path d="M 280 105 Q 310 115 340 135" class="arrow"/>
+                    
+                    <!-- 설명 박스 -->
+                    <rect x="50" y="320" width="400" height="60" class="annotation-box"/>
+                    <text x="250" y="345" class="annotation" text-anchor="middle" font-size="16">고점이 계속 낮아짐</text>
+                    <text x="250" y="365" class="annotation" text-anchor="middle" font-size="16">= 하락 추세 유지</text>
+                </svg>
+            </div>
+            
+            <!-- 오른쪽: ChoCH 발생 -->
+            <div class="chart">
+                <div class="chart-title">
+                    ✅ ChoCH 발생 (구조 전환)
+                    <span class="status up">UP TREND</span>
+                </div>
+                <svg viewBox="0 0 500 400">
+                    <defs>
+                        <marker id="arrowhead-big" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+                            <polygon points="0 0, 12 4, 0 8" fill="#00ff88" />
+                        </marker>
+                    </defs>
+                    
+                    <!-- 기존 저항선 → 지지선 전환 -->
+                    <line x1="0" y1="150" x2="320" y2="150" class="resistance"/>
+                    <line x1="320" y1="150" x2="500" y2="150" class="support-flip"/>
+                    <text x="10" y="140" class="annotation">직전 고점</text>
+                    <text x="330" y="140" style="fill: #00ff88; font-size: 14px;">→ 지지선 전환!</text>
+                    
+                    <!-- 하락 → 상승 구조 -->
+                    <polyline points="50,80 100,120 150,60 200,140 250,100 300,180" class="line downtrend"/>
+                    <polyline points="300,180 350,130 400,80 450,120" class="line uptrend"/>
+                    
+                    <!-- 주요 포인트 -->
+                    <circle cx="150" cy="60" r="8" class="point"/>
+                    <circle cx="250" cy="100" r="8" class="point"/>
+                    <circle cx="350" cy="130" r="8" style="fill: #ffd700;"/>
+                    <circle cx="400" cy="80" r="10" style="fill: #00ff88;"/>
+                    
+                    <!-- 라벨 -->
+                    <text x="150" y="45" class="label" text-anchor="middle">고점1</text>
+                    <text x="250" y="85" class="label" text-anchor="middle">고점2</text>
+                    <text x="350" y="115" style="fill: #ffd700; font-size: 16px; font-weight: bold;" text-anchor="middle">돌파!</text>
+                    <text x="400" y="65" style="fill: #00ff88; font-size: 18px; font-weight: bold;" text-anchor="middle">신고점!</text>
+                    
+                    <!-- 큰 화살표 (돌파) -->
+                    <path d="M 310 175 L 340 135" class="arrow-big"/>
+                    
+                    <!-- ChoCH 표시 -->
+                    <rect x="280" y="200" width="180" height="40" style="fill: rgba(0,255,136,0.2); stroke: #00ff88; stroke-width: 3;"/>
+                    <text x="370" y="225" style="fill: #00ff88; font-size: 20px; font-weight: bold;" text-anchor="middle">ChoCH 발생!</text>
+                    
+                    <!-- 설명 박스 -->
+                    <rect x="50" y="320" width="400" height="60" class="annotation-box"/>
+                    <text x="250" y="345" class="annotation" text-anchor="middle" font-size="16">직전 고점 종가 돌파</text>
+                    <text x="250" y="365" class="annotation" text-anchor="middle" font-size="16">= 하락 구조 깨짐 = ChoCH</text>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- 단계별 설명 -->
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    <span class="highlight">직전 고점 돌파</span> - 빨간 점선(저항선)을 종가로 뚫어야 함
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">
+                    <span class="highlight">신고점 형성</span> - 이전보다 높은 고점 만들기 (Higher High)
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">
+                    <span class="highlight">리테스트</span> - 돌파한 저항선으로 다시 내려와서 지지 확인
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-text">
+                    <span class="highlight">반등 성공</span> - 리테스트 후 다시 상승 = 상승 추세 확정 (BOS)
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

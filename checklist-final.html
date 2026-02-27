@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>매매 체크리스트</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html, body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #0a0a0f;
+            color: #ffffff;
+            padding: 2vh 2vw;
+        }
+        
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background-image: 
+                linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .bg-gradient {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: 
+                radial-gradient(ellipse at 50% 20%, rgba(0,212,255,0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(168,85,247,0.15) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .title {
+            text-align: center;
+            font-size: 4vh;
+            font-weight: 900;
+            background: linear-gradient(90deg, #00d4ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            text-align: center;
+            font-size: 1.6vh;
+            color: #a0a0b0;
+            margin-bottom: 1vh;
+        }
+        
+        .warning {
+            background: rgba(0, 212, 255, 0.1);
+            border: 0.3vh solid #00d4ff;
+            border-radius: 1vh;
+            padding: 1.2vh;
+            text-align: center;
+            margin-bottom: 1vh;
+            box-shadow: 0 0 2vh rgba(0, 212, 255, 0.3);
+        }
+        
+        .warning-text {
+            font-size: 2.2vh;
+            font-weight: 700;
+            color: #00d4ff;
+        }
+        
+        .checklist {
+            list-style: none;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8vh;
+        }
+        
+        .checklist li {
+            background: rgba(26, 26, 37, 0.8);
+            border: 0.15vh solid rgba(255,255,255,0.1);
+            border-radius: 0.8vh;
+            padding: 1.2vh 1.5vw;
+            display: flex;
+            align-items: center;
+            gap: 1.5vw;
+        }
+        
+        .checklist li.critical {
+            border: 0.3vh solid #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+        }
+        
+        .number {
+            background: linear-gradient(135deg, #00d4ff, #a855f7);
+            color: #fff;
+            width: 3.5vh;
+            height: 3.5vh;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.8vh;
+            flex-shrink: 0;
+        }
+        
+        .number.critical {
+            background: #ef4444;
+        }
+        
+        .main-text {
+            font-size: 2vh;
+            font-weight: 600;
+        }
+        
+        .sub-text {
+            font-size: 1.4vh;
+            color: #00d4ff;
+        }
+        
+        .rule-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 0.3vh solid #ef4444;
+            border-radius: 1vh;
+            padding: 1.2vh;
+            margin-top: 1vh;
+        }
+        
+        .rule-title {
+            font-size: 2vh;
+            font-weight: 800;
+            color: #ef4444;
+            margin-bottom: 1vh;
+            text-align: center;
+        }
+        
+        .rule-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6vh;
+        }
+        
+        .rule-list li {
+            background: rgba(0, 0, 0, 0.4);
+            border: 0.15vh solid rgba(239, 68, 68, 0.5);
+            border-radius: 0.6vh;
+            padding: 0.8vh 1vw;
+            display: flex;
+            align-items: center;
+            gap: 1vw;
+        }
+        
+        .rule-num {
+            background: #ef4444;
+            color: #fff;
+            width: 2.8vh;
+            height: 2.8vh;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.4vh;
+            flex-shrink: 0;
+        }
+        
+        .rule-content {
+            font-size: 1.5vh;
+            color: #ffffff;
+        }
+        
+        .rule-highlight {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+        
+        .footer {
+            margin-top: 1vh;
+            text-align: center;
+            font-size: 1.4vh;
+        }
+        
+        .highlight {
+            color: #00d4ff;
+            font-weight: 600;
+        }
+        
+        .logo {
+            background: linear-gradient(90deg, #00d4ff, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-gradient"></div>
+    <div class="container">
+        <h1 class="title">🔥 매매 체크리스트 🔥</h1>
+        <p class="subtitle">이 근거 아니면 절대 진입 금지</p>
+        
+        <div class="warning">
+            <div class="warning-text">⚠️ 진입 전 무조건 읽기 ⚠️</div>
+        </div>
+        
+        <ul class="checklist">
+            <li class="critical">
+                <div class="number critical">★</div>
+                <div class="content">
+                    <div class="main-text">진입 근거를 입으로 말하고 실천</div>
+                    <div class="sub-text">말로 못 대면 진입 금지. NO TRADE</div>
+                </div>
+            </li>
+            <li>
+                <div class="number">1</div>
+                <div class="content">
+                    <div class="main-text">코인 찾기 (구간 찾기)</div>
+                    <div class="sub-text">시작이 중요. 확실히 찾기</div>
+                </div>
+            </li>
+            <li>
+                <div class="number">2</div>
+                <div class="content">
+                    <div class="main-text">타임프레임 ICT 빠르게</div>
+                    <div class="sub-text">아는 구간이면 패턴 작도 먼저</div>
+                </div>
+            </li>
+            <li>
+                <div class="number">3</div>
+                <div class="content">
+                    <div class="main-text">진입은 반대로 설정</div>
+                    <div class="sub-text">숏=위 지정가 / 롱=아래 지정가</div>
+                </div>
+            </li>
+            <li>
+                <div class="number">4</div>
+                <div class="content">
+                    <div class="main-text">분할매수 또는 완벽 진입</div>
+                    <div class="sub-text">노이즈 없이 깔끔하게</div>
+                </div>
+            </li>
+            <li>
+                <div class="number">5</div>
+                <div class="content">
+                    <div class="main-text">심심해도 추가 진입 금지</div>
+                    <div class="sub-text">FOMO 금지</div>
+                </div>
+            </li>
+            <li>
+                <div class="number">6</div>
+                <div class="content">
+                    <div class="main-text">기다리는 동안</div>
+                    <div class="sub-text">클로드랑 밀린 업무 😎</div>
+                </div>
+            </li>
+        </ul>
+        
+        <div class="rule-box">
+            <div class="rule-title">⛔ 절대 규칙 ⛔</div>
+            <ul class="rule-list">
+                <li>
+                    <div class="rule-num">1</div>
+                    <div class="rule-content"><span class="rule-highlight">명확한 근거 말하고 진입</span> / 없으면 금지</div>
+                </li>
+                <li>
+                    <div class="rule-num">2</div>
+                    <div class="rule-content"><span class="rule-highlight">추격+뇌동+감정매매</span> 절대 금지 🏃</div>
+                </li>
+                <li>
+                    <div class="rule-num">3</div>
+                    <div class="rule-content">수칙 안 지키면 <strong>무조건 패배</strong> ❌</div>
+                </li>
+                <li>
+                    <div class="rule-num">4</div>
+                    <div class="rule-content"><span class="rule-highlight">모든 수칙 후</span> 매매 스타트 ✅</div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <span class="highlight">하나라도 안 지키면 진입 금지</span> | <span class="logo">7.27k PRO</span>
+        </div>
+    </div>
+</body>
+</html>

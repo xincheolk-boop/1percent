@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7.27k PRO - 선물거래 정보 플랫폼</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #00FFD5;
+            --accent2: #00D4B3;
+            --bg: #0a0a0a;
+            --bg2: #111111;
+            --card: #151515;
+            --text: #e8e8e8;
+            --text2: #888;
+            --muted: #555;
+            --border: #1e1e1e;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans KR', 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; }
+        
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 52px;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            z-index: 1000;
+        }
+        .menu-btn {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text2); font-size: 18px;
+            margin-right: 12px;
+            border-radius: 6px;
+        }
+        .menu-btn:hover { background: var(--bg2); color: var(--text); }
+        .logo { display: flex; align-items: center; gap: 6px; text-decoration: none; cursor: pointer; }
+        .logo-box {
+            width: 26px; height: 26px;
+            background: var(--accent);
+            border-radius: 5px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 7px; color: #000;
+        }
+        .logo-text { font-family: 'Inter'; font-size: 15px; font-weight: 700; color: var(--text); }
+        .logo-text span { color: var(--accent); }
+        
+        .nav { display: flex; align-items: center; gap: 2px; margin-left: 20px; }
+        .nav-item {
+            padding: 8px 12px;
+            color: var(--text2);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+        .nav-item:hover { background: var(--bg2); color: var(--text); }
+        
+        .header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+        .h-link {
+            padding: 6px 10px;
+            color: var(--text2);
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .h-link:hover { color: var(--accent); }
+        .h-btn {
+            width: 34px; height: 34px;
+            background: transparent;
+            border: none;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: var(--text2); font-size: 16px;
+            border-radius: 6px;
+        }
+        .h-btn:hover { background: var(--bg2); color: var(--text); }
+        .btn-login {
+            padding: 7px 14px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .btn-login:hover { background: var(--card); }
+        
+        /* Ticker Bar */
+        .ticker-bar {
+            position: fixed;
+            top: 52px; left: 0; right: 0;
+            height: 32px;
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 12px;
+            gap: 16px;
+            z-index: 999;
+        }
+        .ticker-item { display: flex; align-items: center; gap: 4px; color: var(--text2); }
+        .ticker-item .sym { color: var(--text); font-weight: 500; }
+        .ticker-item .up { color: #22c55e; }
+        .ticker-item .down { color: #ef4444; }
+        .ticker-right { margin-left: auto; }
+        .ticker-right span { color: var(--accent); }
+        
+        /* Layout */
+        .layout {
+            display: flex;
+            padding-top: 84px;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar Left */
+        .sidebar-left {
+            width: 280px;
+            background: var(--bg);
+            position: fixed;
+            top: 84px; left: 0; bottom: 0;
+            border-right: 1px solid var(--border);
+            padding: 12px;
+            overflow-y: auto;
+        }
+        
+        .sl-section { margin-bottom: 20px; }
+        .sl-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text);
+        }
+        .sl-more { margin-left: auto; font-size: 10px; color: var(--text2); cursor: pointer; }
+        .sl-more:hover { color: var(--accent); }
+        
+        /* News */
+        .sl-news {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .sl-news:last-child { border-bottom: none; }
+        .sl-news:hover .sl-news-title { color: var(--accent); }
+        .sl-news-time { font-size: 10px; color: #ef4444; margin-bottom: 2px; font-weight: 500; }
+        .sl-news-title { font-size: 12px; line-height: 1.4; }
+        
+        /* Events */
+        .sl-event {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        .sl-event:hover { border-color: var(--accent); }
+        .sl-event-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            background: rgba(0,255,213,0.1);
+            color: var(--accent);
+            font-size: 9px;
+            font-weight: 600;
+            border-radius: 3px;
+            margin-bottom: 4px;
+        }
+        .sl-event-title { font-size: 11px; font-weight: 500; }
+        .sl-event-date { font-size: 10px; color: var(--muted); }
+        
+        /* Partner Exchange Card */
+        .partner-card {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .partner-card::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 100px; height: 100px;
+            background: radial-gradient(circle, rgba(0,255,213,0.1) 0%, transparent 70%);
+        }
+        .partner-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .partner-logo {
+            width: 36px; height: 36px;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+        .partner-name { font-size: 14px; font-weight: 600; }
+        .partner-tag { font-size: 10px; color: var(--accent); }
+        .partner-benefits {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+        .partner-benefit {
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+        }
+        .partner-benefit-label { font-size: 9px; color: var(--muted); margin-bottom: 2px; }
+        .partner-benefit-value { font-size: 14px; font-weight: 700; color: var(--accent); }
+        .partner-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--accent);
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .partner-btn:hover { opacity: 0.9; }
+        
+        /* Main */
+        .main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 20px;
+        }
+        
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 24px 0 36px;
+        }
+        .hero h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; line-height: 1.4; }
+        .hero h1 .accent { color: var(--accent); }
+        .hero .sub { color: var(--text2); font-size: 14px; margin-bottom: 20px; }
+        .hero .sub span { color: var(--accent); font-weight: 600; }
+        .hero-btns { display: flex; justify-content: center; gap: 10px; }
+        .btn-primary {
+            padding: 10px 24px;
+            background: var(--accent);
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-secondary {
+            padding: 10px 24px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .btn-secondary:hover { background: var(--card); }
+        
+        /* Card */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .card-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        .card-title { font-size: 14px; font-weight: 600; }
+        .card-more { font-size: 11px; color: var(--text2); cursor: pointer; }
+        .card-more:hover { color: var(--accent); }
+        
+        /* Futures Info */
+        .futures-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .futures-item {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+        }
+        .futures-label { font-size: 10px; color: var(--muted); margin-bottom: 4px; }
+        .futures-value { font-size: 16px; font-weight: 700; }
+        .futures-value.long { color: #22c55e; }
+        .futures-value.short { color: #ef4444; }
+        .futures-change { font-size: 10px; color: var(--text2); }
+        
+        /* News */
+        .news-item {
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+        }
+        .news-item:last-child { border-bottom: none; }
+        .news-item:hover .news-title { color: var(--accent); }
+        .news-time { font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+        .news-title { font-size: 13px; line-height: 1.4; }
+        
+        /* Exchange */
+        .ex-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .ex-row:last-child { border-bottom: none; }
+        .ex-logo {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            margin-right: 12px;
+            object-fit: contain;
+        }
+        .ex-logo-box {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            margin-right: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 10px;
+            background: var(--bg2);
+            color: var(--text2);
+        }
+        .ex-info { flex: 1; }
+        .ex-name { font-weight: 600; font-size: 14px; }
+        .ex-tag { font-size: 11px; color: var(--muted); }
+        .ex-rate { font-family: 'Inter'; font-weight: 700; color: var(--accent); margin-right: 16px; font-size: 15px; }
+        .ex-btn {
+            padding: 6px 14px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .ex-btn:hover { background: var(--card); }
+        
+        /* Toggle Right Button */
+        .toggle-right {
+            position: fixed;
+            top: 92px;
+            right: 8px;
+            width: 32px;
+            height: 32px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--text2);
+            font-size: 14px;
+            z-index: 50;
+        }
+        .toggle-right:hover { background: var(--bg2); color: var(--text); }
+        
+        /* Sidebar Right */
+        .sidebar-right {
+            width: 240px;
+            background: var(--bg);
+            position: fixed;
+            top: 84px; right: 0; bottom: 0;
+            border-left: 1px solid var(--border);
+            padding: 12px 0;
+            overflow-y: auto;
+            transform: translateX(100%);
+            transition: transform 0.2s;
+            z-index: 40;
+        }
+        .sidebar-right.open { transform: translateX(0); }
+        
+        .sr-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 16px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sr-head-title { font-size: 13px; font-weight: 600; }
+        .sr-close { cursor: pointer; color: var(--text2); font-size: 18px; }
+        .sr-close:hover { color: var(--text); }
+        
+        .sr-section {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .sr-section:last-child { border-bottom: none; }
+        .sr-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 16px;
+            color: var(--text2);
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .sr-item:hover { background: var(--bg2); color: var(--text); }
+        .sr-icon { font-size: 16px; width: 20px; text-align: center; }
+        .sr-badge {
+            margin-left: auto;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .sr-badge.hit { background: #ef4444; color: white; }
+        .sr-badge.must { background: var(--accent); color: #000; }
+        .sr-badge.new { background: #22c55e; color: white; }
+        .sr-title {
+            padding: 12px 16px 6px;
+            font-size: 11px;
+            color: var(--muted);
+        }
+        
+        /* 일정 in Right */
+        .sr-schedule {
+            padding: 8px 16px;
+            display: flex;
+            gap: 10px;
+            cursor: pointer;
+        }
+        .sr-schedule:hover { background: var(--bg2); }
+        .sr-sch-date { text-align: center; min-width: 32px; }
+        .sr-sch-day { font-size: 14px; font-weight: 700; color: var(--accent); }
+        .sr-sch-dow { font-size: 8px; color: var(--muted); }
+        .sr-sch-info { flex: 1; }
+        .sr-sch-tag { font-size: 8px; color: var(--muted); }
+        .sr-sch-title { font-size: 11px; line-height: 1.3; }
+        
+        /* Modal */
+        .modal-bg {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-bg.active { display: flex; }
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            width: 320px;
+        }
+        .modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-title { font-size: 15px; font-weight: 600; }
+        .modal-close { cursor: pointer; color: var(--text2); font-size: 20px; }
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-size: 13px;
+            font-family: inherit;
+        }
+        .form-input:focus { outline: none; border-color: var(--accent); }
+        .form-label { font-size: 11px; color: var(--text2); margin-bottom: 4px; display: block; }
+        .form-group { margin-bottom: 12px; }
+        .btn-login-big {
+            width: 100%;
+            padding: 10px;
+            background: var(--accent);
+            border: none;
+            border-radius: 6px;
+            color: #000;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .login-links { margin-top: 10px; font-size: 11px; color: var(--text2); text-align: center; }
+        .login-links a { color: var(--accent); text-decoration: none; }
+        
+        @media (max-width: 1000px) {
+            .sidebar-left { display: none; }
+            .main { margin-left: 0; }
+            .futures-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="menu-btn" onclick="toggleRight()">☰</div>
+        <a class="logo" onclick="goHome()">
+            <div class="logo-box">7.27</div>
+            <div class="logo-text">7.27k <span>PRO</span></div>
+        </a>
+        <nav class="nav">
+            <div class="nav-item">뉴스</div>
+            <div class="nav-item">거래소</div>
+            <div class="nav-item">리워드 테스트</div>
+            <div class="nav-item">커뮤니티</div>
+            <div class="nav-item">더보기</div>
+            <div class="nav-item" style="color:var(--accent)">🎁 리워드</div>
+        </nav>
+        <div class="header-right">
+            <span class="h-link" onclick="openPartner()">Partner</span>
+            <button class="h-btn" onclick="openLang()">🌐</button>
+            <button class="h-btn">⚙️</button>
+            <button class="btn-login" onclick="openLogin()">로그인</button>
+        </div>
+    </header>
+    
+    <!-- Ticker Bar -->
+    <div class="ticker-bar">
+        <div class="ticker-item"><span class="sym">BTC</span> $94,235 <span class="up">+1.24%</span></div>
+        <div class="ticker-item"><span class="sym">ETH</span> $3,142 <span class="down">-0.52%</span></div>
+        <div class="ticker-item"><span class="sym">김프</span> 1.8%</div>
+        <div class="ticker-right">🎉 tra***** 님이 <span>$127.50 USDT</span></div>
+    </div>
+    
+    <div class="layout">
+        <!-- Sidebar Left -->
+        <aside class="sidebar-left">
+            <div class="sl-section">
+                <div class="sl-title">🔥 실시간 <span class="sl-more">더보기→</span></div>
+                <div class="sl-news"><div class="sl-news-time">HOT</div><div class="sl-news-title">비트코인 $100K 도달 전망</div></div>
+                <div class="sl-news"><div class="sl-news-time">HOT</div><div class="sl-news-title">이더리움 ETF 승인 기대감</div></div>
+                <div class="sl-news"><div class="sl-news-time">HOT</div><div class="sl-news-title">알트코인 시즌 시작?</div></div>
+            </div>
+            
+            <div class="sl-section">
+                <div class="sl-title">🎁 거래소 이벤트 <span class="sl-more">더보기→</span></div>
+                <div class="sl-event"><div class="sl-event-badge">Bitget</div><div class="sl-event-title">신규 가입 1.7M USDT</div><div class="sl-event-date">1/31까지</div></div>
+                <div class="sl-event"><div class="sl-event-badge">Bitunix</div><div class="sl-event-title">트레이딩 대회</div><div class="sl-event-date">매주 진행</div></div>
+            </div>
+            
+            <div class="sl-section">
+                <div class="sl-title">🤝 공식 파트너 거래소</div>
+                <div class="partner-card">
+                    <div class="partner-head">
+                        <img src="https://static.bitunix.com/web/bitunix-assets/portal/bitunix-dark-logo.BhRiIshn.svg" class="partner-logo">
+                        <div>
+                            <div class="partner-name">Bitunix</div>
+                            <div class="partner-tag">공식 파트너</div>
+                        </div>
+                    </div>
+                    <div class="partner-benefits">
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">리워드</div>
+                            <div class="partner-benefit-value">85%</div>
+                        </div>
+                        <div class="partner-benefit">
+                            <div class="partner-benefit-label">수수료 할인</div>
+                            <div class="partner-benefit-value">20%</div>
+                        </div>
+                    </div>
+                    <button class="partner-btn">가입하고 혜택받기</button>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main -->
+        <main class="main">
+            <section class="hero">
+                <h1>선물거래 <span class="accent">정보</span>와<br><span class="accent">리워드</span>를 한번에</h1>
+                <p class="sub">거래 리워드 최대 <span>85%</span>까지 돌려받기</p>
+                <div class="hero-btns">
+                    <button class="btn-primary" onclick="openLogin()">시작하기</button>
+                    <button class="btn-secondary">자세히 보기</button>
+                </div>
+            </section>
+            
+            <!-- 선물 정보 -->
+            <div class="futures-grid">
+                <div class="futures-item">
+                    <div class="futures-label">BTC 펀딩비</div>
+                    <div class="futures-value long">+0.0125%</div>
+                    <div class="futures-change">롱 우세</div>
+                </div>
+                <div class="futures-item">
+                    <div class="futures-label">롱/숏 비율</div>
+                    <div class="futures-value">52/48</div>
+                    <div class="futures-change">롱 +4%</div>
+                </div>
+                <div class="futures-item">
+                    <div class="futures-label">청산 (24h)</div>
+                    <div class="futures-value short">$148M</div>
+                    <div class="futures-change">숏 61%</div>
+                </div>
+                <div class="futures-item">
+                    <div class="futures-label">OI 변화</div>
+                    <div class="futures-value long">+2.3%</div>
+                    <div class="futures-change">증가 추세</div>
+                </div>
+            </div>
+            
+            <!-- 뉴스 -->
+            <div class="card">
+                <div class="card-head">
+                    <h3 class="card-title">📰 뉴스</h3>
+                    <span class="card-more">더보기 →</span>
+                </div>
+                <div class="news-item"><div class="news-time">14:32</div><div class="news-title">비트코인, $95K 돌파 시도... 단기 저항선 주목</div></div>
+                <div class="news-item"><div class="news-time">13:45</div><div class="news-title">이더리움 펀딩비 급등, 롱 포지션 과열 신호</div></div>
+                <div class="news-item"><div class="news-time">12:18</div><div class="news-title">SEC, 비트코인 ETF 추가 승인 검토 중</div></div>
+                <div class="news-item"><div class="news-time">11:02</div><div class="news-title">고래 지갑, 24시간 내 3,000 BTC 이동</div></div>
+            </div>
+            
+            <!-- 제휴 거래소 -->
+            <div class="card">
+                <div class="card-head">
+                    <h3 class="card-title">🏦 제휴 거래소</h3>
+                    <span class="card-more">전체보기 →</span>
+                </div>
+                <div class="ex-row">
+                    <img src="https://static.bitunix.com/web/bitunix-assets/portal/bitunix-dark-logo.BhRiIshn.svg" class="ex-logo">
+                    <div class="ex-info"><div class="ex-name">Bitunix</div><div class="ex-tag">최대 리워드 🔥</div></div>
+                    <div class="ex-rate">85%</div>
+                    <button class="ex-btn">가입하기</button>
+                </div>
+                <div class="ex-row">
+                    <div class="ex-logo-box" style="background:rgba(0,240,255,0.1);color:#00F0FF;">BG</div>
+                    <div class="ex-info"><div class="ex-name">Bitget</div><div class="ex-tag">최상위 거래소 ⭐</div></div>
+                    <div class="ex-rate">81%</div>
+                    <button class="ex-btn">가입하기</button>
+                </div>
+                <div class="ex-row">
+                    <div class="ex-logo-box">GT</div>
+                    <div class="ex-info"><div class="ex-name">Gate</div><div class="ex-tag">추천 👍</div></div>
+                    <div class="ex-rate">80%</div>
+                    <button class="ex-btn">가입하기</button>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Toggle Right Button -->
+    <div class="toggle-right" onclick="toggleRight()">☰</div>
+    
+    <!-- Sidebar Right -->
+    <aside class="sidebar-right" id="sidebar-right">
+        <div class="sr-head">
+            <span class="sr-head-title">메뉴</span>
+            <span class="sr-close" onclick="toggleRight()">×</span>
+        </div>
+        
+        <div class="sr-section">
+            <div class="sr-item"><span class="sr-icon">📊</span> 대시보드</div>
+            <div class="sr-item"><span class="sr-icon">📝</span> 매매일지</div>
+            <div class="sr-item"><span class="sr-icon">🏦</span> 거래소 <span class="sr-badge hit">HIT</span></div>
+            <div class="sr-item"><span class="sr-icon">🧮</span> 리워드 테스트</div>
+        </div>
+        
+        <div class="sr-section">
+            <div class="sr-title">안내</div>
+            <div class="sr-item"><span class="sr-icon">📖</span> 이용가이드 <span class="sr-badge must">필독</span></div>
+            <div class="sr-item"><span class="sr-icon">ℹ️</span> 서비스소개</div>
+            <div class="sr-item"><span class="sr-icon">❓</span> FAQ</div>
+        </div>
+        
+        <div class="sr-section">
+            <div class="sr-title">커뮤니티</div>
+            <div class="sr-item"><span class="sr-icon">💬</span> 라운지 <span class="sr-badge new">NEW</span></div>
+            <div class="sr-item"><span class="sr-icon">👥</span> 친구초대 리베이트</div>
+            <div class="sr-item"><span class="sr-icon">✈️</span> 텔레그램</div>
+        </div>
+        
+        <div class="sr-section">
+            <div class="sr-title">📅 코인 주요 일정</div>
+            <div class="sr-schedule">
+                <div class="sr-sch-date"><div class="sr-sch-day">12</div><div class="sr-sch-dow">Mon</div></div>
+                <div class="sr-sch-info"><div class="sr-sch-tag">#거래소</div><div class="sr-sch-title">빗썸 ELX 상장폐지</div></div>
+            </div>
+            <div class="sr-schedule">
+                <div class="sr-sch-date"><div class="sr-sch-day">13</div><div class="sr-sch-dow">Tue</div></div>
+                <div class="sr-sch-info"><div class="sr-sch-tag">#주요이슈</div><div class="sr-sch-title">FOMC 연설</div></div>
+            </div>
+            <div class="sr-schedule">
+                <div class="sr-sch-date"><div class="sr-sch-day">14</div><div class="sr-sch-dow">Wed</div></div>
+                <div class="sr-sch-info"><div class="sr-sch-tag">#프로젝트</div><div class="sr-sch-title">PEAQ 언락</div></div>
+            </div>
+        </div>
+    </aside>
+    
+    <!-- Modals -->
+    <div class="modal-bg" id="lang-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="modal-title">언어 선택</span>
+                <span class="modal-close" onclick="closeLang()">×</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                <button class="btn-login" style="width:100%">🇰🇷 한국어</button>
+                <button class="btn-login" style="width:100%">🇺🇸 English</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal-bg" id="login-modal">
+        <div class="modal">
+            <div class="modal-head">
+                <span class="modal-title">로그인</span>
+                <span class="modal-close" onclick="closeLogin()">×</span>
+            </div>
+            <div class="form-group">
+                <label class="form-label">이메일</label>
+                <input type="email" class="form-input" placeholder="이메일">
+            </div>
+            <div class="form-group">
+                <label class="form-label">비밀번호</label>
+                <input type="password" class="form-input" placeholder="비밀번호">
+            </div>
+            <button class="btn-login-big">로그인</button>
+            <div class="login-links">계정이 없으신가요? <a href="#">회원가입</a></div>
+        </div>
+    </div>
+
+    <script>
+        function goHome() { location.reload(); }
+        function toggleRight() { document.getElementById('sidebar-right').classList.toggle('open'); }
+        function openLang() { document.getElementById('lang-modal').classList.add('active'); }
+        function closeLang() { document.getElementById('lang-modal').classList.remove('active'); }
+        function openLogin() { document.getElementById('login-modal').classList.add('active'); }
+        function closeLogin() { document.getElementById('login-modal').classList.remove('active'); }
+        function openPartner() { alert('파트너 신청 페이지'); }
+        
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                document.getElementById('lang-modal').classList.remove('active');
+                document.getElementById('login-modal').classList.remove('active');
+            }
+        });
+        document.querySelectorAll('.modal-bg').forEach(m => {
+            m.addEventListener('click', e => { if(e.target === m) m.classList.remove('active'); });
+        });
+    </script>
+</body>
+</html>
