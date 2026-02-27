@@ -97,7 +97,7 @@ async function handleAdmin(request, env, url) {
     if (path === '/stats' && request.method === 'GET') {
       const curMonth = new Date().toISOString().slice(0, 7);
       const [u, s, p] = await Promise.all([
-        db.prepare('SELECT COUNT(*) as c FROM users').first(),
+        db.prepare('SELECT COUNT(*) as c FROM accounts').first(),
         db.prepare('SELECT COALESCE(SUM(payback_amount),0) as c FROM settlements WHERE month=?').bind(curMonth).first(),
         db.prepare("SELECT COUNT(*) as c FROM settlements WHERE status='pending'").first(),
       ]);
