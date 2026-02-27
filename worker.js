@@ -105,6 +105,32 @@ async function handleAdmin(request, env, url) {
       return ajson({ totalUsers: u.c, monthlySettlement: s.c, unpaidCount: p.c, byExchange: byEx.results });
     }
 
+    // ── Accounts (회원 목록) ──
+    if (path === '/accounts' && request.method === 'GET') {
+      const q  = url.searchParams.get('search') || '';
+      const st = url.searchParams.get('status') || '';
+      let sql = `SELECT a.id, a.email, a.nickname, a.my_referral_code, a.referral_code_used,
+                        a.status, a.created_at, COUNT(u.id) as uid_count
+                 FROM accounts a LEFT JOIN users u ON u.account_id = a.id`;
+      const p = [], w = [];
+      if (st) { w.push('a.status=?'); p.push(st); }
+      if (q)  { w.push('(a.email LIKE ? OR a.nickname LIKE ?)'); p.push(`%${q}%`, `%${q}%`); }
+      if (w.length) sql += ' WHERE ' + w.join(' AND ');
+      sql += ' GROUP BY a.id ORDER BY a.created_at DESC';
+      const r = await db.prepare(sql).bind(...p).all();
+      return ajson({ accounts: r.results || [] });
+    }
+
+    // 회원 상태 변경
+    const accIdM = path.match(/^\/accounts\/(\d+)$/);
+    if (accIdM && request.method === 'PATCH') {
+      const id = +accIdM[1];
+      const { status } = await request.json().catch(() => ({}));
+      if (!['active','inactive'].includes(status)) return ajson({ error: '올바른 상태값이 아닙니다' }, 400);
+      await db.prepare('UPDATE accounts SET status=? WHERE id=?').bind(status, id).run();
+      return ajson({ ok: true });
+    }
+
     // ── Users ──
     if (path === '/users') {
       if (request.method === 'GET') {

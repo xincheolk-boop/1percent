@@ -174,6 +174,9 @@ tr:hover td{background:var(--bg4);}
     <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
       <span class="nav-icon">📊</span><span>대시보드</span>
     </div>
+    <div class="nav-item" onclick="showPage('accounts')" data-page="accounts">
+      <span class="nav-icon">🙍</span><span>회원 목록</span>
+    </div>
     <div class="nav-item" onclick="showPage('users')" data-page="users">
       <span class="nav-icon">👥</span><span>유저 관리</span>
     </div>
@@ -290,7 +293,7 @@ function toast(msg, type = 'success') {
 function showPage(page) {
   currentPage = page;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
-  const fns = { dashboard: renderDashboard, users: renderUsers, settlements: renderSettlements,
+  const fns = { dashboard: renderDashboard, accounts: renderAccounts, users: renderUsers, settlements: renderSettlements,
                 events: renderEvents, banners: renderBanners, notices: renderNotices };
   if (fns[page]) fns[page]();
 }
@@ -368,6 +371,79 @@ async function renderDashboard() {
       <div class="ex-bar-track"><div class="ex-bar-fill" style="width:${(x.cnt/max*100).toFixed(0)}%;background:${exColors[x.exchange]||'#9333ea'};"></div></div>
       <div class="ex-bar-val">${x.cnt}명</div>
     </div>`).join('') : '<div style="color:var(--txt3);font-size:13px;">유저 없음</div>';
+}
+
+// ── Accounts (회원 목록) ──────────────────────────────────────────────────────
+
+let accountsData = [];
+
+async function renderAccounts(q='', st='') {
+  document.getElementById('mainArea').innerHTML = `
+    <div class="topbar">
+      <div><div class="page-title">🙍 회원 목록</div><div class="page-sub">사이트 가입 회원 관리</div></div>
+    </div>
+    <div class="section">
+      <div class="filters">
+        <select class="filter-select" id="accFilterSt" onchange="loadAccounts()">
+          <option value="">전체 상태</option>
+          <option value="active">활성</option>
+          <option value="inactive">비활성</option>
+        </select>
+        <input type="text" class="filter-input" id="accFilterQ" placeholder="닉네임/이메일 검색" onkeydown="if(event.key==='Enter')loadAccounts()">
+        <button class="btn-sm" onclick="loadAccounts()">검색</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>#</th><th>닉네임</th><th>이메일</th><th>내 추천코드</th><th>사용한 추천코드</th>
+            <th>연결 UID</th><th>상태</th><th>가입일</th><th>액션</th>
+          </tr></thead>
+          <tbody id="accBody"><tr><td colspan="9" class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">로딩중...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>`;
+
+  if (st) document.getElementById('accFilterSt').value = st;
+  if (q)  document.getElementById('accFilterQ').value  = q;
+  await loadAccounts();
+}
+
+async function loadAccounts() {
+  const q  = document.getElementById('accFilterQ')?.value  || '';
+  const st = document.getElementById('accFilterSt')?.value || '';
+  const params = new URLSearchParams();
+  if (q)  params.set('search', q);
+  if (st) params.set('status', st);
+  const d = await api('/accounts?' + params);
+  if (d.error) { toast(d.error, 'error'); return; }
+  accountsData = d.accounts || [];
+  const body = document.getElementById('accBody');
+  if (!body) return;
+  if (!accountsData.length) {
+    body.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🙍</div><div class="empty-text">가입한 회원이 없습니다</div></div></td></tr>';
+    return;
+  }
+  body.innerHTML = accountsData.map((a, i) => `<tr>
+    <td style="color:var(--txt3);font-size:12px;">${a.id}</td>
+    <td style="font-weight:600;">${a.nickname||'--'}</td>
+    <td style="color:var(--txt2);font-size:12px;">${a.email||'--'}</td>
+    <td><span style="font-family:monospace;font-size:13px;color:var(--cyan);letter-spacing:1px;">${a.my_referral_code||'--'}</span></td>
+    <td style="color:var(--txt3);font-size:12px;">${a.referral_code_used||'없음'}</td>
+    <td style="text-align:center;"><span style="background:rgba(0,184,217,0.1);color:var(--cyan);padding:2px 8px;border-radius:10px;font-size:12px;">${a.uid_count||0}개</span></td>
+    <td>${statusBadge(a.status)}</td>
+    <td style="color:var(--txt2);font-size:12px;">${fmtDate(a.created_at)}</td>
+    <td>
+      <button class="btn-sm" onclick="toggleAccountStatus(${a.id},'${a.status}')">${a.status==='active'?'비활성화':'활성화'}</button>
+    </td>
+  </tr>`).join('');
+}
+
+async function toggleAccountStatus(id, currentStatus) {
+  const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+  if (!confirm(`이 회원을 ${newStatus==='active'?'활성화':'비활성화'}하시겠습니까?`)) return;
+  const d = await api('/accounts/' + id, 'PATCH', { status: newStatus });
+  if (d.ok) { toast('상태 변경 완료'); loadAccounts(); }
+  else toast(d.error || '오류', 'error');
 }
 
 // ── Users ─────────────────────────────────────────────────────────────────────
