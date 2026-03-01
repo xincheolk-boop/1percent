@@ -125,7 +125,7 @@
         async function load() {
             try {
                 // 현재 펀딩비
-                const res = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT');
+                const res = await fetch('/api/binance/fapi/v1/premiumIndex?symbol=BTCUSDT');
                 const d = await res.json();
                 const rate = parseFloat(d.lastFundingRate) * 100;
                 const markPrice = parseFloat(d.markPrice);
@@ -152,7 +152,7 @@
                 annEl.style.fontSize = '20px';
 
                 // 히스토리
-                const hRes = await fetch('https://fapi.binance.com/fapi/v1/fundingRate?symbol=BTCUSDT&limit=10');
+                const hRes = await fetch('/api/binance/fapi/v1/fundingRate?symbol=BTCUSDT&limit=10');
                 const hData = await hRes.json();
                 const rows = hData.reverse().map(item => {
                     const r = parseFloat(item.fundingRate) * 100;
@@ -182,7 +182,7 @@
         // 다음 정산 카운트다운
         setInterval(async () => {
             try {
-                const res = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT');
+                const res = await fetch('/api/binance/fapi/v1/premiumIndex?symbol=BTCUSDT');
                 const d = await res.json();
                 const diff = parseInt(d.nextFundingTime) - Date.now();
                 if (diff > 0) {

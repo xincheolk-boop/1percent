@@ -183,6 +183,15 @@ tr:hover td{background:var(--bg4);}
     <div class="nav-item" onclick="showPage('settlements')" data-page="settlements">
       <span class="nav-icon">💰</span><span>정산 관리</span>
     </div>
+    <div class="nav-item" onclick="showPage('commissions')" data-page="commissions">
+      <span class="nav-icon">📡</span><span>커미션 수집</span>
+    </div>
+    <div class="nav-item" onclick="showPage('withdrawals')" data-page="withdrawals">
+      <span class="nav-icon">💸</span><span>출금 관리</span>
+    </div>
+    <div class="nav-item" onclick="showPage('exchange-settings')" data-page="exchange-settings">
+      <span class="nav-icon">⚙️</span><span>거래소 설정</span>
+    </div>
     <div class="nav-item" onclick="showPage('events')" data-page="events">
       <span class="nav-icon">🎯</span><span>이벤트 관리</span>
     </div>
@@ -294,6 +303,7 @@ function showPage(page) {
   currentPage = page;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.page === page));
   const fns = { dashboard: renderDashboard, accounts: renderAccounts, users: renderUsers, settlements: renderSettlements,
+                commissions: renderCommissions, withdrawals: renderWithdrawals, 'exchange-settings': renderExchangeSettings,
                 events: renderEvents, banners: renderBanners, notices: renderNotices };
   if (fns[page]) fns[page]();
 }
@@ -1130,6 +1140,412 @@ async function deleteNotice(id) {
   if (d.ok) { toast('삭제 완료'); loadNotices(); }
   else toast(d.error,'error');
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── 거래소 설정 페이지 ────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+
+async function renderExchangeSettings() {
+  document.getElementById('mainArea').innerHTML = `
+    <div class="topbar">
+      <div><div class="page-title">⚙️ 거래소 설정</div><div class="page-sub">API 키 및 커미션 비율 관리</div></div>
+    </div>
+    <div id="exConfigCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;">로딩중...</div>`;
+  loadExchangeConfigs();
+}
+
+async function loadExchangeConfigs() {
+  const d = await fetch('/api/admin/exchange-configs', { headers: { 'Authorization': 'Bearer ' + TOKEN } }).then(r => r.json());
+  const configs = d.configs || [];
+  const exchanges = ['Bitget', 'OKX', 'Gate.io'];
+  const container = document.getElementById('exConfigCards');
+  if (!container) return;
+
+  container.innerHTML = exchanges.map(ex => {
+    const c = configs.find(x => x.exchange === ex) || {};
+    return `
+    <div class="section" style="margin-bottom:0;">
+      <div class="section-header">
+        <div class="section-title2">${exBadge(ex)} ${ex} 설정</div>
+        <label class="toggle"><input type="checkbox" id="exActive_${ex}" ${c.is_active?'checked':''}><span class="toggle-slider"></span></label>
+      </div>
+      <div style="padding:16px;">
+        <div class="form-group"><label class="form-label">API Key ${c.api_key_display==='설정됨'?'<span style="color:var(--green);font-size:10px;">✓ 설정됨</span>':''}</label>
+          <input class="form-input" id="exKey_${ex}" placeholder="API Key 입력 (변경 시에만)" autocomplete="off"></div>
+        <div class="form-group"><label class="form-label">API Secret ${c.api_secret_display==='설정됨'?'<span style="color:var(--green);font-size:10px;">✓ 설정됨</span>':''}</label>
+          <input class="form-input" id="exSecret_${ex}" type="password" placeholder="Secret 입력 (변경 시에만)" autocomplete="off"></div>
+        ${ex!=='Gate.io'?`<div class="form-group"><label class="form-label">Passphrase ${c.passphrase_display==='설정됨'?'<span style="color:var(--green);font-size:10px;">✓ 설정됨</span>':''}</label>
+          <input class="form-input" id="exPass_${ex}" type="password" placeholder="Passphrase 입력 (변경 시에만)" autocomplete="off"></div>`:''}
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">플랫폼 비율 (%)</label>
+            <input type="number" class="form-input" id="exPlatRate_${ex}" value="${(c.platform_rate||0)*100}" step="1" min="0" max="100"></div>
+          <div class="form-group"><label class="form-label">유저 환급 비율 (%)</label>
+            <input type="number" class="form-input" id="exUserRate_${ex}" value="${(c.user_rate||0)*100}" step="1" min="0" max="100"></div>
+        </div>
+        ${c.last_sync?`<div style="font-size:11px;color:var(--txt3);margin-bottom:12px;">마지막 수집: ${c.last_sync} <span style="color:${c.last_sync_status==='success'?'var(--green)':'var(--red)'}">(${c.last_sync_status||''})</span></div>`:''}
+        <div style="display:flex;gap:8px;">
+          <button class="btn-primary" onclick="saveExConfig('${ex}')">저장</button>
+          <button class="btn-sm" onclick="testExConfig('${ex}')">연결 테스트</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function saveExConfig(ex) {
+  const body = { exchange: ex,
+    platform_rate: parseFloat(document.getElementById('exPlatRate_'+ex)?.value||0) / 100,
+    user_rate: parseFloat(document.getElementById('exUserRate_'+ex)?.value||0) / 100,
+    is_active: document.getElementById('exActive_'+ex)?.checked ? 1 : 0 };
+  const key = document.getElementById('exKey_'+ex)?.value;
+  const secret = document.getElementById('exSecret_'+ex)?.value;
+  const pass = document.getElementById('exPass_'+ex)?.value;
+  if (key) body.api_key = key;
+  if (secret) body.api_secret = secret;
+  if (pass) body.passphrase = pass;
+
+  const d = await fetch('/api/admin/exchange-configs', {
+    method: 'POST', headers: { 'Authorization': 'Bearer '+TOKEN, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  }).then(r=>r.json());
+  if (d.ok) { toast(ex+' 설정 저장 완료'); loadExchangeConfigs(); }
+  else toast(d.error||'오류','error');
+}
+
+async function testExConfig(ex) {
+  toast(ex+' 연결 테스트 중...');
+  const d = await fetch('/api/admin/exchange-configs/test', {
+    method: 'POST', headers: { 'Authorization': 'Bearer '+TOKEN, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ exchange: ex })
+  }).then(r=>r.json());
+  if (d.ok) toast(ex+' 연결 성공!');
+  else toast(d.error||'연결 실패','error');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── 커미션 수집 페이지 ────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+
+let commTab = 'summary';
+
+async function renderCommissions() {
+  const curMonth = new Date().toISOString().slice(0,7);
+  document.getElementById('mainArea').innerHTML = `
+    <div class="topbar">
+      <div><div class="page-title">📡 커미션 수집</div><div class="page-sub">거래소 API 자동 수집 데이터</div></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn-sm" onclick="showCollectionLogs()">📋 수집 로그</button>
+        <button class="btn-primary" onclick="manualCollect()">🔄 수동 수집</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:16px;">
+      <button class="btn-sm" id="tabSummary" style="background:rgba(0,184,217,0.15);color:var(--cyan);" onclick="switchCommTab('summary')">월별 요약</button>
+      <button class="btn-sm" id="tabRaw" onclick="switchCommTab('raw')">원본 데이터</button>
+    </div>
+    <div id="commContent">로딩중...</div>`;
+  switchCommTab('summary');
+}
+
+function switchCommTab(tab) {
+  commTab = tab;
+  document.getElementById('tabSummary').style.background = tab==='summary'?'rgba(0,184,217,0.15)':'var(--bg4)';
+  document.getElementById('tabSummary').style.color = tab==='summary'?'var(--cyan)':'var(--txt2)';
+  document.getElementById('tabRaw').style.background = tab==='raw'?'rgba(0,184,217,0.15)':'var(--bg4)';
+  document.getElementById('tabRaw').style.color = tab==='raw'?'var(--cyan)':'var(--txt2)';
+  if (tab==='summary') loadCommSummary();
+  else loadCommRaw();
+}
+
+async function loadCommSummary() {
+  const curMonth = new Date().toISOString().slice(0,7);
+  document.getElementById('commContent').innerHTML = `
+    <div class="section">
+      <div class="filters">
+        <input type="month" class="filter-input" id="csMonth" value="${curMonth}" onchange="loadCommSummary()">
+        <select class="filter-select" id="csEx" onchange="loadCommSummary()">
+          <option value="">전체 거래소</option>
+          <option value="Bitget">Bitget</option><option value="OKX">OKX</option><option value="Gate.io">Gate.io</option>
+        </select>
+        <select class="filter-select" id="csSt" onchange="loadCommSummary()">
+          <option value="">전체 상태</option>
+          <option value="pending">미정산</option><option value="settled">정산완료</option>
+        </select>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>닉네임</th><th>UID</th><th>거래소</th><th>월</th><th>수수료</th><th>플랫폼</th><th>유저 환급</th><th>건수</th><th>상태</th><th>액션</th></tr></thead>
+        <tbody id="csSummBody"><tr><td colspan="10" class="empty-state">로딩중...</td></tr></tbody>
+      </table></div>
+    </div>`;
+
+  const month = document.getElementById('csMonth')?.value || '';
+  const ex = document.getElementById('csEx')?.value || '';
+  const st = document.getElementById('csSt')?.value || '';
+  const p = new URLSearchParams();
+  if (month) p.set('month', month);
+  if (ex) p.set('exchange', ex);
+  if (st) p.set('status', st);
+
+  const d = await api('/commission-summaries?' + p);
+  const body = document.getElementById('csSummBody');
+  if (!body) return;
+  const list = d.summaries || [];
+  if (!list.length) { body.innerHTML = '<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📡</div><div class="empty-text">수집된 데이터 없음</div></div></td></tr>'; return; }
+
+  const totPC = list.reduce((a,s)=>a+(s.platform_commission||0),0);
+  const totUC = list.reduce((a,s)=>a+(s.user_commission||0),0);
+
+  body.innerHTML = list.map(s => `<tr>
+    <td style="font-weight:600;">${s.nickname||'--'}</td>
+    <td style="font-family:monospace;color:var(--txt2);font-size:11px;">${s.uid||'--'}</td>
+    <td>${exBadge(s.exchange||s.user_exchange)}</td>
+    <td>${s.month}</td>
+    <td>${fmtMoney(s.total_fee)}</td>
+    <td style="color:var(--cyan);">${fmtMoney(s.platform_commission)}</td>
+    <td style="color:var(--green);font-weight:600;">${fmtMoney(s.user_commission)}</td>
+    <td>${s.trade_count||0}</td>
+    <td>${s.settlement_status==='settled'?'<span class="badge badge-paid">정산완료</span>':'<span class="badge badge-pending">미정산</span>'}</td>
+    <td>${s.settlement_status!=='settled'?`<button class="btn-success" onclick="settleCommission(${s.id})">정산 생성</button>`:''}</td>
+  </tr>`).join('') + `<tr style="background:rgba(255,255,255,0.03);">
+    <td colspan="5" style="font-weight:700;color:var(--txt2);">합계 (${list.length}건)</td>
+    <td style="font-weight:700;color:var(--cyan);">${fmtMoney(totPC)}</td>
+    <td style="color:var(--green);font-weight:700;">${fmtMoney(totUC)}</td>
+    <td colspan="3"></td></tr>`;
+}
+
+async function loadCommRaw() {
+  document.getElementById('commContent').innerHTML = `
+    <div class="section">
+      <div class="filters">
+        <input type="date" class="filter-input" id="crFrom" onchange="fetchCommRaw()">
+        <input type="date" class="filter-input" id="crTo" onchange="fetchCommRaw()">
+        <select class="filter-select" id="crEx" onchange="fetchCommRaw()">
+          <option value="">전체 거래소</option>
+          <option value="Bitget">Bitget</option><option value="OKX">OKX</option><option value="Gate.io">Gate.io</option>
+        </select>
+        <input type="text" class="filter-input" id="crUid" placeholder="UID 검색" onkeydown="if(event.key==='Enter')fetchCommRaw()">
+        <button class="btn-sm" onclick="fetchCommRaw()">검색</button>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>시간</th><th>UID</th><th>거래소</th><th>타입</th><th>수수료</th><th>플랫폼</th><th>유저</th></tr></thead>
+        <tbody id="crBody"><tr><td colspan="7" class="empty-state">필터를 설정하고 검색하세요</td></tr></tbody>
+      </table></div>
+    </div>`;
+}
+
+async function fetchCommRaw() {
+  const p = new URLSearchParams();
+  const from = document.getElementById('crFrom')?.value;
+  const to = document.getElementById('crTo')?.value;
+  const ex = document.getElementById('crEx')?.value;
+  const uid = document.getElementById('crUid')?.value;
+  if (from) p.set('from', from);
+  if (to) p.set('to', to);
+  if (ex) p.set('exchange', ex);
+  if (uid) p.set('uid', uid);
+
+  const d = await fetch('/api/admin/commissions?'+p, { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json());
+  const body = document.getElementById('crBody');
+  if (!body) return;
+  const list = d.commissions || [];
+  if (!list.length) { body.innerHTML = '<tr><td colspan="7"><div class="empty-state">데이터 없음</div></td></tr>'; return; }
+  body.innerHTML = list.map(c => `<tr>
+    <td style="color:var(--txt2);font-size:11px;">${c.commission_time?.slice(0,19)||''}</td>
+    <td style="font-family:monospace;">${c.invitee_uid}</td>
+    <td>${exBadge(c.exchange)}</td>
+    <td style="font-size:11px;">${c.trade_type||'--'}</td>
+    <td>${fmtMoney(c.trading_fee)}</td>
+    <td style="color:var(--cyan);">${fmtMoney(c.platform_commission)}</td>
+    <td style="color:var(--green);">${fmtMoney(c.user_commission)}</td>
+  </tr>`).join('');
+}
+
+async function settleCommission(id) {
+  if (!confirm('이 커미션 요약을 정산으로 생성하시겠습니까?')) return;
+  const d = await fetch('/api/admin/commission-summaries/'+id+'/settle', {
+    method:'POST', headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'}
+  }).then(r=>r.json());
+  if (d.ok) { toast('정산 생성 완료 (ID: '+d.settlement_id+')'); loadCommSummary(); }
+  else toast(d.error||'오류','error');
+}
+
+async function manualCollect() {
+  if (!confirm('모든 활성 거래소에서 커미션 데이터를 수집합니다. 진행하시겠습니까?')) return;
+  toast('수집 시작...');
+  const d = await fetch('/api/admin/collect-commissions', {
+    method:'POST', headers:{'Authorization':'Bearer '+TOKEN}
+  }).then(r=>r.json());
+  if (d.ok) { toast('수집 완료!'); if(commTab==='summary') loadCommSummary(); else fetchCommRaw(); }
+  else toast(d.error||'수집 실패','error');
+}
+
+async function showCollectionLogs() {
+  const d = await fetch('/api/admin/collection-logs', { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json());
+  const logs = d.logs || [];
+  const html = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:700px;">
+      <div class="modal-header"><div class="modal-title">📋 수집 로그</div>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button></div>
+      <div class="modal-body">
+        ${logs.length?`<table><thead><tr><th>거래소</th><th>시작</th><th>종료</th><th>상태</th><th>수집</th><th>신규</th><th>에러</th></tr></thead><tbody>
+        ${logs.map(l=>`<tr>
+          <td>${exBadge(l.exchange)}</td>
+          <td style="font-size:11px;">${l.started_at?.slice(0,19)||''}</td>
+          <td style="font-size:11px;">${l.finished_at?.slice(0,19)||''}</td>
+          <td><span class="badge ${l.status==='success'?'badge-active':'badge-inactive'}">${l.status}</span></td>
+          <td>${l.records_fetched||0}</td><td>${l.records_new||0}</td>
+          <td style="color:var(--red);font-size:11px;">${l.error_message||''}</td>
+        </tr>`).join('')}
+        </tbody></table>`:'<div class="empty-state">수집 로그 없음</div>'}
+      </div>
+    </div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ── 출금 관리 페이지 ──────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════════
+
+let wdData = [];
+
+async function renderWithdrawals() {
+  document.getElementById('mainArea').innerHTML = `
+    <div class="topbar">
+      <div><div class="page-title">💸 출금 관리</div><div class="page-sub">출금 요청 관리 및 자동 송금</div></div>
+    </div>
+    <div class="section">
+      <div class="filters">
+        <select class="filter-select" id="wdFilterSt" onchange="loadWdList()">
+          <option value="">전체 상태</option>
+          <option value="pending">대기</option>
+          <option value="processing">처리중</option>
+          <option value="completed">완료</option>
+          <option value="rejected">거절</option>
+        </select>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>ID</th><th>회원</th><th>금액</th><th>지갑주소</th><th>네트워크</th><th>상태</th><th>TX Hash</th><th>요청일</th><th>액션</th></tr></thead>
+        <tbody id="wdBody"><tr><td colspan="9" class="empty-state">로딩중...</td></tr></tbody>
+      </table></div>
+    </div>`;
+  loadWdList();
+}
+
+async function loadWdList() {
+  const st = document.getElementById('wdFilterSt')?.value || '';
+  const p = new URLSearchParams();
+  if (st) p.set('status', st);
+  const d = await fetch('/api/admin/withdrawals?'+p, { headers:{'Authorization':'Bearer '+TOKEN} }).then(r=>r.json());
+  wdData = d.withdrawals || [];
+  const body = document.getElementById('wdBody');
+  if (!body) return;
+  if (!wdData.length) { body.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">💸</div><div class="empty-text">출금 요청 없음</div></div></td></tr>'; return; }
+
+  body.innerHTML = wdData.map(w => `<tr>
+    <td style="color:var(--txt3);">${w.id}</td>
+    <td style="font-weight:600;">${w.nickname||w.email||'ID:'+w.account_id}</td>
+    <td style="color:var(--green);font-weight:700;font-family:monospace;">$${parseFloat(w.amount||0).toFixed(2)}</td>
+    <td style="font-family:monospace;font-size:11px;max-width:160px;overflow:hidden;text-overflow:ellipsis;" title="${w.wallet_address||''}">${w.wallet_address||'--'}</td>
+    <td style="font-size:11px;">${w.network||'TRC-20'}</td>
+    <td>${wdStatusBadge(w.status)}</td>
+    <td style="font-family:monospace;font-size:10px;max-width:100px;overflow:hidden;text-overflow:ellipsis;" title="${w.tx_hash||''}">${w.tx_hash||'--'}</td>
+    <td style="color:var(--txt2);font-size:11px;">${fmtDate(w.requested_at||w.created_at)}</td>
+    <td style="display:flex;gap:4px;flex-wrap:wrap;">
+      ${w.status==='pending'?`
+        <button class="btn-success" onclick="autoSendWd(${w.id})">자동 송금</button>
+        <button class="btn-sm" onclick="manualCompleteWd(${w.id})">수동 완료</button>
+        <button class="btn-danger" onclick="rejectWd(${w.id})">거절</button>
+      `:''}
+      ${w.status==='processing'?`
+        <button class="btn-success" onclick="autoSendWd(${w.id})">재시도</button>
+        <button class="btn-sm" onclick="manualCompleteWd(${w.id})">수동 완료</button>
+      `:''}
+    </td>
+  </tr>`).join('');
+}
+
+function wdStatusBadge(s) {
+  if (s==='pending') return '<span class="badge badge-pending">대기</span>';
+  if (s==='processing') return '<span class="badge" style="background:rgba(0,184,217,0.12);color:var(--cyan);">처리중</span>';
+  if (s==='completed') return '<span class="badge badge-paid">완료</span>';
+  if (s==='rejected') return '<span class="badge badge-inactive">거절</span>';
+  return `<span class="badge">${s}</span>`;
+}
+
+async function autoSendWd(id) {
+  const w = wdData.find(x=>x.id===id);
+  if (!w) return;
+  const html = `
+    <div class="modal-overlay" onclick="if(event.target===this)this.remove()">
+    <div class="modal" style="max-width:460px;">
+      <div class="modal-header"><div class="modal-title">💸 자동 송금 확인</div>
+        <button class="modal-close" onclick="this.closest('.modal-overlay').remove()">✕</button></div>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-card"><div class="detail-key">금액</div><div class="detail-val" style="color:var(--green);">$${parseFloat(w.amount).toFixed(2)} USDT</div></div>
+          <div class="detail-card"><div class="detail-key">네트워크</div><div class="detail-val">${w.network||'TRC-20'}</div></div>
+        </div>
+        <div class="form-group"><label class="form-label">지갑 주소</label>
+          <div style="font-family:monospace;font-size:12px;background:var(--bg2);padding:10px;border-radius:8px;word-break:break-all;">${w.wallet_address}</div></div>
+        <div class="form-group"><label class="form-label">출금 거래소</label>
+          <select class="form-select" id="wdSourceEx">
+            <option value="Bitget">Bitget</option>
+            <option value="OKX">OKX</option>
+            <option value="Gate.io">Gate.io</option>
+          </select></div>
+        <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:12px;margin-top:12px;">
+          <div style="font-size:12px;color:var(--red);font-weight:600;">⚠️ 실제 USDT가 전송됩니다. 주소를 반드시 확인하세요.</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-sm" onclick="this.closest('.modal-overlay').remove()">취소</button>
+        <button class="btn-primary" style="background:var(--green);" onclick="confirmAutoSend(${id},this)">전송 확인</button>
+      </div>
+    </div></div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function confirmAutoSend(id, btn) {
+  btn.disabled = true;
+  btn.textContent = '전송 중...';
+  const sourceEx = document.getElementById('wdSourceEx')?.value || 'Bitget';
+  const d = await fetch('/api/admin/withdrawals/'+id+'/auto-send', {
+    method:'POST', headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},
+    body: JSON.stringify({ source_exchange: sourceEx })
+  }).then(r=>r.json());
+  if (d.ok) {
+    toast('자동 송금 완료! TX: '+(d.tx_id||''));
+    btn.closest('.modal-overlay').remove();
+    loadWdList();
+  } else {
+    toast(d.error||'송금 실패','error');
+    btn.disabled = false;
+    btn.textContent = '전송 확인';
+  }
+}
+
+async function manualCompleteWd(id) {
+  const txHash = prompt('TX Hash를 입력하세요 (수동 전송 완료):');
+  if (txHash === null) return;
+  const d = await fetch('/api/admin/withdrawals/'+id, {
+    method:'PATCH', headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},
+    body: JSON.stringify({ status:'completed', tx_hash: txHash })
+  }).then(r=>r.json());
+  if (d.ok) { toast('완료 처리됨'); loadWdList(); }
+  else toast(d.error||'오류','error');
+}
+
+async function rejectWd(id) {
+  const reason = prompt('거절 사유를 입력하세요:');
+  if (reason === null) return;
+  const d = await fetch('/api/admin/withdrawals/'+id, {
+    method:'PATCH', headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},
+    body: JSON.stringify({ status:'rejected', reject_reason: reason })
+  }).then(r=>r.json());
+  if (d.ok) { toast('거절 처리됨'); loadWdList(); }
+  else toast(d.error||'오류','error');
+}
+
 </script>
 </body>
 </html>

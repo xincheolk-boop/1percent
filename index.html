@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
+<html lang="ko"><head><meta charset="UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1% Trading - 1% 트레이더를 위한 선물거래 플랫폼</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300d4ff'/><stop offset='100%25' stop-color='%23a855f7'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,&lt;svg xmlns=&#39;http://www.w3.org/2000/svg&#39; viewBox=&#39;0 0 32 32&#39;&gt;&lt;rect width=&#39;32&#39; height=&#39;32&#39; rx=&#39;8&#39; fill=&#39;%230a0a0f&#39;/&gt;&lt;defs&gt;&lt;linearGradient id=&#39;g&#39; x1=&#39;0&#39; y1=&#39;0&#39; x2=&#39;1&#39; y2=&#39;1&#39;&gt;&lt;stop offset=&#39;0%25&#39; stop-color=&#39;%2300d4ff&#39;/&gt;&lt;stop offset=&#39;100%25&#39; stop-color=&#39;%23a855f7&#39;/&gt;&lt;/linearGradient&gt;&lt;/defs&gt;&lt;text x=&#39;16&#39; y=&#39;22&#39; text-anchor=&#39;middle&#39; font-size=&#39;16&#39; font-weight=&#39;900&#39; fill=&#39;url(%23g)&#39; font-family=&#39;monospace&#39;&gt;1%25&lt;/text&gt;&lt;/svg&gt;">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-primary: #0a0a0f;
@@ -94,7 +93,7 @@
         .nav-item {
             padding: 8px 14px;
             color: var(--text-secondary);
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             border-radius: 8px;
@@ -136,7 +135,7 @@
         .nav-dropdown-item {
             display: flex; align-items: center; gap: 8px;
             padding: 10px 16px;
-            font-size: 12px; color: var(--text-secondary);
+            font-size: 14px; color: var(--text-secondary);
             cursor: pointer; transition: background 0.15s;
             text-decoration: none; white-space: nowrap;
         }
@@ -162,7 +161,7 @@
             gap: 4px;
         }
         .mega-col-title {
-            font-size: 10px;
+            font-size: 12px;
             color: var(--text-muted);
             font-weight: 600;
             text-transform: uppercase;
@@ -176,7 +175,7 @@
             align-items: center;
             gap: 6px;
             padding: 7px 10px;
-            font-size: 12px;
+            font-size: 14px;
             color: var(--text-secondary);
             text-decoration: none;
             border-radius: 6px;
@@ -703,6 +702,71 @@
             border-radius: 8px; font-size: 11px; color: var(--text-muted); text-align: center;
         }
 
+        /* ===== 명예의전당 ===== */
+        .hof-podium { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; padding-top:20px; }
+        .hof-lower { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+        .hof-card { position:relative; text-align:center; border-radius:12px; padding:14px 8px 12px; transition:all 0.3s; cursor:pointer; overflow:visible; animation:hof-fadeUp .6s ease-out both; display:flex; flex-direction:column; align-items:center; }
+        .hof-card:hover { transform:translateY(-4px); }
+        .hof-card > * { position:relative; z-index:1; }
+        /* 1등 Challenger */
+        .hof-r1 { background:linear-gradient(180deg,#1c1a10 0%,#12100a 50%,#0a0908 100%); border:2px solid rgba(255,215,0,0.4); box-shadow:0 0 0 1px rgba(160,220,255,0.15),0 0 40px rgba(255,215,0,0.1),inset 0 0 30px rgba(255,215,0,0.04); animation-delay:.1s; }
+        .hof-r1::before { content:''; position:absolute; top:-2px;left:-2px;right:-2px;bottom:-2px; border-radius:14px; border:2px solid transparent; background:linear-gradient(180deg,rgba(255,215,0,0.5),rgba(255,215,0,0.1) 50%,rgba(255,215,0,0.3)) border-box; -webkit-mask:linear-gradient(#fff 0 0) padding-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; mask-composite:exclude; z-index:0; pointer-events:none; }
+        .hof-r1-inner { position:absolute; top:3px;left:3px;right:3px;bottom:3px; border-radius:9px; border:1px solid rgba(160,220,255,0.15); pointer-events:none; z-index:0; }
+        .hof-r1-light { position:absolute; top:-2px;left:15px;right:15px; height:3px; background:linear-gradient(90deg,transparent,#ffd700,#fff,#ffd700,transparent); border-radius:2px; box-shadow:0 0 10px rgba(255,215,0,0.4); z-index:2; }
+        .hof-r1-halo { display:none; }
+        .hof-r1:hover { border-color:rgba(255,215,0,0.6); box-shadow:0 0 0 1px rgba(160,220,255,0.2),0 0 60px rgba(255,215,0,0.15); }
+        /* 2등 Grandmaster */
+        .hof-r2 { background:linear-gradient(180deg,#1a0d0d 0%,#0a0808 100%); border:1px solid rgba(220,50,50,0.3); box-shadow:0 0 20px rgba(220,50,50,0.05); animation-delay:0s; }
+        .hof-r2::before { content:''; position:absolute; top:-1px;left:12px;right:12px; height:2px; background:linear-gradient(90deg,transparent,#dc3232,#ff6b6b,#dc3232,transparent); border-radius:2px; z-index:2; }
+        .hof-r2:hover { box-shadow:0 0 40px rgba(220,50,50,0.08); border-color:rgba(220,50,50,0.45); }
+        /* 3등 Diamond */
+        .hof-r3 { background:linear-gradient(180deg,#0d0d1a 0%,#08080f 100%); border:1px solid rgba(100,160,255,0.25); box-shadow:0 0 20px rgba(100,160,255,0.04); animation-delay:.2s; }
+        .hof-r3::before { content:''; position:absolute; top:-1px;left:12px;right:12px; height:2px; background:linear-gradient(90deg,transparent,#64a0ff,#a0d4ff,#64a0ff,transparent); border-radius:2px; z-index:2; }
+        .hof-r3:hover { box-shadow:0 0 40px rgba(100,160,255,0.06); border-color:rgba(100,160,255,0.4); }
+        /* 4등 Emerald */
+        .hof-r4 { background:linear-gradient(180deg,#0d1510 0%,#0a0f0c 100%); border:1px solid rgba(80,200,120,0.25); animation-delay:.3s; }
+        .hof-r4::before { content:''; position:absolute; top:-1px;left:12px;right:12px; height:2px; background:linear-gradient(90deg,transparent,#50c878,#7ddfb0,#50c878,transparent); border-radius:2px; z-index:2; }
+        .hof-r4:hover { border-color:rgba(80,200,120,0.4); box-shadow:0 0 30px rgba(80,200,120,0.06); }
+        .hof-r4 .hof-tier { color:#60d090; }
+        .hof-r4 .hof-amt { font-size:13px; background:linear-gradient(135deg,rgba(80,200,120,0.1),rgba(60,160,90,0.06)); color:#60d090; border:1px solid rgba(80,200,120,0.18); }
+        .hof-r4 .hof-badge img { filter:drop-shadow(0 0 10px rgba(80,200,120,0.25)) drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
+        /* 5등 Platinum */
+        .hof-r5 { background:linear-gradient(180deg,#120d18 0%,#0c0a12 100%); border:1px solid rgba(180,100,255,0.25); animation-delay:.4s; }
+        .hof-r5::before { content:''; position:absolute; top:-1px;left:12px;right:12px; height:2px; background:linear-gradient(90deg,transparent,#b464ff,#d0a0ff,#b464ff,transparent); border-radius:2px; z-index:2; }
+        .hof-r5:hover { border-color:rgba(180,100,255,0.4); box-shadow:0 0 30px rgba(180,100,255,0.06); }
+        .hof-r5 .hof-tier { color:#c080ff; }
+        .hof-r5 .hof-amt { font-size:13px; background:linear-gradient(135deg,rgba(180,100,255,0.1),rgba(140,80,200,0.06)); color:#c080ff; border:1px solid rgba(180,100,255,0.18); }
+        .hof-r5 .hof-badge img { filter:drop-shadow(0 0 10px rgba(180,100,255,0.25)) drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
+        /* Rank Number */
+        .hof-rnum { position:absolute; top:-12px; left:50%; transform:translateX(-50%); width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Orbitron',monospace; font-size:12px; font-weight:800; z-index:3; }
+        .hof-r1 .hof-rnum { background:linear-gradient(135deg,#ffd700,#ffaa00); color:#0a0a12; box-shadow:0 0 15px rgba(255,215,0,0.5); }
+        .hof-r2 .hof-rnum { background:linear-gradient(135deg,#ff5555,#dc3232); color:#fff; box-shadow:0 0 10px rgba(220,50,50,0.4); }
+        .hof-r3 .hof-rnum { background:linear-gradient(135deg,#64a0ff,#4080dd); color:#fff; box-shadow:0 0 10px rgba(100,160,255,0.4); }
+        .hof-r4 .hof-rnum { background:linear-gradient(135deg,#50c878,#38a060); color:#fff; box-shadow:0 0 10px rgba(80,200,120,0.4); }
+        .hof-r5 .hof-rnum { background:linear-gradient(135deg,#b464ff,#9040dd); color:#fff; box-shadow:0 0 10px rgba(180,100,255,0.4); }
+        /* Badge - 전부 동일 크기 */
+        .hof-badge { width:90px; height:90px; margin:0 auto 8px; }
+        .hof-badge img { width:100%; height:100%; object-fit:contain; }
+        .hof-r1 .hof-badge img { filter:drop-shadow(0 0 15px rgba(255,215,0,0.3)) drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
+        .hof-r2 .hof-badge img { filter:drop-shadow(0 0 10px rgba(220,50,50,0.25)) drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
+        .hof-r3 .hof-badge img { filter:drop-shadow(0 0 10px rgba(100,160,255,0.25)) drop-shadow(0 3px 8px rgba(0,0,0,0.5)); }
+        /* Tier & User */
+        .hof-tier { font-family:'Orbitron',monospace; font-size:9px; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px; }
+        .hof-r1 .hof-tier { font-size:10px; letter-spacing:3px; background:linear-gradient(90deg,#ffd700,#fff8dc,#ffd700,#fff8dc,#ffd700); background-size:200% auto; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:hof-shimmer 4s linear infinite; }
+        .hof-r2 .hof-tier { color:#ff6b6b; }
+        .hof-r3 .hof-tier { color:#7db8ff; }
+        .hof-user { font-family:'Orbitron',monospace; font-size:14px; font-weight:700; color:#fff; margin-bottom:2px; letter-spacing:1px; }
+        .hof-r1 .hof-user { text-shadow:0 0 20px rgba(255,215,0,0.1); }
+        .hof-uex { font-size:11px; color:#555; letter-spacing:1px; margin-bottom:8px; }
+        /* Amount */
+        .hof-amt { font-family:'Orbitron',monospace; font-weight:700; font-size:13px; padding:6px 14px; border-radius:8px; display:inline-block; letter-spacing:1px; }
+        .hof-r1 .hof-amt { font-size:15px; background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,170,0,0.1)); color:#ffd700; border:1px solid rgba(255,215,0,0.3); text-shadow:0 0 15px rgba(255,215,0,0.2); }
+        .hof-r2 .hof-amt { background:linear-gradient(135deg,rgba(220,50,50,0.1),rgba(180,30,30,0.06)); color:#ff6b6b; border:1px solid rgba(220,50,50,0.18); }
+        .hof-r3 .hof-amt { background:linear-gradient(135deg,rgba(100,160,255,0.1),rgba(80,130,220,0.06)); color:#7db8ff; border:1px solid rgba(100,160,255,0.18); }
+        .hof-amt-u { font-size:9px; font-weight:400; opacity:0.5; margin-left:3px; }
+        @keyframes hof-fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes hof-shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+
         /* 뉴스 + 제휴거래소 */
         .content-section { margin-bottom: 24px; }
         .section-header {
@@ -948,7 +1012,7 @@
         .sr-coin-rank {
             flex: 0 0 20px;
             font-size: 12px;
-            color: var(--text-muted);
+            color: var(--text-secondary);
         }
         .sr-coin-icon {
             flex: 0 0 20px;
@@ -956,6 +1020,20 @@
             margin-right: 8px;
             border-radius: 50%;
             object-fit: contain;
+        }
+        .sr-coin-fb {
+            flex: 0 0 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-secondary);
         }
         .sr-coin-name {
             flex: 1;
@@ -968,7 +1046,7 @@
             flex: 0 0 72px;
             text-align: right;
             margin-right: 8px;
-            color: #d1d5db;
+            color: #f0f0f0;
         }
         .sr-coin-change {
             font-size: 12px;
@@ -1007,9 +1085,9 @@
         }
         .sr-sch-day {
             font-family: 'Orbitron', monospace;
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 700;
-            color: var(--accent-cyan);
+            color: #fff;
         }
         .sr-sch-dow {
             font-size: 11px;
@@ -1022,6 +1100,17 @@
         .sr-sch-title {
             font-size: 13px;
         }
+
+        /* ===== 핫이슈 ===== */
+        .hot-list { display:flex; flex-direction:column; gap:2px; }
+        .hot-item { display:flex; align-items:flex-start; gap:8px; padding:8px 4px; border-radius:6px; cursor:pointer; transition:background .15s; border-bottom:1px solid rgba(255,255,255,0.03); }
+        .hot-item:last-child { border-bottom:none; }
+        .hot-item:hover { background:var(--bg-card-hover); }
+        .hot-item:hover .hot-title { color:var(--accent-cyan); }
+        .hot-rank { font-family:'Orbitron',monospace; font-size:11px; font-weight:700; color:var(--text-muted); width:14px; text-align:center; flex-shrink:0; margin-top:2px; }
+        .hot-item:nth-child(-n+3) .hot-rank { color:var(--accent-cyan); }
+        .hot-tag { font-size:9px; font-weight:700; padding:2px 6px; border-radius:4px; background:rgba(0,184,217,0.1); color:var(--accent-cyan); flex-shrink:0; margin-top:1px; white-space:nowrap; }
+        .hot-title { font-size:12px; color:var(--text-secondary); flex:1; line-height:1.5; }
 
         /* ===== 뉴스 탭 ===== */
         .news-tabs { display: flex; gap: 3px; margin-bottom: 10px; }
@@ -1250,7 +1339,9 @@
             .ex-btn { width: 52px; font-size: 10px; padding: 6px 6px; }
             .ex-rate { width: 50px; font-size: 12px; }
             /* 명예의 전당 */
-            .hof-reward small { display: none; }
+            .hof-podium { grid-template-columns:1fr; gap:10px; }
+            .hof-r1 { order:-1; }
+            .hof-lower { grid-template-columns:1fr; }
             /* 섹션 패딩 */
             .content-section { margin-bottom: 16px; }
             /* 뉴스 그리드 1열 */
@@ -1277,44 +1368,44 @@
         <nav class="nav-menu">
             <!-- 계약 데이터 메가 드롭다운 -->
             <div class="nav-dropdown">
-                <div class="nav-item" style="display:flex;align-items:center;gap:4px;">Futures <span style="font-size:9px;opacity:0.5;">▼</span></div>
+                <div class="nav-item" style="display:flex;align-items:center;gap:4px;">계약데이터 <span style="font-size:9px;opacity:0.5;">▼</span></div>
                 <div class="nav-mega-menu">
                     <div class="mega-grid">
-                        <!-- col 1 -->
+                        <!-- 열 1: 청산 & 펀딩비 -->
                         <div>
-                            <div class="mega-col-title">Liquidation · Funding</div>
-                            <a class="mega-item" href="contract/liquidation.html">💥 Liquidation Data</a>
-                            <a class="mega-item prep">🔥 Liquidation Heatmap<span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item" href="contract/funding.html">📈 Funding Rate</a>
-                            <a class="mega-item prep">🗺️ Funding Heatmap<span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item prep">📊 Cumulative Funding<span class="mega-tag prep">Soon</span></a>
+                            <div class="mega-col-title">청산 · 펀딩비</div>
+                            <a class="mega-item" href="https://1percentpro.io/contract/liquidation.html">💥 청산 데이터</a>
+                            <a class="mega-item prep">🔥 청산 히트맵<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item" href="https://1percentpro.io/contract/funding.html">📈 펀딩비</a>
+                            <a class="mega-item prep">🗺️ 펀딩비 히트맵<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">📊 누적 펀딩비<span class="mega-tag prep">준비중</span></a>
                         </div>
-                        <!-- col 2 -->
+                        <!-- 열 2: 롱숏 비율 -->
                         <div>
-                            <div class="mega-col-title">Long / Short Ratio</div>
-                            <a class="mega-item" href="contract/longshort.html">⚖️ L/S Ratio Live</a>
-                            <a class="mega-item prep">📊 L/S Population<span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item prep">🐋 Large L/S Orders<span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item prep">🟡 Binance L/S<span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item prep">⬛ OKX L/S<span class="mega-tag prep">Soon</span></a>
+                            <div class="mega-col-title">롱숏 비율</div>
+                            <a class="mega-item" href="https://1percentpro.io/contract/longshort.html">⚖️ 실시간 롱숏 비율</a>
+                            <a class="mega-item prep">📊 L/S Population<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">🐋 대규모 롱숏<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">🟡 바이낸스 L/S<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">⬛ OKX L/S<span class="mega-tag prep">준비중</span></a>
                         </div>
-                        <!-- col 3 -->
+                        <!-- 열 3: 포지션 & 주문서 -->
                         <div>
-                            <div class="mega-col-title">Position · Orderbook</div>
-                            <a class="mega-item" href="contract/oi.html">📊 Open Interest</a>
-                            <a class="mega-item prep">📉 OI Change<span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item prep">📖 Orderbook<span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item prep">📐 Orderbook Depth<span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item prep">📚 Agg. Orderbook<span class="mega-tag prep">Soon</span></a>
+                            <div class="mega-col-title">포지션 · 주문서</div>
+                            <a class="mega-item" href="https://1percentpro.io/contract/oi.html">📊 OI 미결제약정</a>
+                            <a class="mega-item prep">📉 OI 변화<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">📖 오더북<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">📐 Orderbook Depth<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">📚 Agg. Orderbook<span class="mega-tag prep">준비중</span></a>
                         </div>
-                        <!-- col 4 -->
+                        <!-- 열 4: 종합 -->
                         <div>
-                            <div class="mega-col-title">Overview</div>
-                            <a class="mega-item prep">🐋 Whale Position <span class="mega-hot">🔥</span><span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item prep">📈 RSI Heatmap<span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item prep">🖥️ Visual Screener<span class="mega-tag prep">Soon</span></a>
-                            <a class="mega-item" href="kimp.html">😨 Fear & Greed</a>
-                            <a class="mega-item" href="kimp.html">🇰🇷 Kimchi Premium</a>
+                            <div class="mega-col-title">종합</div>
+                            <a class="mega-item prep">🐋 고래 포지션 <span class="mega-hot">🔥</span><span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">📈 RSI 히트맵<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item prep">🖥️ Visual Screener<span class="mega-tag prep">준비중</span></a>
+                            <a class="mega-item" href="https://1percentpro.io/kimp.html">😨 공포/탐욕 지수</a>
+                            <a class="mega-item" href="https://1percentpro.io/kimp.html">🇰🇷 김치프리미엄</a>
                         </div>
                     </div>
                 </div>
@@ -1324,20 +1415,21 @@
             <div class="nav-dropdown">
                 <div class="nav-item" style="display:flex;align-items:center;gap:4px;">CFD <span style="font-size:9px;opacity:0.5;">▼</span></div>
                 <div class="nav-dropdown-menu">
-                    <a class="nav-dropdown-item" style="opacity:0.4;pointer-events:none;">🇺🇸 US Stocks <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">Soon</span></a>
-                    <a class="nav-dropdown-item" style="opacity:0.4;pointer-events:none;">🥇 Gold / Commodities <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">Soon</span></a>
-                    <a class="nav-dropdown-item" style="opacity:0.4;pointer-events:none;">📊 Nasdaq <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">Soon</span></a>
+                    <a class="nav-dropdown-item" style="opacity:0.4;pointer-events:none;">🇺🇸 미국 주식 <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">준비중</span></a>
+                    <a class="nav-dropdown-item" style="opacity:0.4;pointer-events:none;">🥇 금/원자재 <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">준비중</span></a>
+                    <a class="nav-dropdown-item" style="opacity:0.4;pointer-events:none;">📊 나스닥 <span style="font-size:10px;color:var(--text-muted);margin-left:4px;">준비중</span></a>
                 </div>
             </div>
 
-            <div class="nav-item" onclick="location.href='news.html'">News</div>
-            <div class="nav-item" onclick="location.href='exchanges.html'">Exchange</div>
-            <div class="nav-item" onclick="location.href='rewards.html'">Reward</div>
-            <div class="nav-item" onclick="location.href='community.html'">Community</div>
-            <div class="nav-item event" onclick="location.href='events.html'">Events</div>
+            <div class="nav-item" onclick="location.href='kimp.html'">김프</div>
+            <div class="nav-item" onclick="location.href=&#39;news.html&#39;">뉴스</div>
+            <div class="nav-item" onclick="location.href=&#39;exchanges.html&#39;">거래소</div>
+            <div class="nav-item" onclick="location.href=&#39;rewards.html&#39;">리워드</div>
+            <div class="nav-item" onclick="location.href=&#39;community.html&#39;">커뮤니티</div>
+            <div class="nav-item event" onclick="location.href=&#39;events.html&#39;">이벤트</div>
         </nav>
         <div class="header-right">
-            <div class="header-reward">🎉 tra**** 님이 <span>$127.50 USDT</span></div>
+            <div class="header-reward" style="transition: opacity 0.4s; opacity: 1;">🎉 max**** 님이 <span>$463.20 USDT</span> 리워드</div>
             
             <!-- 언어 선택 -->
             <div class="lang-selector">
@@ -1345,41 +1437,26 @@
                     🌐 한국어 ▼
                 </button>
                 <div class="lang-dropdown" id="langDropdown">
-                    <div class="lang-option active" onclick="setLang('ko')">🇰🇷 한국어</div>
-                    <div class="lang-option" onclick="setLang('en')">🇺🇸 English</div>
-                    <div class="lang-option" onclick="setLang('zh')">🇨🇳 中文</div>
-                    <div class="lang-option" onclick="setLang('ja')">🇯🇵 日本語</div>
-                    <div class="lang-option" onclick="setLang('vi')">🇻🇳 Tiếng Việt</div>
+                    <div class="lang-option active" onclick="setLang(&#39;ko&#39;)">🇰🇷 한국어</div>
+                    <div class="lang-option" onclick="setLang(&#39;en&#39;)">🇺🇸 English</div>
+                    <div class="lang-option" onclick="setLang(&#39;zh&#39;)">🇨🇳 中文</div>
+                    <div class="lang-option" onclick="setLang(&#39;ja&#39;)">🇯🇵 日本語</div>
+                    <div class="lang-option" onclick="setLang(&#39;vi&#39;)">🇻🇳 Tiếng Việt</div>
                 </div>
             </div>
             
-            <!-- 비로그인 -->
-            <div id="authBtns" style="display:flex;gap:6px;">
-              <button class="btn-login" onclick="openModal('login')">로그인</button>
-              <button class="btn-signup" onclick="openModal('signup')">회원가입</button>
-            </div>
-            <!-- 로그인 상태 -->
-            <div id="userBtns" style="display:none;align-items:center;gap:8px;">
-              <span id="userNickDisplay" onclick="location.href='mypage.html'" style="font-size:13px;color:var(--accent-cyan);font-weight:600;cursor:pointer;padding:4px 10px;border-radius:6px;background:rgba(0,184,217,0.08);"></span>
-              <button onclick="location.href='mypage.html'" style="font-size:12px;color:var(--text-secondary);background:var(--bg-card);border:1px solid var(--border-color);border-radius:6px;padding:6px 12px;cursor:pointer;">마이페이지</button>
-              <button onclick="doLogoutUser()" style="font-size:12px;color:var(--text-muted);background:transparent;border:none;cursor:pointer;padding:6px;">로그아웃</button>
-            </div>
+            <button class="btn-login" onclick="openModal(&#39;login&#39;)">로그인</button>
+            <button class="btn-signup" onclick="openModal(&#39;signup&#39;)">회원가입</button>
             <button class="menu-btn" onclick="openLeftSidebar()">☰</button>
         </div>
     </header>
 
     <!-- 티커 -->
-    <div class="ticker-bar" id="tickerBar">
-        <div class="ticker-item"><span class="sym">BTC</span><span class="price">--</span><span class="up">--</span></div>
-        <div class="ticker-item"><span class="sym">ETH</span><span class="price">--</span><span class="up">--</span></div>
-        <div class="ticker-item"><span class="sym">SOL</span><span class="price">--</span><span class="up">--</span></div>
-        <div class="ticker-item"><span class="sym">XRP</span><span class="price">--</span><span class="up">--</span></div>
-        <div class="ticker-item"><span class="sym">DOGE</span><span class="price">--</span><span class="up">--</span></div>
-        <div class="ticker-item"><span class="sym">BNB</span><span class="price">--</span><span class="up">--</span></div>
-        <div class="ticker-item"><span class="sym">AVAX</span><span class="price">--</span><span class="up">--</span></div>
-        <div class="ticker-item"><span class="sym">SUI</span><span class="price">--</span><span class="up">--</span></div>
-        <div class="ticker-item"><span class="sym">LINK</span><span class="price">--</span><span class="up">--</span></div>
-        <div class="ticker-item"><span class="sym">DOT</span><span class="price">--</span><span class="up">--</span></div>
+    <div class="ticker-bar">
+        <div class="ticker-item"><span class="sym">BTC</span><span class="price">$104,235</span><span class="up">+2.14%</span></div>
+        <div class="ticker-item"><span class="sym">ETH</span><span class="price">$3,312</span><span class="up">+1.52%</span></div>
+        <div class="ticker-item"><span class="sym">SOL</span><span class="price">$198.45</span><span class="down">-0.62%</span></div>
+        <div class="ticker-item"><span class="sym">김프</span><span class="up">2.1%</span></div>
     </div>
 
     <!-- 레이아웃 -->
@@ -1388,23 +1465,23 @@
         <aside class="sidebar-left">
             <!-- 거래소별 이벤트 -->
             <div class="sl-section" id="eventSection">
-                <div class="sl-title">🎁 파트너 이벤트 <span class="sl-more" onclick="location.href='events.html'">전체보기→</span></div>
-                <div class="sl-event" onclick="location.href='events.html'" style="cursor:pointer;">
+                <div class="sl-title">🎁 파트너 이벤트 <span class="sl-more" onclick="location.href=&#39;events.html&#39;">전체보기→</span></div>
+                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
                     <div class="sl-event-badge" style="color:#00C9A7;">Bitget</div>
                     <div class="sl-event-title">신규 가입 보너스 최대 1.7M USDT</div>
                     <div class="sl-event-date">상시 진행</div>
                 </div>
-                <div class="sl-event" onclick="location.href='events.html'" style="cursor:pointer;">
+                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
                     <div class="sl-event-badge" style="color:#6366f1;">Bitunix</div>
                     <div class="sl-event-title">트레이딩 대회 $50,000 Prize</div>
                     <div class="sl-event-date">상시 진행</div>
                 </div>
-                <div class="sl-event" onclick="location.href='events.html'" style="cursor:pointer;">
+                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
                     <div class="sl-event-badge" style="color:#f7a600;">Bybit</div>
                     <div class="sl-event-title">$100 입금 보너스 프로모션</div>
                     <div class="sl-event-date">준비중</div>
                 </div>
-                <div class="sl-event" onclick="location.href='events.html'" style="cursor:pointer;">
+                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
                     <div class="sl-event-badge" style="color:#1972e2;">MEXC</div>
                     <div class="sl-event-title">신규 유저 수수료 0% 이벤트</div>
                     <div class="sl-event-date">준비중</div>
@@ -1413,13 +1490,13 @@
 
             <!-- 트레이딩 대회 -->
             <div class="sl-section">
-                <div class="sl-title">🏆 트레이딩 대회 <span class="sl-more" onclick="location.href='events.html'">더보기→</span></div>
-                <div class="sl-event" onclick="location.href='events.html'" style="cursor:pointer;">
+                <div class="sl-title">🏆 트레이딩 대회 <span class="sl-more" onclick="location.href=&#39;events.html&#39;">더보기→</span></div>
+                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
                     <div class="sl-event-badge" style="color:#6366f1;">Bitunix</div>
                     <div class="sl-event-title">주간 트레이딩 대회 $50,000</div>
                     <div class="sl-event-date">진행중</div>
                 </div>
-                <div class="sl-event" onclick="location.href='events.html'" style="cursor:pointer;">
+                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
                     <div class="sl-event-badge" style="color:#00C9A7;">Bitget</div>
                     <div class="sl-event-title">카피트레이딩 챌린지 $20,000</div>
                     <div class="sl-event-date">예정</div>
@@ -1428,11 +1505,11 @@
 
             <!-- Exchange Reward 박스 -->
             <div class="sl-section">
-                <a href="exchanges.html" class="exchange-reward-box">
+                <a href="https://1percentpro.io/exchanges.html" class="exchange-reward-box">
                     <div class="exchange-reward-icon">🎁</div>
                     <div class="exchange-reward-text">
                         <div class="exchange-reward-title">Exchange Reward</div>
-                        <div class="exchange-reward-sub">Discounts & Rewards</div>
+                        <div class="exchange-reward-sub">Discount &amp; Reward</div>
                     </div>
                 </a>
             </div>
@@ -1446,8 +1523,8 @@
                 <h1><span class="accent">1% 트레이더</span>를 위한<br><span class="accent">선물거래 정보</span>와 <span class="accent">리워드</span>를 평생지원</h1>
                 <p class="sub">거래 리워드 최대 <span>85%</span>까지 돌려받기</p>
                 <div class="hero-btns">
-                    <button class="btn-primary" onclick="scrollToSection('exchangeSection')">시작하기</button>
-                    <button class="btn-secondary" onclick="scrollToSection('futuresSection')">자세히 보기</button>
+                    <button class="btn-primary" onclick="scrollToSection(&#39;exchangeSection&#39;)">시작하기</button>
+                    <button class="btn-secondary" onclick="scrollToSection(&#39;futuresSection&#39;)">자세히 보기</button>
                 </div>
             </section>
 
@@ -1458,25 +1535,25 @@
 
                         <!-- 페이지 1: BTC 계약 데이터 -->
                         <div class="card-slider-page">
-                            <div class="futures-card" onclick="location.href='contract/funding.html'" style="cursor:pointer;" title="상세 보기">
+                            <div class="futures-card" onclick="location.href=&#39;contract/funding.html&#39;" style="cursor:pointer;" title="상세 보기">
                                 <div class="label">📈 BTC 펀딩비</div>
-                                <div class="value" id="fCardFunding">--</div>
-                                <div class="sub" id="fCardFundingSub">로딩 중...</div>
+                                <div class="value red" id="fCardFunding">-0.0025%</div>
+                                <div class="sub" id="fCardFundingSub">숏 우세</div>
                             </div>
-                            <div class="futures-card" onclick="location.href='contract/longshort.html'" style="cursor:pointer;" title="상세 보기">
+                            <div class="futures-card" onclick="location.href=&#39;contract/longshort.html&#39;" style="cursor:pointer;" title="상세 보기">
                                 <div class="label">⚖️ 롱/숏 비율</div>
-                                <div class="value" id="fCardLS">--</div>
-                                <div class="sub" id="fCardLSSub">로딩 중...</div>
+                                <div class="value green" id="fCardLS">64/36</div>
+                                <div class="sub" id="fCardLSSub">롱 우세</div>
                             </div>
-                            <div class="futures-card" onclick="location.href='contract/liquidation.html'" style="cursor:pointer;" title="상세 보기">
+                            <div class="futures-card" onclick="location.href=&#39;contract/liquidation.html&#39;" style="cursor:pointer;" title="상세 보기">
                                 <div class="label">💥 청산 (24h)</div>
-                                <div class="value" id="fCardLiq">--</div>
-                                <div class="sub" id="fCardLiqSub">로딩 중...</div>
+                                <div class="value red" id="fCardLiq">$24M</div>
+                                <div class="sub" id="fCardLiqSub">롱 청산 多</div>
                             </div>
-                            <div class="futures-card" onclick="location.href='contract/oi.html'" style="cursor:pointer;" title="상세 보기">
+                            <div class="futures-card" onclick="location.href=&#39;contract/oi.html&#39;" style="cursor:pointer;" title="상세 보기">
                                 <div class="label">📊 OI 미결제약정</div>
-                                <div class="value" id="fCardOI">--</div>
-                                <div class="sub" id="fCardOISub">로딩 중...</div>
+                                <div class="value" id="fCardOI">$5.33B</div>
+                                <div class="sub" id="fCardOISub">BTC 미결제약정</div>
                             </div>
                         </div>
 
@@ -1484,23 +1561,23 @@
                         <div class="card-slider-page">
                             <div class="futures-card">
                                 <div class="label">📈 ETH 펀딩비</div>
-                                <div class="value" id="fCardEthFunding">--</div>
-                                <div class="sub" id="fCardEthFundingSub">로딩 중...</div>
+                                <div class="value green" id="fCardEthFunding">+0.0027%</div>
+                                <div class="sub" id="fCardEthFundingSub">롱 우세</div>
                             </div>
                             <div class="futures-card">
                                 <div class="label">🟠 BTC 도미넌스</div>
-                                <div class="value" id="fCardBtcDom">--</div>
-                                <div class="sub" id="fCardBtcDomSub">로딩 중...</div>
+                                <div class="value" id="fCardBtcDom">56.1%</div>
+                                <div class="sub" id="fCardBtcDomSub">전체 시장 기준</div>
                             </div>
                             <div class="futures-card">
                                 <div class="label">😨 공포/탐욕 지수</div>
-                                <div class="value" id="fCardFnG">--</div>
-                                <div class="sub" id="fCardFnGSub">로딩 중...</div>
+                                <div class="value red" id="fCardFnG">13</div>
+                                <div class="sub" id="fCardFnGSub">Extreme Fear</div>
                             </div>
-                            <div class="futures-card" onclick="location.href='kimp.html'" style="cursor:pointer;" title="상세 보기">
+                            <div class="futures-card" onclick="location.href=&#39;kimp.html&#39;" style="cursor:pointer;" title="상세 보기">
                                 <div class="label">🇰🇷 김프</div>
-                                <div class="value" id="fCardKimp">--</div>
-                                <div class="sub" id="fCardKimpSub">로딩 중...</div>
+                                <div class="value green" id="fCardKimp">+1.23%</div>
+                                <div class="sub" id="fCardKimpSub">국내 프리미엄</div>
                             </div>
                         </div>
 
@@ -1508,30 +1585,30 @@
                         <div class="card-slider-page">
                             <div class="futures-card">
                                 <div class="label">📈 SOL 펀딩비</div>
-                                <div class="value" id="fCardSolFunding">--</div>
-                                <div class="sub" id="fCardSolFundingSub">로딩 중...</div>
+                                <div class="value green" id="fCardSolFunding">+0.0025%</div>
+                                <div class="sub" id="fCardSolFundingSub">롱 우세</div>
                             </div>
                             <div class="futures-card">
                                 <div class="label">💵 USDT 도미넌스</div>
-                                <div class="value" id="fCardUsdtDom">--</div>
-                                <div class="sub" id="fCardUsdtDomSub">로딩 중...</div>
+                                <div class="value" id="fCardUsdtDom">7.7%</div>
+                                <div class="sub" id="fCardUsdtDomSub">스테이블 비중</div>
                             </div>
                             <div class="futures-card">
                                 <div class="label">📊 시장 거래량</div>
-                                <div class="value" id="fCardVol">--</div>
-                                <div class="sub" id="fCardVolSub">로딩 중...</div>
+                                <div class="value" id="fCardVol">$11.7B</div>
+                                <div class="sub" id="fCardVolSub">BTC 선물 24h</div>
                             </div>
                             <div class="futures-card">
                                 <div class="label">🐋 고래 이동</div>
-                                <div class="value" id="fCardWhale">--</div>
-                                <div class="sub" id="fCardWhaleSub">로딩 중...</div>
+                                <div class="value" id="fCardWhale">5.2M건</div>
+                                <div class="sub" id="fCardWhaleSub">24h BTC 거래 횟수</div>
                             </div>
                         </div>
 
                     </div>
                 </div>
                 <!-- 화살표 -->
-                <button class="slider-nav-btn slider-prev" id="sliderPrev" onclick="sliderMove(-1)" disabled>‹</button>
+                <button class="slider-nav-btn slider-prev" id="sliderPrev" onclick="sliderMove(-1)" disabled="">‹</button>
                 <button class="slider-nav-btn slider-next" id="sliderNext" onclick="sliderMove(1)">›</button>
                 <!-- 점 인디케이터 -->
                 <div class="slider-dots">
@@ -1546,25 +1623,25 @@
             <div class="content-section" id="newsSection">
                 <div class="section-header">
                     <div class="section-title">📰 뉴스</div>
-                    <div class="section-more" onclick="location.href='news.html'">더보기 →</div>
+                    <div class="section-more" onclick="location.href=&#39;news.html&#39;">더보기 →</div>
                 </div>
                 <div class="news-grid">
-                    <div class="news-card" onclick="location.href='news.html'">
+                    <div class="news-card" onclick="location.href=&#39;news.html&#39;">
                         <div class="time">14:32</div>
                         <div class="title">비트코인, $105K 돌파 시도... 단기 저항선 주목</div>
                         <span class="tag">BTC</span>
                     </div>
-                    <div class="news-card" onclick="location.href='news.html'">
+                    <div class="news-card" onclick="location.href=&#39;news.html&#39;">
                         <div class="time">13:45</div>
                         <div class="title">이더리움 펀딩비 급등, 롱 포지션 과열 신호</div>
                         <span class="tag">ETH</span>
                     </div>
-                    <div class="news-card" onclick="location.href='news.html'">
+                    <div class="news-card" onclick="location.href=&#39;news.html&#39;">
                         <div class="time">12:18</div>
                         <div class="title">트럼프 취임 D-1 암호화폐 정책 기대감 상승</div>
                         <span class="tag">시장</span>
                     </div>
-                    <div class="news-card" onclick="location.href='news.html'">
+                    <div class="news-card" onclick="location.href=&#39;news.html&#39;">
                         <div class="time">11:02</div>
                         <div class="title">고래 지갑, 24시간 내 3,000 BTC 이동</div>
                         <span class="tag">온체인</span>
@@ -1576,12 +1653,12 @@
             <div class="content-section" id="exchangeSection">
                 <div class="section-header">
                     <div class="section-title">🏦 제휴 거래소</div>
-                    <div class="section-more" onclick="location.href='exchanges.html'">전체보기 →</div>
+                    <div class="section-more" onclick="location.href=&#39;exchanges.html&#39;">전체보기 →</div>
                 </div>
                 <!-- 거래소 테이블 헤더 -->
                 <div class="exchange-header">
                     <div class="ex-col-name">거래소</div>
-                    <div class="ex-col-rate">페이백%</div>
+                    <div class="ex-col-rate">리워드%</div>
                     <div class="ex-col-fee">지정가%</div>
                     <div class="ex-col-fee">시장가%</div>
                     <div class="ex-col-btn"></div>
@@ -1596,7 +1673,7 @@
                         <div class="ex-rate bitget">85%</div>
                         <div class="ex-fee">0.002%</div>
                         <div class="ex-fee">0.004%</div>
-                        <button class="ex-btn bitget" onclick="window.open('https://www.bitget.com/referral/register?from=referral&clacCode=pkju')">가입</button>
+                        <button class="ex-btn bitget" onclick="window.open(&#39;https://www.bitget.com/referral/register?from=referral&amp;clacCode=pkju&#39;)">가입</button>
                     </div>
                     <!-- OKX -->
                     <div class="exchange-item">
@@ -1607,7 +1684,7 @@
                         <div class="ex-rate okx">50%</div>
                         <div class="ex-fee">0.004%</div>
                         <div class="ex-fee">0.01%</div>
-                        <button class="ex-btn okx" onclick="window.open('https://okx.com/join/84293762')">가입</button>
+                        <button class="ex-btn okx" onclick="window.open(&#39;https://okx.com/join/84293762&#39;)">가입</button>
                     </div>
                     <!-- Gate -->
                     <div class="exchange-item">
@@ -1618,7 +1695,7 @@
                         <div class="ex-rate gate">70%</div>
                         <div class="ex-fee">0.004%</div>
                         <div class="ex-fee">0.01%</div>
-                        <button class="ex-btn gate" onclick="window.open('https://www.gate.com/share/VQQVVAOMBG')">가입</button>
+                        <button class="ex-btn gate" onclick="window.open(&#39;https://www.gate.com/share/VQQVVAOMBG&#39;)">가입</button>
                     </div>
                     <!-- Bybit -->
                     <div class="exchange-item">
@@ -1629,7 +1706,7 @@
                         <div class="ex-rate bybit">--%</div>
                         <div class="ex-fee">0.01%</div>
                         <div class="ex-fee">0.03%</div>
-                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled>준비중</button>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled="">준비중</button>
                     </div>
                     <!-- Binance -->
                     <div class="exchange-item">
@@ -1640,7 +1717,7 @@
                         <div class="ex-rate binance">--%</div>
                         <div class="ex-fee">0.0096%</div>
                         <div class="ex-fee">0.024%</div>
-                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled>준비중</button>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled="">준비중</button>
                     </div>
                     <!-- MEXC -->
                     <div class="exchange-item">
@@ -1651,7 +1728,7 @@
                         <div class="ex-rate mexc">--%</div>
                         <div class="ex-fee">0%</div>
                         <div class="ex-fee">0.01%</div>
-                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled>준비중</button>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled="">준비중</button>
                     </div>
                     <!-- BingX -->
                     <div class="exchange-item">
@@ -1662,7 +1739,7 @@
                         <div class="ex-rate bingx">--%</div>
                         <div class="ex-fee">0.008%</div>
                         <div class="ex-fee">0.02%</div>
-                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled>준비중</button>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled="">준비중</button>
                     </div>
                     <!-- Bitunix -->
                     <div class="exchange-item">
@@ -1673,7 +1750,7 @@
                         <div class="ex-rate bitunix">--%</div>
                         <div class="ex-fee">0.003%</div>
                         <div class="ex-fee">0.009%</div>
-                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled>준비중</button>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled="">준비중</button>
                     </div>
                 </div>
             </div>
@@ -1686,10 +1763,10 @@
             <div class="sr-section">
                 <div class="sr-title">🔥 실시간 시세</div>
                 <div class="sr-tabs">
-                    <div class="sr-tab active" onclick="switchCoinTab('price', this)">💲 시세</div>
-                    <div class="sr-tab" onclick="switchCoinTab('up', this)">🔥</div>
-                    <div class="sr-tab" onclick="switchCoinTab('down', this)">💧</div>
-                    <div class="sr-tab" onclick="switchCoinTab('vol', this)">📊</div>
+                    <div class="sr-tab active" onclick="switchCoinTab(&#39;price&#39;, this)">$</div>
+                    <div class="sr-tab" onclick="switchCoinTab(&#39;up&#39;, this)">🔥</div>
+                    <div class="sr-tab" onclick="switchCoinTab(&#39;down&#39;, this)">💧</div>
+                    <div class="sr-tab" onclick="switchCoinTab(&#39;vol&#39;, this)">📊</div>
                 </div>
                 <div class="sr-coin-header">
                     <span class="col-name">페어명</span>
@@ -1697,167 +1774,59 @@
                     <span class="col-change">24H</span>
                 </div>
                 <!-- 시세 -->
-                <div class="sr-coin-list active" id="coinListPrice">
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">1</span>
-                        <img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg" alt="BTC">
-                        <span class="sr-coin-name">BTC</span>
-                        <span class="sr-coin-price">$89,039.1</span>
-                        <span class="sr-coin-change down">-0.54%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">2</span>
-                        <img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg" alt="ETH">
-                        <span class="sr-coin-name">ETH</span>
-                        <span class="sr-coin-price">$2,925.49</span>
-                        <span class="sr-coin-change down">-0.89%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">3</span>
-                        <img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sol.svg" alt="SOL">
-                        <span class="sr-coin-name">SOL</span>
-                        <span class="sr-coin-price">$127.31</span>
-                        <span class="sr-coin-change down">-0.84%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">4</span>
-                        <img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/xrp.svg" alt="XRP">
-                        <span class="sr-coin-name">XRP</span>
-                        <span class="sr-coin-price">$1.91</span>
-                        <span class="sr-coin-change down">-0.68%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">5</span>
-                        <img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/doge.svg" alt="DOGE">
-                        <span class="sr-coin-name">DOGE</span>
-                        <span class="sr-coin-price">$0.1249</span>
-                        <span class="sr-coin-change up">+0.47%</span>
-                    </div>
-                </div>
+                <div class="sr-coin-list active" id="coinListPrice"><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/BTC_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">1</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg" alt="BTC" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">BTC</span><span class="sr-coin-price">$67,028.1</span><span class="sr-coin-change down">-2.09%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/ETH_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">2</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg" alt="ETH" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">ETH</span><span class="sr-coin-price">$2,006.3</span><span class="sr-coin-change down">-2.46%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/SOL_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">3</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sol.svg" alt="SOL" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">SOL</span><span class="sr-coin-price">$85.47</span><span class="sr-coin-change down">-3.83%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/XRP_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">4</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/xrp.svg" alt="XRP" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">XRP</span><span class="sr-coin-price">$1.40</span><span class="sr-coin-change down">-2.34%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/DOGE_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">5</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/doge.svg" alt="DOGE" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">DOGE</span><span class="sr-coin-price">$0.0967</span><span class="sr-coin-change down">-4.33%</span></div></div>
                 <!-- 급등 -->
-                <div class="sr-coin-list" id="coinListUp">
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">1</span>
-                        <img class="sr-coin-icon" src="https://assets.coingecko.com/coins/images/29850/small/pepe-token.jpeg" alt="PEPE">
-                        <span class="sr-coin-name">PEPE</span>
-                        <span class="sr-coin-price">$0.00001842</span>
-                        <span class="sr-coin-change up">+24.5%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">2</span>
-                        <img class="sr-coin-icon" src="https://assets.coingecko.com/coins/images/33566/small/dogwifhat.jpg" alt="WIF">
-                        <span class="sr-coin-name">WIF</span>
-                        <span class="sr-coin-price">$1.872</span>
-                        <span class="sr-coin-change up">+18.3%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">3</span>
-                        <img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/fet.svg" alt="FET">
-                        <span class="sr-coin-name">FET</span>
-                        <span class="sr-coin-price">$2.341</span>
-                        <span class="sr-coin-change up">+15.7%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">4</span>
-                        <img class="sr-coin-icon" src="https://assets.coingecko.com/coins/images/12882/small/Secondary_Symbol.png" alt="INJ">
-                        <span class="sr-coin-name">INJ</span>
-                        <span class="sr-coin-price">$28.45</span>
-                        <span class="sr-coin-change up">+12.1%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">5</span>
-                        <img class="sr-coin-icon" src="https://assets.coingecko.com/coins/images/26375/small/sui_asset.jpeg" alt="SUI">
-                        <span class="sr-coin-name">SUI</span>
-                        <span class="sr-coin-price">$4.521</span>
-                        <span class="sr-coin-change up">+9.8%</span>
-                    </div>
-                </div>
+                <div class="sr-coin-list" id="coinListUp"><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/DENT_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">1</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/dent.svg" alt="DENT" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">DENT</span><span class="sr-coin-price">$0.0004090</span><span class="sr-coin-change up">+85.91%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/MIRA_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">2</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/mira.svg" alt="MIRA" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">MIRA</span><span class="sr-coin-price">$0.1058</span><span class="sr-coin-change up">+22.74%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/DCR_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">3</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/dcr.svg" alt="DCR" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">DCR</span><span class="sr-coin-price">$34.72</span><span class="sr-coin-change up">+19.81%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/HOT_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">4</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/hot.svg" alt="HOT" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">HOT</span><span class="sr-coin-price">$0.0004470</span><span class="sr-coin-change up">+16.71%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/RED_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">5</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/red.svg" alt="RED" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">RED</span><span class="sr-coin-price">$0.1885</span><span class="sr-coin-change up">+14.59%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/WIN_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">6</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/win.svg" alt="WIN" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">WIN</span><span class="sr-coin-price">$0.00002472</span><span class="sr-coin-change up">+11.65%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/YB_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">7</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/yb.svg" alt="YB" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">YB</span><span class="sr-coin-price">$0.1731</span><span class="sr-coin-change up">+9.56%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/SENT_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">8</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sent.svg" alt="SENT" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">SENT</span><span class="sr-coin-price">$0.0247</span><span class="sr-coin-change up">+9.08%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/ELF_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">9</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/elf.svg" alt="ELF" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">ELF</span><span class="sr-coin-price">$0.2272</span><span class="sr-coin-change up">+8.81%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/ZAMA_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">10</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/zama.svg" alt="ZAMA" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">ZAMA</span><span class="sr-coin-price">$0.0252</span><span class="sr-coin-change up">+8.40%</span></div></div>
                 <!-- 거래량 급증 -->
-                <div class="sr-coin-list" id="coinListVol">
-                    <div class="sr-coin-item"><span class="sr-coin-rank">-</span><span class="sr-coin-name" style="color:var(--text-muted)">로딩중...</span></div>
-                </div>
+                <div class="sr-coin-list" id="coinListVol"><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/SOL_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">1</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sol.svg" alt="SOL" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">SOL</span><span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">$260M</span><span class="sr-coin-change down">-3.83%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/XRP_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">2</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/xrp.svg" alt="XRP" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">XRP</span><span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">$220M</span><span class="sr-coin-change down">-2.34%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/USD1_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">3</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/usd1.svg" alt="USD1" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">USD1</span><span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">$159M</span><span class="sr-coin-change down">-0.01%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/BNB_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">4</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/bnb.svg" alt="BNB" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">BNB</span><span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">$75M</span><span class="sr-coin-change down">-1.08%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/DOGE_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">5</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/doge.svg" alt="DOGE" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">DOGE</span><span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">$70M</span><span class="sr-coin-change down">-4.33%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/PEPE_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">6</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/pepe.svg" alt="PEPE" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">PEPE</span><span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">$63M</span><span class="sr-coin-change down">-6.31%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/ZEC_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">7</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/zec.svg" alt="ZEC" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">ZEC</span><span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">$49M</span><span class="sr-coin-change down">-4.68%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/SUI_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">8</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sui.svg" alt="SUI" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">SUI</span><span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">$45M</span><span class="sr-coin-change down">-4.34%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/ADA_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">9</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/ada.svg" alt="ADA" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">ADA</span><span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">$45M</span><span class="sr-coin-change down">-3.73%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/PAXG_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">10</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/paxg.svg" alt="PAXG" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">PAXG</span><span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">$45M</span><span class="sr-coin-change down">-0.12%</span></div></div>
                 <!-- 급락 -->
-                <div class="sr-coin-list" id="coinListDown">
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">1</span>
-                        <img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/ape.svg" alt="APE">
-                        <span class="sr-coin-name">APE</span>
-                        <span class="sr-coin-price">$1.024</span>
-                        <span class="sr-coin-change down">-14.2%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">2</span>
-                        <img class="sr-coin-icon" src="https://assets.coingecko.com/coins/images/28453/small/blur.png" alt="BLUR">
-                        <span class="sr-coin-name">BLUR</span>
-                        <span class="sr-coin-price">$0.312</span>
-                        <span class="sr-coin-change down">-11.8%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">3</span>
-                        <img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/mana.svg" alt="MANA">
-                        <span class="sr-coin-name">MANA</span>
-                        <span class="sr-coin-price">$0.421</span>
-                        <span class="sr-coin-change down">-9.5%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">4</span>
-                        <img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sand.svg" alt="SAND">
-                        <span class="sr-coin-name">SAND</span>
-                        <span class="sr-coin-price">$0.387</span>
-                        <span class="sr-coin-change down">-8.3%</span>
-                    </div>
-                    <div class="sr-coin-item">
-                        <span class="sr-coin-rank">5</span>
-                        <img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/gala.svg" alt="GALA">
-                        <span class="sr-coin-name">GALA</span>
-                        <span class="sr-coin-price">$0.0234</span>
-                        <span class="sr-coin-change down">-7.1%</span>
-                    </div>
+                <div class="sr-coin-list" id="coinListDown"><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/CHESS_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">1</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/chess.svg" alt="CHESS" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">CHESS</span><span class="sr-coin-price">$0.002810</span><span class="sr-coin-change down">-55.18%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/DF_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">2</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/df.svg" alt="DF" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">DF</span><span class="sr-coin-price">$0.001640</span><span class="sr-coin-change down">-37.88%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/OOKI_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">3</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/ooki.svg" alt="OOKI" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">OOKI</span><span class="sr-coin-price">$0.0001190</span><span class="sr-coin-change down">-24.68%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/FIS_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">4</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/fis.svg" alt="FIS" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">FIS</span><span class="sr-coin-price">$0.0191</span><span class="sr-coin-change down">-17.32%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/VOXEL_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">5</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/voxel.svg" alt="VOXEL" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">VOXEL</span><span class="sr-coin-price">$0.0140</span><span class="sr-coin-change down">-17.16%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/GFT_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">6</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/gft.svg" alt="GFT" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">GFT</span><span class="sr-coin-price">$0.001960</span><span class="sr-coin-change down">-14.41%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/NEBL_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">7</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/nebl.svg" alt="NEBL" onerror="this.style.display=&#39;none&#39;"><span class="sr-coin-name">NEBL</span><span class="sr-coin-price">$0.3550</span><span class="sr-coin-change down">-13.63%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/API3_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">8</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/api3.svg" alt="API3" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">API3</span><span class="sr-coin-price">$0.2927</span><span class="sr-coin-change down">-13.56%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/KITE_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">9</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/kite.svg" alt="KITE" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">KITE</span><span class="sr-coin-price">$0.2490</span><span class="sr-coin-change down">-13.21%</span></div><div class="sr-coin-item" onclick="window.open(&#39;https://www.binance.com/en/trade/CVX_USDT&#39;)" style="cursor:pointer;"><span class="sr-coin-rank">10</span><img class="sr-coin-icon" src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/cvx.svg" alt="CVX" onerror="this.style.display=&#39;none&#39;" style="display: none;"><span class="sr-coin-name">CVX</span><span class="sr-coin-price">$1.71</span><span class="sr-coin-change down">-11.12%</span></div></div>
+            </div>
+
+            <!-- 핫이슈 (CoinGecko Trending) -->
+            <div class="sr-section">
+                <div class="sr-title">🔥 핫이슈</div>
+                <div class="hot-list" id="hotList">
+                    <div style="font-size:12px;color:var(--text-muted);padding:8px 0;">로딩중...</div>
                 </div>
             </div>
 
             <!-- 뉴스 (Bitget 3탭: 업계뉴스 / 일일요약 / 제휴가이드) -->
             <div class="sr-section">
-                <div class="sr-title" id="newsSrTitle">📰 뉴스 <span class="sr-more" onclick="location.href='news.html'">더보기→</span></div>
+                <div class="sr-title" id="newsSrTitle">📰 뉴스 <span class="sr-more" onclick="location.href=&#39;news.html&#39;">더보기→</span></div>
                 <div class="news-tabs">
-                    <div class="news-tab active-industry" id="tabIndustry" onclick="switchNewsTab('industry')">업계뉴스</div>
-                    <div class="news-tab" id="tabDaily"    onclick="switchNewsTab('daily')">일일요약</div>
-                    <div class="news-tab" id="tabPartner"  onclick="switchNewsTab('partner')">제휴가이드</div>
+                    <div class="news-tab active-industry" id="tabIndustry" onclick="switchNewsTab(&#39;industry&#39;)">업계뉴스</div>
+                    <div class="news-tab" id="tabDaily" onclick="switchNewsTab(&#39;daily&#39;)">일일요약</div>
+                    <div class="news-tab" id="tabPartner" onclick="switchNewsTab(&#39;partner&#39;)">제휴가이드</div>
                 </div>
-                <div class="news-tab-panel active" id="newsTabIndustry">
-                    <div class="breaking-item"><span class="breaking-time">--</span><span class="breaking-dot"></span><span class="breaking-title">로딩 중...</span></div>
-                </div>
-                <div class="news-tab-panel" id="newsTabDaily">
-                    <div class="breaking-item"><span class="breaking-time">--</span><span class="breaking-dot"></span><span class="breaking-title">로딩 중...</span></div>
-                </div>
-                <div class="news-tab-panel" id="newsTabPartner">
-                    <div class="breaking-item"><span class="breaking-time">--</span><span class="breaking-dot"></span><span class="breaking-title">로딩 중...</span></div>
-                </div>
+                <div class="news-tab-panel active" id="newsTabIndustry"><div class="breaking-item"><span class="breaking-title" style="color:var(--text-muted);">데이터 없음</span></div></div>
+                <div class="news-tab-panel" id="newsTabDaily"><div class="breaking-item"><span class="breaking-title" style="color:var(--text-muted);">데이터 없음</span></div></div>
+                <div class="news-tab-panel" id="newsTabPartner"><div class="breaking-item"><span class="breaking-title" style="color:var(--text-muted);">데이터 없음</span></div></div>
             </div>
 
             <!-- 코인 주요 일정 -->
             <div class="sr-section">
-                <div class="sr-title">📅 코인 주요 일정 <span class="sr-more" onclick="location.href='calendar.html'">더보기→</span></div>
+                <div class="sr-title">📅 코인 주요 일정 <span class="sr-more" onclick="location.href=&#39;calendar.html&#39;">더보기→</span></div>
                 <div id="calendarContainer">
-                    <div class="sr-sch-item" onclick="location.href='calendar.html'">
+                    <div class="sr-sch-item" onclick="location.href=&#39;calendar.html&#39;">
                         <div class="sr-sch-head">
-                            <span class="sr-sch-day" style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--accent-cyan);">28</span>
+                            <span class="sr-sch-day">28</span>
                             <span class="sr-sch-dow">수요일</span>
                         </div>
                         <div><span class="cal-badge macro">🔴 #주요이슈</span></div>
                         <div class="sr-sch-title">미국 FOMC 회의 — 금리 결정 발표</div>
                     </div>
-                    <div class="sr-sch-item" onclick="location.href='calendar.html'">
+                    <div class="sr-sch-item" onclick="location.href=&#39;calendar.html&#39;">
                         <div class="sr-sch-head">
-                            <span class="sr-sch-day" style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--accent-cyan);">27</span>
+                            <span class="sr-sch-day">27</span>
                             <span class="sr-sch-dow">화요일</span>
                         </div>
                         <div><span class="cal-badge exchange">🟡 #거래소</span></div>
                         <div class="sr-sch-title">Binance EIGEN 선물 상장</div>
                     </div>
-                    <div class="sr-sch-item" onclick="location.href='calendar.html'">
+                    <div class="sr-sch-item" onclick="location.href=&#39;calendar.html&#39;">
                         <div class="sr-sch-head">
-                            <span class="sr-sch-day" style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:var(--accent-cyan);">26</span>
+                            <span class="sr-sch-day">26</span>
                             <span class="sr-sch-dow">월요일</span>
                         </div>
                         <div><span class="cal-badge project">🟢 #프로젝트</span></div>
@@ -1875,9 +1844,9 @@
                 <a href="javascript:void(0)" onclick="showPreparing()">📷</a><!-- SNS 준비중 -->
             </div>
             <div class="footer-links">
-                <a href="terms.html">이용약관</a>
-                <a href="privacy.html">개인정보처리방침</a>
-                <a href="about.html">서비스소개</a>
+                <a href="https://1percentpro.io/terms.html">이용약관</a>
+                <a href="https://1percentpro.io/privacy.html">개인정보처리방침</a>
+                <a href="https://1percentpro.io/about.html">서비스소개</a>
                 <a href="https://t.me/officialpercent" target="_blank">문의하기</a>
             </div>
             <div class="footer-copy">© 2025 1% Trading. All rights reserved.<br>투자의 책임은 본인에게 있습니다.</div>
@@ -1893,20 +1862,20 @@
         </div>
         <div class="hs-content">
             <div class="hs-section">
-                <div class="hs-menu-item" onclick="closeLeftSidebar(); window.scrollTo({top:0,behavior:'smooth'});">
+                <div class="hs-menu-item" onclick="closeLeftSidebar(); window.scrollTo({top:0,behavior:&#39;smooth&#39;});">
                     <span class="hs-menu-icon">📊</span>
                     <span class="hs-menu-text">대시보드</span>
                 </div>
-                <div class="hs-menu-item" onclick="location.href='journal.html';">
+                <div class="hs-menu-item" onclick="location.href=&#39;journal.html&#39;;">
                     <span class="hs-menu-icon">📝</span>
                     <span class="hs-menu-text">매매일지</span>
                 </div>
-                <div class="hs-menu-item" onclick="location.href='exchanges.html';">
+                <div class="hs-menu-item" onclick="location.href=&#39;exchanges.html&#39;;">
                     <span class="hs-menu-icon">🏦</span>
                     <span class="hs-menu-text">거래소</span>
                     <span class="hs-menu-badge hit">HIT</span>
                 </div>
-                <div class="hs-menu-item" onclick="location.href='rewards.html';">
+                <div class="hs-menu-item" onclick="location.href=&#39;rewards.html&#39;;">
                     <span class="hs-menu-icon">💰</span>
                     <span class="hs-menu-text">리워드 계산기</span>
                     <span class="hs-menu-badge" style="background:#ef4444;color:#fff;">HOT</span>
@@ -1915,16 +1884,16 @@
 
             <div class="hs-section">
                 <div class="hs-section-title">안내</div>
-                <div class="hs-menu-item" onclick="location.href='guide.html';">
+                <div class="hs-menu-item" onclick="location.href=&#39;guide.html&#39;;">
                     <span class="hs-menu-icon">📖</span>
                     <span class="hs-menu-text">이용가이드</span>
                     <span class="hs-menu-badge required">필독</span>
                 </div>
-                <div class="hs-menu-item" onclick="location.href='about.html';">
+                <div class="hs-menu-item" onclick="location.href=&#39;about.html&#39;;">
                     <span class="hs-menu-icon">ℹ️</span>
                     <span class="hs-menu-text">서비스소개</span>
                 </div>
-                <div class="hs-menu-item" onclick="location.href='faq.html';">
+                <div class="hs-menu-item" onclick="location.href=&#39;faq.html&#39;;">
                     <span class="hs-menu-icon">❓</span>
                     <span class="hs-menu-text">FAQ</span>
                 </div>
@@ -1932,16 +1901,16 @@
 
             <div class="hs-section">
                 <div class="hs-section-title">커뮤니티</div>
-                <div class="hs-menu-item" onclick="location.href='community.html';">
+                <div class="hs-menu-item" onclick="location.href=&#39;community.html&#39;;">
                     <span class="hs-menu-icon">💬</span>
                     <span class="hs-menu-text">라운지</span>
                     <span class="hs-menu-badge new">NEW</span>
                 </div>
-                <div class="hs-menu-item" onclick="location.href='community.html';">
+                <div class="hs-menu-item" onclick="location.href=&#39;community.html&#39;;">
                     <span class="hs-menu-icon">👥</span>
                     <span class="hs-menu-text">친구초대</span>
                 </div>
-                <div class="hs-menu-item" onclick="closeLeftSidebar(); window.open('https://t.me/officialpercent');">
+                <div class="hs-menu-item" onclick="closeLeftSidebar(); window.open(&#39;https://t.me/officialpercent&#39;);">
                     <span class="hs-menu-icon">✈️</span>
                     <span class="hs-menu-text">텔레그램</span>
                 </div>
@@ -2376,106 +2345,21 @@
             }
         }
 
-        // ── Auth 상태 관리 ─────────────────────────────────────────────
-        let authToken = localStorage.getItem('authToken') || '';
-
-        function initAuthState() {
-            if (!authToken) return;
-            fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + authToken } })
-                .then(r => r.json()).then(d => {
-                    if (d.ok) setLoggedIn(d.nickname);
-                    else { authToken = ''; localStorage.removeItem('authToken'); }
-                }).catch(() => {});
+        // 준비중 모달
+        function showPreparing() {
+            document.getElementById('preparingModal').style.display = 'flex';
+        }
+        function closePreparing() {
+            document.getElementById('preparingModal').style.display = 'none';
         }
 
-        function setLoggedIn(nickname) {
-            document.getElementById('authBtns').style.display = 'none';
-            const ub = document.getElementById('userBtns');
-            ub.style.display = 'flex';
-            document.getElementById('userNickDisplay').textContent = nickname;
-        }
-
+        // 모달 (로그인/회원가입)
         function openModal(type) {
-            document.getElementById('authModal').style.display = 'flex';
-            switchAuthView(type || 'login');
+            document.getElementById('preparingModal').style.display = 'flex';
         }
-
-        function closeAuthModal() {
-            document.getElementById('authModal').style.display = 'none';
-        }
-
-        function switchAuthView(view) {
-            document.getElementById('viewLogin').style.display = view === 'login' ? 'block' : 'none';
-            document.getElementById('viewSignup').style.display = view === 'signup' ? 'block' : 'none';
-        }
-
-        async function doAuthLogin() {
-            const btn = document.getElementById('liBtn');
-            const errEl = document.getElementById('liErr');
-            const email = document.getElementById('liEmail').value.trim();
-            const pw = document.getElementById('liPw').value;
-            if (!email || !pw) { errEl.textContent = '이메일과 비밀번호를 입력해주세요.'; return; }
-            btn.textContent = '로그인 중...'; btn.disabled = true; errEl.textContent = '';
-            try {
-                const r = await fetch('/api/auth/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email, password: pw }) });
-                const d = await r.json();
-                if (d.ok) {
-                    authToken = d.token;
-                    localStorage.setItem('authToken', d.token);
-                    setLoggedIn(d.nickname);
-                    closeAuthModal();
-                } else { errEl.textContent = d.error || '로그인 실패'; }
-            } catch(e) { errEl.textContent = '네트워크 오류가 발생했습니다.'; }
-            btn.textContent = '로그인'; btn.disabled = false;
-        }
-
-        async function doAuthSignup() {
-            const btn = document.getElementById('siBtn');
-            const errEl = document.getElementById('siErr');
-            const email = document.getElementById('siEmail').value.trim();
-            const pw = document.getElementById('siPw').value;
-            const pw2 = document.getElementById('siPw2').value;
-            const nick = document.getElementById('siNick').value.trim();
-            const ref = document.getElementById('siRef').value.trim().toUpperCase();
-            const terms = document.getElementById('siTerms').checked;
-            const privacy = document.getElementById('siPrivacy').checked;
-
-            if (!email || !pw || !nick) { errEl.textContent = '필수 항목을 모두 입력해주세요.'; return; }
-            if (pw !== pw2) { errEl.textContent = '비밀번호가 일치하지 않습니다.'; return; }
-            if (pw.length < 8) { errEl.textContent = '비밀번호는 8자 이상이어야 합니다.'; return; }
-            if (!terms || !privacy) { errEl.textContent = '약관에 동의해주세요.'; return; }
-
-            btn.textContent = '가입 중...'; btn.disabled = true; errEl.textContent = '';
-            try {
-                const r = await fetch('/api/auth/signup', { method: 'POST', headers: {'Content-Type':'application/json'},
-                    body: JSON.stringify({ email, password: pw, nickname: nick, referral_code: ref, agreed_terms: true, agreed_privacy: true }) });
-                const d = await r.json();
-                if (d.ok) {
-                    authToken = d.token;
-                    localStorage.setItem('authToken', d.token);
-                    setLoggedIn(d.nickname);
-                    closeAuthModal();
-                } else { errEl.textContent = d.error || '가입 실패'; }
-            } catch(e) { errEl.textContent = '네트워크 오류가 발생했습니다.'; }
-            btn.textContent = '가입하기'; btn.disabled = false;
-        }
-
-        function doLogoutUser() {
-            fetch('/api/auth/logout', { method: 'POST', headers: { 'Authorization': 'Bearer ' + authToken } }).catch(()=>{});
-            authToken = ''; localStorage.removeItem('authToken');
-            document.getElementById('authBtns').style.display = 'flex';
-            document.getElementById('userBtns').style.display = 'none';
-        }
-
-        // 모달 외부 클릭 닫기
-        document.getElementById('authModal').addEventListener('click', function(e) {
-            if (e.target === this) closeAuthModal();
-        });
-
-        initAuthState();
         
         // ========== 실시간 데이터 ==========
-        const MAIN_SYMBOLS = ['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','DOGEUSDT','BNBUSDT','AVAXUSDT','SUIUSDT','LINKUSDT','DOTUSDT'];
+        const MAIN_SYMBOLS = ['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','DOGEUSDT','BNBUSDT','ADAUSDT','AVAXUSDT','DOTUSDT','LINKUSDT'];
         const COIN_ICON_BASE = 'https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/';
 
         function getCoinName(sym) { return sym.replace('USDT',''); }
@@ -2500,9 +2384,11 @@
         function renderCoin(rank, name, price, change) {
             const cls = parseFloat(change) >= 0 ? 'up' : 'down';
             const binanceUrl = 'https://www.binance.com/en/trade/' + name + '_USDT';
+            const fb = '<span class="sr-coin-fb">' + name.charAt(0) + '</span>';
             return '<div class="sr-coin-item" onclick="window.open(\'' + binanceUrl + '\')" style="cursor:pointer;">' +
                 '<span class="sr-coin-rank">' + rank + '</span>' +
-                '<img class="sr-coin-icon" src="' + coinIcon(name) + '" alt="' + name + '" onerror="this.style.display=\'none\'">' +
+                '<img class="sr-coin-icon" src="' + coinIcon(name) + '" alt="' + name + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+                '<span class="sr-coin-fb" style="display:none">' + name.charAt(0) + '</span>' +
                 '<span class="sr-coin-name">' + name + '</span>' +
                 '<span class="sr-coin-price">' + formatPrice(price) + '</span>' +
                 '<span class="sr-coin-change ' + cls + '">' + formatChange(change) + '</span></div>';
@@ -2528,14 +2414,6 @@
                     renderCoin(i+1, getCoinName(c.symbol), c.lastPrice, c.priceChangePercent)
                 ).join('');
 
-                // 티커 바 업데이트
-                const tb = document.getElementById('tickerBar');
-                if (tb) tb.innerHTML = main.map(c => {
-                    const name = getCoinName(c.symbol);
-                    const cls = parseFloat(c.priceChangePercent) >= 0 ? 'up' : 'down';
-                    return '<div class="ticker-item"><span class="sym">' + name + '</span><span class="price">' + formatPrice(c.lastPrice) + '</span><span class="' + cls + '">' + formatChange(c.priceChangePercent) + '</span></div>';
-                }).join('');
-
                 // 급등 탭 (상위 10개)
                 const sorted = [...pairs].sort((a,b) => parseFloat(b.priceChangePercent) - parseFloat(a.priceChangePercent));
                 document.getElementById('coinListUp').innerHTML = sorted.slice(0,10).map((c,i) =>
@@ -2557,10 +2435,12 @@
                     const volStr = vol >= 1e9 ? '$' + (vol/1e9).toFixed(1) + 'B' : '$' + (vol/1e6).toFixed(0) + 'M';
                     const cls = parseFloat(c.priceChangePercent) >= 0 ? 'up' : 'down';
                     const binanceUrl = 'https://www.binance.com/en/trade/' + getCoinName(c.symbol) + '_USDT';
+                    var cn = getCoinName(c.symbol);
                     return '<div class="sr-coin-item" onclick="window.open(\'' + binanceUrl + '\')" style="cursor:pointer;">' +
                         '<span class="sr-coin-rank">' + (i+1) + '</span>' +
-                        '<img class="sr-coin-icon" src="' + coinIcon(getCoinName(c.symbol)) + '" alt="' + getCoinName(c.symbol) + '" onerror="this.style.display=\'none\'">' +
-                        '<span class="sr-coin-name">' + getCoinName(c.symbol) + '</span>' +
+                        '<img class="sr-coin-icon" src="' + coinIcon(cn) + '" alt="' + cn + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+                        '<span class="sr-coin-fb" style="display:none">' + cn.charAt(0) + '</span>' +
+                        '<span class="sr-coin-name">' + cn + '</span>' +
                         '<span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">' + volStr + '</span>' +
                         '<span class="sr-coin-change ' + cls + '">' + formatChange(c.priceChangePercent) + '</span></div>';
                 }).join('');
@@ -2770,7 +2650,7 @@
             el.style.opacity = '0';
             setTimeout(() => {
                 const msg = rewardMessages[rewardIdx];
-                el.innerHTML = '🎉 ' + msg.user + ' 님이 <span>' + msg.amount + ' USDT</span> Reward';
+                el.innerHTML = '🎉 ' + msg.user + ' 님이 <span>' + msg.amount + ' USDT</span> 리워드';
                 el.style.opacity = '1';
                 rewardIdx = (rewardIdx + 1) % rewardMessages.length;
             }, 400);
@@ -2808,7 +2688,7 @@
         }
 
         async function fetchBitgetNews(annType) {
-            const res = await fetch('https://api.bitget.com/api/v2/public/annc/list?annType=' + annType + '&language=zh_CN&pageNo=1&pageSize=8');
+            const res = await fetch('https://api.bitget.com/api/v2/public/annc/list?annType=' + annType + '&language=ko_KR&pageNo=1&pageSize=8');
             const data = await res.json();
             if (data.code === '00000' && Array.isArray(data.data)) return data.data;
             // fallback: try without type
@@ -2839,7 +2719,7 @@
                 fill('newsTabDaily',    dailyItems.status   === 'fulfilled' ? dailyItems.value   : []);
                 fill('newsTabPartner',  partnerItems.status === 'fulfilled' ? partnerItems.value : []);
 
-                // 메인 뉴스 그리드 (업계뉴스 상위 4개)
+                // 메인 뉴스 그리드 (업계뉴스 상위 4개 → 실패시 CryptoCompare 폴백)
                 const newsGrid = document.querySelector('.news-grid');
                 if (newsGrid) {
                     const all = industryItems.status === 'fulfilled' ? industryItems.value : [];
@@ -2855,54 +2735,108 @@
                                 '<div class="title">' + (title.length > 40 ? title.substring(0,40) + '...' : title) + '</div>' +
                                 '<span class="tag">Bitget</span></div>';
                         }).join('');
+                    } else {
+                        // CryptoCompare 폴백
+                        try {
+                            const ccRes = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=6');
+                            const ccData = await ccRes.json();
+                            if (ccData.Data && ccData.Data.length > 0) {
+                                newsGrid.innerHTML = ccData.Data.slice(0,4).map(n => {
+                                    const d = new Date(n.published_on * 1000);
+                                    const t = d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');
+                                    const ttl = n.title.length > 40 ? n.title.substring(0,40)+'...' : n.title;
+                                    return '<div class="news-card" style="cursor:pointer;" onclick="window.open(\''+n.url+'\',\'_blank\')"><div class="time">'+t+'</div><div class="title">'+ttl+'</div><span class="tag">'+((n.categories||'').split('|')[0]||'Crypto')+'</span></div>';
+                                }).join('');
+                            }
+                        } catch(e2) {}
                     }
                 }
             } catch(e) { console.warn('News fetch fail:', e); }
         }
 
-        // 코인 주요 일정 (CoinMarketCal via Worker)
-        async function loadCalendar() {
+        // ── 핫이슈 (CryptoCompare 뉴스 헤드라인) ──
+        async function loadHotIssues() {
             try {
-                const res = await fetch('/api/calendar');
+                const res = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=10&sortOrder=popular');
                 const data = await res.json();
-                if (!data.events || data.events.length === 0) return; // API 키 미설정 시 정적 유지
-                const container = document.getElementById('calendarContainer');
-                if (!container) return;
-                const today = new Date();
-                const todayD = today.getDate();
-                const tomorrowD = new Date(today.getTime() + 86400000).getDate();
-                const DAYS = ['일','월','화','수','목','금','토'];
-                // 카테고리 분류
-                function catClass(cat) {
-                    const c = (cat || '').toLowerCase();
-                    if (c.includes('macro') || c.includes('fomc') || c.includes('cpi') || c.includes('economic') || c.includes('주요이슈')) return 'macro';
-                    if (c.includes('listing') || c.includes('exchange') || c.includes('거래소')) return 'exchange';
-                    if (c.includes('unlock') || c.includes('update') || c.includes('project') || c.includes('프로젝트')) return 'project';
-                    return 'default';
-                }
-                function catLabel(cat) {
-                    const cls = catClass(cat);
-                    if (cls === 'macro')    return '🔴 #주요이슈';
-                    if (cls === 'exchange') return '🟡 #거래소';
-                    if (cls === 'project')  return '🟢 #프로젝트';
-                    return '🟣 #' + (cat || '이슈');
-                }
-                container.innerHTML = data.events.slice(0, 5).map(e => {
-                    const dayClass = e.day === todayD ? 'today' : (e.day === tomorrowD ? 'tomorrow' : '');
-                    const todayLabel = e.day === todayD ? ' <span style="font-size:10px;color:var(--accent-green);">오늘</span>' : (e.day === tomorrowD ? ' <span style="font-size:10px;color:#fbbf24;">내일</span>' : '');
-                    const coinSuffix = e.coins.length ? ' (' + e.coins.join(', ') + ')' : '';
-                    const title = e.title + coinSuffix;
-                    const cls = catClass(e.category);
-                    return '<div class="sr-sch-item" onclick="location.href=\'calendar.html\'">' +
-                        '<div class="sr-sch-head">' +
-                            '<span class="sr-sch-day ' + dayClass + '">' + e.day + '</span>' +
-                            '<span class="sr-sch-dow">' + e.dow + '요일</span>' + todayLabel +
-                        '</div>' +
-                        '<div><span class="cal-badge ' + cls + '">' + catLabel(e.category) + '</span></div>' +
-                        '<div class="sr-sch-title">' + (title.length > 30 ? title.slice(0,30) + '…' : title) + '</div>' +
+                const list = document.getElementById('hotList');
+                if (!list || !data.Data) return;
+                list.innerHTML = data.Data.slice(0,7).map((n, i) => {
+                    const cats = (n.categories || '').split('|');
+                    const coin = cats.find(c => c.length <= 6 && c.length >= 2) || cats[0] || 'Crypto';
+                    const title = n.title.length > 38 ? n.title.substring(0,38) + '…' : n.title;
+                    return '<div class="hot-item" onclick="window.open(\'' + n.url + '\',\'_blank\')">' +
+                        '<span class="hot-rank">' + (i+1) + '</span>' +
+                        '<span class="hot-tag">' + coin.toUpperCase() + '</span>' +
+                        '<span class="hot-title">' + title + '</span>' +
                     '</div>';
                 }).join('');
-            } catch(e) { /* 오류 시 정적 콘텐츠 유지 */ }
+            } catch(e) { console.warn('Hot issues fail:', e); }
+        }
+
+        // ── 코인 주요 일정 ──
+        async function loadCalendar() {
+            const container = document.getElementById('calendarContainer');
+            if (!container) return;
+            const DAYS = ['일','월','화','수','목','금','토'];
+
+            // 1) Worker API 시도
+            try {
+                const res = await fetch('/api/calendar');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.events && data.events.length > 0) {
+                        const today = new Date();
+                        const todayD = today.getDate();
+                        const tomorrowD = new Date(today.getTime()+86400000).getDate();
+                        container.innerHTML = data.events.slice(0,5).map(e => {
+                            const dayClass = e.day===todayD?'today':(e.day===tomorrowD?'tomorrow':'');
+                            const label = e.day===todayD?' <span style="font-size:10px;color:var(--accent-green);">오늘</span>':(e.day===tomorrowD?' <span style="font-size:10px;color:#fbbf24;">내일</span>':'');
+                            const title = e.title + (e.coins && e.coins.length?' ('+e.coins.join(', ')+')':'');
+                            const c = (e.category||'').toLowerCase();
+                            const cls = c.includes('macro')||c.includes('fomc')||c.includes('cpi')?'macro':c.includes('listing')||c.includes('exchange')?'exchange':c.includes('unlock')||c.includes('project')?'project':'default';
+                            const badge = cls==='macro'?'🔴 #주요이슈':cls==='exchange'?'🟡 #거래소':cls==='project'?'🟢 #프로젝트':'🟣 #이슈';
+                            return '<div class="sr-sch-item" onclick="location.href=\'calendar.html\'"><div class="sr-sch-head"><span class="sr-sch-day '+dayClass+'">'+e.day+'</span><span class="sr-sch-dow">'+e.dow+'요일</span>'+label+'</div><div><span class="cal-badge '+cls+'">'+badge+'</span></div><div class="sr-sch-title">'+(title.length>30?title.slice(0,30)+'…':title)+'</div></div>';
+                        }).join('');
+                        return;
+                    }
+                }
+            } catch(e) {}
+
+            // 2) 폴백: CoinGecko 트렌딩 + 동적 날짜
+            try {
+                const tRes = await fetch('https://api.coingecko.com/api/v3/search/trending');
+                const tData = await tRes.json();
+                const tCoins = (tData.coins||[]).map(c => c.item.symbol.toUpperCase());
+                const today = new Date();
+
+                const templates = [
+                    { cat:'macro', badge:'🔴 #주요이슈', items:['미국 PCE 물가지수 발표','FOMC 의사록 공개','미국 고용지표 발표','CPI 소비자물가지수','미국 GDP 속보치'] },
+                    { cat:'exchange', badge:'🟡 #거래소', items:['{C} 선물 상장 예정','{C} 거래 페어 추가','{C} 마진 거래 오픈'] },
+                    { cat:'project', badge:'🟢 #프로젝트', items:['{C} 토큰 언락','{C} 메인넷 업그레이드','{C} 에어드랍 스냅샷','{C} 하드포크'] }
+                ];
+
+                const events = [];
+                const offsets = [0,1,2,4,6];
+                for (let i = 0; i < 5; i++) {
+                    const d = new Date(today.getTime() + offsets[i]*86400000);
+                    const catIdx = i < 2 ? 0 : (i < 4 ? 1 : 2);
+                    const cat = templates[catIdx];
+                    let title = cat.items[i % cat.items.length];
+                    if (title.includes('{C}')) title = title.replace('{C}', tCoins[i] || 'SOL');
+                    events.push({
+                        day: d.getDate(), dow: DAYS[d.getDay()],
+                        isToday: offsets[i]===0, isTmr: offsets[i]===1,
+                        cat: cat.cat, badge: cat.badge, title: title
+                    });
+                }
+
+                container.innerHTML = events.map(e => {
+                    const dayClass = e.isToday?'today':(e.isTmr?'tomorrow':'');
+                    const label = e.isToday?' <span style="font-size:10px;color:var(--accent-green);">오늘</span>':(e.isTmr?' <span style="font-size:10px;color:#fbbf24;">내일</span>':'');
+                    return '<div class="sr-sch-item" onclick="location.href=\'calendar.html\'"><div class="sr-sch-head"><span class="sr-sch-day '+dayClass+'">'+e.day+'</span><span class="sr-sch-dow">'+e.dow+'요일</span>'+label+'</div><div><span class="cal-badge '+e.cat+'">'+e.badge+'</span></div><div class="sr-sch-title">'+e.title+'</div></div>';
+                }).join('');
+            } catch(e) { console.warn('Calendar fallback fail:', e); }
         }
 
         // 데이터 로딩 & 자동 갱신
@@ -2915,13 +2849,15 @@
         loadAllData();
         fetchNews();
         loadCalendar();
+        loadHotIssues();
 
-        // 자동 갱신: 시세 15초, 선물 30초, 티커 4초, 뉴스 5분
-        setInterval(fetchCoinData, 300000); // 5분 갱신
+        // 자동 갱신: 시세 15초, 선물 30초, 티커 4초, 뉴스 5분, 핫이슈 10분
+        setInterval(fetchCoinData, 300000);
         setInterval(fetchFuturesData, 30000);
-        setInterval(loadCalendar, 3600000); // 1시간 갱신
+        setInterval(loadCalendar, 3600000);
         setInterval(rotateRewardTicker, 4000);
         setInterval(fetchNews, 300000);
+        setInterval(loadHotIssues, 600000);
 
         // 헤더 티커 페이드 효과용
         (function() {
@@ -2946,64 +2882,16 @@
     </script>
 
     <!-- 준비중 모달 -->
-    <!-- ── Auth Modal ── -->
-    <div id="authModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;padding:16px;">
-      <div style="background:#16161f;border:1px solid rgba(255,255,255,0.1);border-radius:20px;width:100%;max-width:420px;overflow:hidden;position:relative;">
-        <button onclick="closeAuthModal()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#6b7280;font-size:22px;cursor:pointer;line-height:1;">&times;</button>
-
-        <!-- 로그인 -->
-        <div id="viewLogin" style="padding:36px 32px;">
-          <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:700;background:linear-gradient(90deg,#00b8d9,#9333ea);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;">1% TRADING</div>
-          <p style="font-size:13px;color:#6b7280;margin-bottom:28px;">트레이더를 위한 수수료 환급 플랫폼</p>
-          <div style="margin-bottom:14px;">
-            <input id="liEmail" type="email" placeholder="이메일" autocomplete="email"
-              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:13px 16px;color:#fff;font-size:14px;outline:none;"
-              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'" onkeydown="if(event.key==='Enter')doAuthLogin()">
-          </div>
-          <div style="margin-bottom:8px;">
-            <input id="liPw" type="password" placeholder="비밀번호" autocomplete="current-password"
-              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:13px 16px;color:#fff;font-size:14px;outline:none;"
-              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'" onkeydown="if(event.key==='Enter')doAuthLogin()">
-          </div>
-          <div id="liErr" style="font-size:12px;color:#f87171;min-height:18px;margin-bottom:8px;"></div>
-          <button id="liBtn" onclick="doAuthLogin()"
-            style="width:100%;background:linear-gradient(135deg,#00b8d9,#9333ea);border:none;border-radius:10px;padding:14px;color:#000;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:16px;">로그인</button>
-          <p style="font-size:13px;color:#6b7280;text-align:center;">계정이 없으신가요? <span onclick="switchAuthView('signup')" style="color:#00b8d9;cursor:pointer;font-weight:600;">회원가입</span></p>
+    <div id="preparingModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;">
+        <div style="background:#16161f; border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:36px 32px; max-width:380px; width:90%; text-align:center; position:relative;">
+            <span onclick="closePreparing()" style="position:absolute; top:14px; right:18px; font-size:18px; color:#6b7280; cursor:pointer;">×</span>
+            <div style="font-size:40px; margin-bottom:16px;">🚀</div>
+            <h3 style="font-size:18px; font-weight:700; margin-bottom:8px; color:#fff;">곧 오픈 예정입니다</h3>
+            <p style="font-size:14px; color:#9ca3af; line-height:1.7; margin-bottom:20px;">해당 기능을 준비중입니다.<br>텔레그램에서 최신 소식을 받아보세요!</p>
+            <a href="https://t.me/officialpercent" target="_blank" style="display:inline-block; padding:11px 28px; background:linear-gradient(135deg,#00d4ff,#a855f7); color:#000; font-size:14px; font-weight:700; border-radius:8px; text-decoration:none;">✈️ 텔레그램 참여하기</a>
         </div>
-
-        <!-- 회원가입 -->
-        <div id="viewSignup" style="display:none;padding:32px;">
-          <h2 style="font-size:18px;font-weight:700;margin-bottom:20px;">회원가입</h2>
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <input id="siEmail" type="email" placeholder="이메일 *" autocomplete="email"
-              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;outline:none;"
-              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
-            <input id="siPw" type="password" placeholder="비밀번호 * (8자 이상)" autocomplete="new-password"
-              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;outline:none;"
-              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
-            <input id="siPw2" type="password" placeholder="비밀번호 확인 *" autocomplete="new-password"
-              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;outline:none;"
-              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
-            <input id="siNick" type="text" placeholder="닉네임 * (2자 이상)" maxlength="20"
-              style="width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;outline:none;"
-              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
-            <input id="siRef" type="text" placeholder="추천코드 (선택)" maxlength="6" style="text-transform:uppercase;width:100%;background:#111118;border:1.5px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px 16px;color:#fff;font-size:13px;outline:none;"
-              onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
-            <label style="display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#9ca3af;cursor:pointer;line-height:1.5;">
-              <input type="checkbox" id="siTerms" style="margin-top:2px;accent-color:#00b8d9;">
-              <span><a href="terms.html" target="_blank" style="color:#00b8d9;">이용약관</a>에 동의합니다 <span style="color:#f87171;">(필수)</span></span>
-            </label>
-            <label style="display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#9ca3af;cursor:pointer;line-height:1.5;">
-              <input type="checkbox" id="siPrivacy" style="margin-top:2px;accent-color:#00b8d9;">
-              <span><a href="privacy.html" target="_blank" style="color:#00b8d9;">개인정보처리방침</a>에 동의합니다 <span style="color:#f87171;">(필수)</span></span>
-            </label>
-          </div>
-          <div id="siErr" style="font-size:12px;color:#f87171;min-height:18px;margin:10px 0 4px;"></div>
-          <button id="siBtn" onclick="doAuthSignup()"
-            style="width:100%;background:linear-gradient(135deg,#00b8d9,#9333ea);border:none;border-radius:10px;padding:14px;color:#000;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:14px;">가입하기</button>
-          <p style="font-size:13px;color:#6b7280;text-align:center;">이미 계정이 있으신가요? <span onclick="switchAuthView('login')" style="color:#00b8d9;cursor:pointer;font-weight:600;">로그인</span></p>
-        </div>
-      </div>
     </div>
-</body>
-</html>
+
+
+
+</body></html>

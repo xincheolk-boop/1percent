@@ -423,17 +423,60 @@ let CU = null;          // current user
 let selEx = null;       // selected exchange for modal
 let histData = [];
 let histSort = 'date';
+let authToken = localStorage.getItem('authToken') || '';
+
+// ── API Helper ──
+async function apiCall(path, method='GET', body=null) {
+  const opts = { method, headers: { 'Authorization':'Bearer '+authToken, 'Content-Type':'application/json' } };
+  if (body) opts.body = JSON.stringify(body);
+  try { const r = await fetch('/api/mypage'+path, opts); return r.json(); } catch(e) { return { error: e.message }; }
+}
 
 // ── Init ──
-function init() {
+async function init() {
+  // 1) 기존 localStorage 로그인 체크
   const u = localStorage.getItem('mpUser');
   if (u) {
     CU = JSON.parse(u);
     renderMypage();
-  } else {
+  }
+  // 2) 백엔드 토큰 있으면 커미션 데이터 로드
+  if (authToken) {
+    if (!CU) {
+      const me = await apiCall('/profile');
+      if (me.ok) {
+        CU = { id: me.email, email: me.email, nick: me.nickname, joinDate: me.created_at?.slice(0,10), exchanges: [] };
+        localStorage.setItem('mpUser', JSON.stringify(CU));
+        renderMypage();
+      }
+    }
+    await loadCommissionData();
+  }
+  if (!CU) {
     document.getElementById('notLoggedIn').style.display = 'block';
   }
   renderExGrid();
+}
+
+async function loadCommissionData() {
+  if (!authToken) return;
+  try {
+    const summary = await apiCall('/commission-summary');
+    if (!summary.ok && !summary.summaries) return;
+    const summaries = summary.summaries || [];
+    const totalReward = summary.total_reward || summaries.reduce((s,i) => s+(i.user_commission||0), 0);
+    document.getElementById('totalReward').textContent = '$' + totalReward.toFixed(2);
+
+    // 거래소별 리워드 업데이트
+    if (CU && CU.exchanges) {
+      for (const ex of CU.exchanges) {
+        const exReward = summaries.filter(s => (s.user_exchange||s.exchange||'').toLowerCase().includes(ex.id.toLowerCase()))
+          .reduce((s,i) => s+(i.user_commission||0), 0);
+        ex.reward = exReward;
+      }
+      renderExList();
+    }
+  } catch(e) { console.error('Commission load error:', e); }
 }
 
 function renderMypage() {
@@ -466,21 +509,31 @@ function switchAuthView(v) {
 }
 
 // ── Login ──
-function doLogin() {
+async function doLogin() {
   const id = document.getElementById('loginId').value.trim();
   const pw = document.getElementById('loginPw').value;
   const err = document.getElementById('loginErr');
-  if (!id || !pw) { showErr(err, '아이디와 비밀번호를 입력하세요.'); return; }
-  const accs = JSON.parse(localStorage.getItem('mpAccounts') || '{}');
-  const acc = accs[id];
-  if (!acc || acc.pw !== btoa(unescape(encodeURIComponent(pw)))) {
-    showErr(err, '아이디 또는 비밀번호가 올바르지 않습니다.'); return;
+  if (!id || !pw) { showErr(err, '이메일과 비밀번호를 입력하세요.'); return; }
+
+  try {
+    const r = await fetch('/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email: id, password: pw }) });
+    const d = await r.json();
+    if (d.ok) {
+      authToken = d.token;
+      localStorage.setItem('authToken', d.token);
+      CU = { id, email: id, nick: d.nickname, joinDate: new Date().toISOString().slice(0,10), exchanges: [] };
+      localStorage.setItem('mpUser', JSON.stringify(CU));
+      err.style.display = 'none';
+      closeAuthModal();
+      renderMypage();
+      await loadCommissionData();
+    } else {
+      showErr(err, d.error || '로그인 실패');
+    }
+  } catch(e) {
+    showErr(err, '네트워크 오류: ' + e.message);
   }
-  err.style.display = 'none';
-  CU = { id, email: acc.email, nick: acc.nick, joinDate: acc.joinDate, exchanges: acc.exchanges || [] };
-  localStorage.setItem('mpUser', JSON.stringify(CU));
-  closeAuthModal();
-  renderMypage();
 }
 
 // ── Signup ──
@@ -504,7 +557,7 @@ function checkDup(type) {
   }
 }
 
-function doSignup() {
+async function doSignup() {
   const id    = document.getElementById('sId').value.trim();
   const pw    = document.getElementById('sPw').value;
   const pw2   = document.getElementById('sPw2').value;
@@ -513,25 +566,38 @@ function doSignup() {
   const ref   = document.getElementById('sRef').value.trim();
   const terms = document.getElementById('chkTerms').checked;
   const err   = document.getElementById('signupErr');
-  if (!id || !pw || !email || !nick) { showErr(err, '모든 필수 항목을 입력하세요.'); return; }
-  if (!/^[a-zA-Z0-9]{4,20}$/.test(id)) { showErr(err, '아이디는 영문+숫자 4-20자여야 합니다.'); return; }
+  if (!email || !pw || !nick) { showErr(err, '모든 필수 항목을 입력하세요.'); return; }
   if (pw.length < 8) { showErr(err, '비밀번호는 8자 이상이어야 합니다.'); return; }
   if (pw !== pw2) { showErr(err, '비밀번호가 일치하지 않습니다.'); return; }
   if (!terms) { showErr(err, '개인정보처리방침에 동의해주세요.'); return; }
-  const accs = JSON.parse(localStorage.getItem('mpAccounts') || '{}');
-  if (accs[id]) { showErr(err, '이미 사용 중인 아이디입니다.'); return; }
-  const joinDate = new Date().toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' });
-  accs[id] = { pw: btoa(unescape(encodeURIComponent(pw))), email, nick, ref, joinDate, exchanges: [] };
-  localStorage.setItem('mpAccounts', JSON.stringify(accs));
-  err.style.display = 'none';
-  CU = { id, email, nick, joinDate, exchanges: [] };
-  localStorage.setItem('mpUser', JSON.stringify(CU));
-  closeAuthModal();
-  renderMypage();
+
+  try {
+    const r = await fetch('/api/auth/signup', { method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password: pw, nickname: nick, referral_code: ref, agreed_terms: true, agreed_privacy: true }) });
+    const d = await r.json();
+    if (d.ok) {
+      authToken = d.token;
+      localStorage.setItem('authToken', d.token);
+      CU = { id: email, email, nick, joinDate: new Date().toISOString().slice(0,10), exchanges: [] };
+      localStorage.setItem('mpUser', JSON.stringify(CU));
+      err.style.display = 'none';
+      closeAuthModal();
+      renderMypage();
+    } else {
+      showErr(err, d.error || '가입 실패');
+    }
+  } catch(e) {
+    showErr(err, '네트워크 오류: ' + e.message);
+  }
 }
 
 function doLogout() {
+  if (authToken) {
+    fetch('/api/auth/logout', { method:'POST', headers:{'Authorization':'Bearer '+authToken} }).catch(()=>{});
+  }
   localStorage.removeItem('mpUser');
+  localStorage.removeItem('authToken');
+  authToken = '';
   location.reload();
 }
 
@@ -663,20 +729,50 @@ function goWBack() {
   document.getElementById('wS1').style.display = 'block';
   document.getElementById('wS2').style.display = 'none';
 }
-function confirmWithdraw() {
-  const hist = JSON.parse(localStorage.getItem('mpHistory') || '[]');
-  document.querySelectorAll('.wchk:checked').forEach(c => {
-    const def = EXCHANGES.find(e => e.id === c.dataset.id) || {};
-    hist.unshift({ amt: parseFloat(c.dataset.amt||0), exName: def.name||c.dataset.id, status:'pending', date: new Date().toLocaleDateString('ko-KR') });
-  });
-  localStorage.setItem('mpHistory', JSON.stringify(hist));
-  closeWithdrawModal();
-  alert('출금 신청이 완료되었습니다.\n영업일 기준 1~3일 내 처리됩니다.');
+async function confirmWithdraw() {
+  const addr = document.getElementById('wAddr')?.value?.trim();
+  if (!addr) { alert('지갑 주소를 입력하세요.'); return; }
+
+  let total = 0;
+  document.querySelectorAll('.wchk:checked').forEach(c => total += parseFloat(c.dataset.amt||0));
+  if (total < 50) { alert('최소 출금 금액은 50 USDT입니다.'); return; }
+
+  if (authToken) {
+    const d = await apiCall('/withdraw', 'POST', { amount: total, wallet_address: addr, network: 'TRC-20' });
+    if (d.ok) {
+      closeWithdrawModal();
+      alert('출금 신청이 완료되었습니다.\n영업일 기준 1~3일 내 처리됩니다.');
+      await loadCommissionData();
+    } else {
+      alert(d.error || '출금 신청 실패');
+    }
+  } else {
+    const hist = JSON.parse(localStorage.getItem('mpHistory') || '[]');
+    document.querySelectorAll('.wchk:checked').forEach(c => {
+      const def = EXCHANGES.find(e => e.id === c.dataset.id) || {};
+      hist.unshift({ amt: parseFloat(c.dataset.amt||0), exName: def.name||c.dataset.id, status:'pending', date: new Date().toLocaleDateString('ko-KR') });
+    });
+    localStorage.setItem('mpHistory', JSON.stringify(hist));
+    closeWithdrawModal();
+    alert('출금 신청이 완료되었습니다.\n영업일 기준 1~3일 내 처리됩니다.');
+  }
 }
 
 // ── History ──
-function showHistory() {
-  histData = JSON.parse(localStorage.getItem('mpHistory') || '[]');
+async function showHistory() {
+  if (authToken) {
+    const d = await apiCall('/withdrawals');
+    if (d.withdrawals) {
+      histData = d.withdrawals.map(w => ({
+        amt: parseFloat(w.amount||0), exName: '출금', status: w.status,
+        date: (w.requested_at||w.created_at||'').slice(0,10), txHash: w.tx_hash||''
+      }));
+    } else {
+      histData = JSON.parse(localStorage.getItem('mpHistory') || '[]');
+    }
+  } else {
+    histData = JSON.parse(localStorage.getItem('mpHistory') || '[]');
+  }
   renderHistTable();
   document.getElementById('histSection').style.display = 'block';
   document.getElementById('histSection').scrollIntoView({ behavior:'smooth', block:'start' });

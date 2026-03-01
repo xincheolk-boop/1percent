@@ -112,12 +112,12 @@
         async function load() {
             try {
                 // 현재 OI
-                const oiRes = await fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT');
+                const oiRes = await fetch('/api/binance/fapi/v1/openInterest?symbol=BTCUSDT');
                 const oiD = await oiRes.json();
                 const oiBtc = parseFloat(oiD.openInterest);
 
                 // BTC 현재가
-                const priceRes = await fetch('https://fapi.binance.com/fapi/v1/ticker/price?symbol=BTCUSDT');
+                const priceRes = await fetch('/api/binance/fapi/v1/ticker/price?symbol=BTCUSDT');
                 const priceD = await priceRes.json();
                 const btcPrice = parseFloat(priceD.price);
                 const oiUsd = oiBtc * btcPrice;
@@ -137,7 +137,7 @@
                 prevOI = oiBtc;
 
                 // OI 히스토리
-                const histRes = await fetch('https://fapi.binance.com/futures/data/openInterestHist?symbol=BTCUSDT&period=5m&limit=10');
+                const histRes = await fetch('/api/binance/futures/data/openInterestHist?symbol=BTCUSDT&period=5m&limit=10');
                 const histData = await histRes.json();
 
                 // 미니 차트

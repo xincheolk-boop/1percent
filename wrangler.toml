@@ -9,3 +9,6 @@ bucket = "."
 binding = "DB"
 database_name = "1percent-admin"
 database_id = "eeac24cb-a420-471f-babb-47ebb73daf30"
+
+[triggers]
+crons = ["0 */6 * * *"]

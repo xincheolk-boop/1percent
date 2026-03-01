@@ -130,7 +130,7 @@
         async function load() {
             try {
                 // BTC 24h 데이터
-                const res = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT');
+                const res = await fetch('/api/binance/fapi/v1/ticker/24hr?symbol=BTCUSDT');
                 const d = await res.json();
                 const vol = parseFloat(d.quoteVolume);
                 // 청산 추정: 거래대금의 약 0.1~0.3% (시장 상황에 따라 가변)
@@ -154,7 +154,7 @@
                 document.getElementById('shortBarPct').textContent = spPct + '%';
 
                 // 주요 코인
-                const topRes = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr');
+                const topRes = await fetch('/api/binance/fapi/v1/ticker/24hr');
                 const topData = await topRes.json();
                 const major = ['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','DOGEUSDT','BNBUSDT','ADAUSDT','AVAXUSDT'];
                 const filtered = topData.filter(c => major.includes(c.symbol));

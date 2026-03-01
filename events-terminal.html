@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이벤트 (터미널형) - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #009985;
+            --accent-red: #dc2626;
+            --accent-yellow: #f59e0b;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Top bar */
+        .top-bar {
+            position: fixed; top: 0; left: 0; right: 0; height: 56px;
+            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            display: flex; align-items: center; padding: 0 24px; z-index: 1000;
+        }
+        .back-btn {
+            display: flex; align-items: center; gap: 6px;
+            color: var(--text-secondary); text-decoration: none; font-size: 14px;
+            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
+        }
+        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
+        .top-title {
+            margin-left: 16px; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; padding: 72px 24px 60px; }
+
+        /* Terminal Header */
+        .terminal-header {
+            display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+            padding: 16px 20px; background: var(--bg-card); border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+        .terminal-dots { display: flex; gap: 6px; }
+        .terminal-dots span { width: 10px; height: 10px; border-radius: 50%; }
+        .terminal-dots span:nth-child(1) { background: var(--accent-red); }
+        .terminal-dots span:nth-child(2) { background: var(--accent-yellow); }
+        .terminal-dots span:nth-child(3) { background: var(--accent-green); }
+        .terminal-path {
+            font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text-muted);
+        }
+        .terminal-path span { color: var(--accent-cyan); }
+        .terminal-blink {
+            display: inline-block; width: 8px; height: 16px;
+            background: var(--accent-cyan); animation: blink 1s steps(2) infinite;
+            margin-left: 4px; vertical-align: middle;
+        }
+        @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+
+        /* Filter tabs */
+        .filter-bar {
+            display: flex; gap: 4px; margin-bottom: 24px; padding: 4px;
+            background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border-color);
+            overflow-x: auto;
+        }
+        .filter-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            background: transparent; border: none;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s; white-space: nowrap;
+        }
+        .filter-btn:hover { color: var(--text-primary); }
+        .filter-btn.active {
+            background: var(--bg-card); color: var(--accent-cyan);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .filter-logo {
+            width: 18px; height: 18px; border-radius: 4px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 8px; font-weight: 700;
+        }
+
+        /* Tabs: LIVE / UPCOMING / ENDED */
+        .status-tabs {
+            display: flex; gap: 0; margin-bottom: 20px;
+            border-bottom: 2px solid var(--border-color);
+        }
+        .status-tab {
+            padding: 10px 20px; font-size: 13px; font-weight: 700;
+            font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;
+            color: var(--text-muted); cursor: pointer; transition: all 0.2s;
+            border-bottom: 2px solid transparent; margin-bottom: -2px;
+        }
+        .status-tab:hover { color: var(--text-secondary); }
+        .status-tab.active { color: var(--accent-cyan); border-bottom-color: var(--accent-cyan); }
+        .status-tab .cnt {
+            display: inline-block; min-width: 18px; text-align: center;
+            font-size: 10px; padding: 1px 5px; border-radius: 8px;
+            margin-left: 6px; background: rgba(255,255,255,0.08);
+        }
+        .status-tab.active .cnt { background: rgba(0,184,217,0.2); color: var(--accent-cyan); }
+
+        /* Table-style list */
+        .event-table {
+            border: 1px solid var(--border-color); border-radius: 12px;
+            overflow: hidden; background: var(--bg-card);
+        }
+        .event-row {
+            display: grid; grid-template-columns: 40px 1fr 160px 120px 100px;
+            align-items: center; gap: 16px; padding: 14px 20px;
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer; transition: all 0.15s;
+        }
+        .event-row:last-child { border-bottom: none; }
+        .event-row:hover { background: var(--bg-card-hover); }
+
+        .row-logo {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 9px; font-weight: 800;
+        }
+        .row-logo.bitget { background: #00D4A0; color: #000; }
+        .row-logo.okx { background: #000; color: #fff; border: 1px solid #333; }
+        .row-logo.gate { background: #2354E6; color: #fff; }
+        .row-logo.bybit { background: #F7A600; color: #000; }
+        .row-logo.bingx { background: #2B65F1; color: #fff; }
+        .row-logo.mexc { background: #1CE7CF; color: #000; }
+
+        .row-info { min-width: 0; }
+        .row-title {
+            font-size: 14px; font-weight: 700; margin-bottom: 3px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .row-desc {
+            font-size: 11px; color: var(--text-muted);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .row-prize {
+            font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700;
+            color: var(--accent-cyan); text-align: right;
+        }
+        .row-date {
+            font-size: 11px; color: var(--text-muted); text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .row-status { text-align: right; }
+        .status-badge {
+            display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px;
+            border-radius: 4px; font-family: 'JetBrains Mono', monospace;
+        }
+        .status-badge.live { background: rgba(220,38,38,0.15); color: var(--accent-red); }
+        .status-badge.soon { background: rgba(0,184,217,0.15); color: var(--accent-cyan); }
+        .status-badge.ended { background: rgba(107,114,128,0.15); color: var(--text-muted); }
+        .status-badge.permanent { background: rgba(0,153,133,0.15); color: var(--accent-green); }
+
+        .row-type {
+            display: inline-block; font-size: 9px; font-weight: 700;
+            padding: 1px 5px; border-radius: 3px; margin-left: 6px;
+            vertical-align: middle;
+        }
+        .row-type.comp { background: rgba(147,51,234,0.2); color: var(--accent-purple); }
+        .row-type.evt { background: rgba(0,184,217,0.12); color: var(--accent-cyan); }
+
+        .empty-state { text-align: center; padding: 60px; color: var(--text-muted); font-size: 13px; }
+
+        @media (max-width: 768px) {
+            .container { padding: 68px 16px 40px; }
+            .event-row { grid-template-columns: 32px 1fr 80px; gap: 10px; padding: 12px 14px; }
+            .row-prize { font-size: 11px; }
+            .row-date, .row-status { display: none; }
+            .terminal-header { padding: 12px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <a href="index.html" class="back-btn">&larr; 돌아가기</a>
+        <span class="top-title">1% TRADING</span>
+    </div>
+
+    <div class="container">
+        <div class="terminal-header">
+            <div class="terminal-dots"><span></span><span></span><span></span></div>
+            <div class="terminal-path">~/1percent/<span>events</span> --live<span class="terminal-blink"></span></div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="filter-btn active" onclick="filterEvents('all')">ALL</div>
+            <div class="filter-btn" onclick="filterEvents('Bitget')"><span class="filter-logo" style="background:#00D4A0;color:#000;">BG</span> Bitget</div>
+            <div class="filter-btn" onclick="filterEvents('OKX')"><span class="filter-logo" style="background:#000;color:#fff;border:1px solid #333;">OKX</span> OKX</div>
+            <div class="filter-btn" onclick="filterEvents('Gate.io')"><span class="filter-logo" style="background:#2354E6;color:#fff;">GT</span> Gate.io</div>
+            <div class="filter-btn" onclick="filterEvents('Bybit')"><span class="filter-logo" style="background:#F7A600;color:#000;">BY</span> Bybit</div>
+            <div class="filter-btn" onclick="filterEvents('BingX')"><span class="filter-logo" style="background:#2B65F1;color:#fff;">BX</span> BingX</div>
+            <div class="filter-btn" onclick="filterEvents('MEXC')"><span class="filter-logo" style="background:#1CE7CF;color:#000;">MX</span> MEXC</div>
+        </div>
+
+        <div class="status-tabs" id="statusTabs">
+            <div class="status-tab active" onclick="switchTab('live')">LIVE<span class="cnt" id="cntLive">0</span></div>
+            <div class="status-tab" onclick="switchTab('soon')">UPCOMING<span class="cnt" id="cntSoon">0</span></div>
+            <div class="status-tab" onclick="switchTab('ended')">ENDED<span class="cnt" id="cntEnded">0</span></div>
+        </div>
+
+        <div class="event-table" id="eventTable">
+            <div class="empty-state">Loading events...</div>
+        </div>
+    </div>
+
+    <script>
+    let allEvents = [];
+    let currentFilter = 'all';
+    let currentTab = 'live';
+
+    const exCls = { 'Bitget':'bitget','OKX':'okx','Gate.io':'gate','Bybit':'bybit','BingX':'bingx','MEXC':'mexc' };
+    const exTxt = { 'Bitget':'BG','OKX':'OKX','Gate.io':'GT','Bybit':'BY','BingX':'BX','MEXC':'MX' };
+
+    function getGroup(ev) {
+        const now = new Date();
+        const s = ev.start_date ? new Date(ev.start_date) : null;
+        const e = ev.end_date ? new Date(ev.end_date) : null;
+        if (!s && !e) return 'live';
+        if (e && now > e) return 'ended';
+        if (s && now < s) return 'soon';
+        return 'live';
+    }
+
+    function getDaysLeft(end) {
+        if (!end) return null;
+        const d = Math.ceil((new Date(end) - new Date()) / 86400000);
+        return d > 0 ? d : null;
+    }
+
+    function fmtDate(d) {
+        if (!d) return '-';
+        const dt = new Date(d);
+        return (dt.getMonth()+1) + '/' + dt.getDate();
+    }
+
+    function render(events) {
+        const tbl = document.getElementById('eventTable');
+        const filtered = currentFilter === 'all' ? events : events.filter(e => e.exchange === currentFilter);
+
+        const groups = { live: [], soon: [], ended: [] };
+        filtered.forEach(ev => groups[getGroup(ev)].push(ev));
+
+        groups.live.sort((a,b) => { if (!a.end_date) return 1; if (!b.end_date) return -1; return new Date(a.end_date) - new Date(b.end_date); });
+        groups.soon.sort((a,b) => new Date(a.start_date) - new Date(b.start_date));
+        groups.ended.sort((a,b) => new Date(b.end_date) - new Date(a.end_date));
+
+        document.getElementById('cntLive').textContent = groups.live.length;
+        document.getElementById('cntSoon').textContent = groups.soon.length;
+        document.getElementById('cntEnded').textContent = groups.ended.length;
+
+        const list = groups[currentTab];
+        if (!list.length) { tbl.innerHTML = '<div class="empty-state">해당 이벤트가 없습니다.</div>'; return; }
+
+        tbl.innerHTML = list.map(ev => {
+            const cls = exCls[ev.exchange] || '';
+            const txt = exTxt[ev.exchange] || (ev.exchange||'').substring(0,2);
+            const days = getDaysLeft(ev.end_date);
+            const grp = getGroup(ev);
+
+            let statusHtml = '';
+            if (grp === 'live') {
+                statusHtml = days ? '<span class="status-badge live">' + days + 'D LEFT</span>' : '<span class="status-badge permanent">ALWAYS</span>';
+            } else if (grp === 'soon') {
+                const ds = Math.ceil((new Date(ev.start_date) - new Date()) / 86400000);
+                statusHtml = '<span class="status-badge soon">D-' + ds + '</span>';
+            } else {
+                statusHtml = '<span class="status-badge ended">ENDED</span>';
+            }
+
+            const typeHtml = ev.type === 'competition' ? '<span class="row-type comp">COMP</span>' : '<span class="row-type evt">EVENT</span>';
+
+            return '<div class="event-row" ' + (ev.link ? 'onclick="window.open(\'' + ev.link + '\')"' : '') + '>' +
+                '<div class="row-logo ' + cls + '">' + txt + '</div>' +
+                '<div class="row-info"><div class="row-title">' + (ev.title||'') + typeHtml + '</div><div class="row-desc">' + (ev.description||'') + '</div></div>' +
+                '<div class="row-prize">' + (ev.prize || '-') + '</div>' +
+                '<div class="row-date">' + fmtDate(ev.start_date) + ' ~ ' + fmtDate(ev.end_date) + '</div>' +
+                '<div class="row-status">' + statusHtml + '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    function filterEvents(exchange) {
+        currentFilter = exchange;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        render(allEvents);
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        render(allEvents);
+    }
+
+    async function loadEvents() {
+        try {
+            const res = await fetch('/api/events');
+            const data = await res.json();
+            if (data.ok && data.events) { allEvents = data.events; render(allEvents); return; }
+        } catch(e) { console.warn('API fail:', e); }
+
+        allEvents = [
+            { title: 'Trading Club Championship (29th Edition)', description: '63,000 BGB 상금 풀! 서프라이즈 박스, 스팟 포인트 챌린지', exchange: 'Bitget', type: 'competition', start_date: '2026-02-04', end_date: '2026-03-10', prize: '63,000 BGB', link: 'https://www.bitget.com/events' },
+            { title: '선물+주식 듀얼 트레이딩 대회', description: '무기한 선물 & 주식 계약 거래량 달성 시 블라인드 박스 보상', exchange: 'Bitget', type: 'competition', start_date: '2026-02-10', end_date: '2026-03-15', prize: '80,000 USDT', link: 'https://www.bitget.com/events' },
+            { title: 'Global Stock Futures Championship', description: '토큰화 주식 & 크립토 챔피언십 - 역대 최대 규모', exchange: 'Bitget', type: 'competition', start_date: '2026-02-15', end_date: '2026-03-31', prize: '1,550,000 USDT', link: 'https://www.bitget.com/events' },
+            { title: '신규 가입 보너스 최대 $6,200', description: '1% Trading 레퍼럴로 가입 시 최대 $6,200 USDT 환영 보너스', exchange: 'Bitget', type: 'event', start_date: null, end_date: null, prize: '$6,200 USDT', link: 'https://www.bitget.com/referral/register?from=referral&clacCode=pkju' },
+            { title: 'Boost Battle x TMGP 2026 Series 1', description: '스팟 & 선물 거래 대회, 730,000 USDT 리더보드', exchange: 'Bybit', type: 'competition', start_date: '2026-02-17', end_date: '2026-03-15', prize: '1,000,000 USDT', link: 'https://www.bybit.com/en/promo/events' },
+            { title: 'AI vs Human 1v1 Trading Competition', description: 'AI vs 인간 트레이딩 대회 - 실제 자금 실시간 대결', exchange: 'Bybit', type: 'competition', start_date: '2026-03-01', end_date: '2026-03-31', prize: 'TBA', link: 'https://www.bybit.com/en/promo/events' },
+            { title: 'BTC 트레이딩 대회', description: '무기한 선물 BTC 거래 대회 - 상위 50명 보상', exchange: 'Bybit', type: 'competition', start_date: '2026-02-20', end_date: '2026-03-20', prize: '50,000 USDT', link: 'https://www.bybit.com/en/promo/events' },
+            { title: 'Bot 트레이딩 대회', description: '자동매매 봇 대회 - 최적의 전략으로 경쟁', exchange: 'Bybit', type: 'competition', start_date: '2026-02-15', end_date: '2026-03-15', prize: '25,000 USDT', link: 'https://www.bybit.com/en/promo/events' },
+            { title: 'ZAMA 보너스 캠페인', description: '총 18,700,000 ZAMA 상금 풀 - 신규 및 기존 사용자', exchange: 'OKX', type: 'event', start_date: '2026-02-02', end_date: '2026-03-16', prize: '18.7M ZAMA', link: 'https://www.okx.com/events' },
+            { title: 'Momentum Trading Competition', description: 'MMT 트레이딩 대회 - OKX 공식', exchange: 'OKX', type: 'competition', start_date: '2026-02-10', end_date: '2026-03-10', prize: 'TBA', link: 'https://www.okx.com/campaigns/mmt-trading-competition' },
+            { title: 'OKX 신규 가입 보너스', description: '최대 $10,000 보너스 + 수수료 50% Reward', exchange: 'OKX', type: 'event', start_date: null, end_date: null, prize: '$10,000 USDT', link: 'https://okx.com/join/1PERCENT' },
+            { title: 'Gate.io 트레이딩 대회 센터', description: '매주 $5M 상금 풀 - 다양한 코인별 거래 대회', exchange: 'Gate.io', type: 'competition', start_date: '2026-02-01', end_date: '2026-03-31', prize: '$5M+/주', link: 'https://www.gate.com/competition/center/trading' },
+            { title: 'Gate.io 신규 가입 보너스', description: '최대 $10,000 USDT 보너스 + 수수료 할인', exchange: 'Gate.io', type: 'event', start_date: null, end_date: null, prize: '$10,000 USDT', link: 'https://www.gate.com/share/ONEPROPP' },
+            { title: 'AI Arena - AI vs AI 실시간 대결', description: 'Claude, GPT, DeepSeek AI 모델 $10K 실자금 대결', exchange: 'BingX', type: 'competition', start_date: '2026-01-15', end_date: '2026-03-31', prize: '3,000,000 USDT', link: 'https://bingx.com/en/activity/1v1PK' },
+            { title: '스팟 트레이딩 랭킹 대회', description: '현물 거래 랭킹 대회 - 최대 $50,000 BTC', exchange: 'BingX', type: 'competition', start_date: '2026-02-01', end_date: '2026-03-15', prize: '$50,000 BTC', link: 'https://bingx.com/en/events' },
+            { title: 'Commodity Zero-Fee Gala', description: '금/은 토큰 400% APR + 제로 수수료 + $200K 스핀', exchange: 'MEXC', type: 'event', start_date: '2026-02-05', end_date: '2026-03-07', prize: '$1,000,000', link: 'https://www.mexc.com/campaigns' },
+            { title: 'Regional Futures Trading Competition', description: '지역별 선물 거래 대회 - 거래량 기반 상금', exchange: 'MEXC', type: 'competition', start_date: '2026-02-15', end_date: '2026-03-15', prize: 'TBA', link: 'https://mexc.com/futures-activity/trading-competition' },
+            { title: 'MEXC 신규 가입 보너스', description: '최대 $1,000 USDT 보너스 + 수수료 50% 할인', exchange: 'MEXC', type: 'event', start_date: null, end_date: null, prize: '$1,000 USDT', link: 'https://www.mexc.com' },
+        ];
+        render(allEvents);
+    }
+
+    setInterval(() => { if (allEvents.length) render(allEvents); }, 60000);
+    loadEvents();
+    </script>
+</body>
+</html>

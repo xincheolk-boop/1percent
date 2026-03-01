@@ -19,7 +19,39 @@ export default {
       });
     }
 
-    // Admin API
+    // Admin Exchange Configs API
+    if (url.pathname.startsWith('/api/admin/exchange-configs')) {
+      return handleAdminExchangeConfigs(request, env, url);
+    }
+
+    // Admin Commission Collection API
+    if (url.pathname.startsWith('/api/admin/commissions') ||
+        url.pathname.startsWith('/api/admin/commission-summaries') ||
+        url.pathname.startsWith('/api/admin/collection-logs')) {
+      return handleAdminCommissions(request, env, url);
+    }
+
+    // Manual commission collection trigger
+    if (url.pathname === '/api/admin/collect-commissions' && request.method === 'POST') {
+      return handleCollectTrigger(request, env);
+    }
+
+    // Admin auto-send withdrawal
+    if (url.pathname.match(/\/api\/admin\/withdrawals\/\d+\/auto-send/) && request.method === 'POST') {
+      return handleAutoWithdrawal(request, env, url);
+    }
+
+    // Admin Withdrawals API (more specific, must come before /api/admin)
+    if (url.pathname.startsWith('/api/admin/withdrawals')) {
+      return handleAdminWithdrawals(request, env, url);
+    }
+
+    // Manual crawl trigger (must come before /api/admin)
+    if (url.pathname === '/api/admin/crawl-events' && request.method === 'POST') {
+      return handleCrawlTrigger(request, env);
+    }
+
+    // Admin API (catch-all for other admin routes)
     if (url.pathname.startsWith('/api/admin')) {
       return handleAdmin(request, env, url);
     }
@@ -29,9 +61,14 @@ export default {
       return handleAuth(request, env, url);
     }
 
-    // Mypage API
+    // Mypage API (includes withdrawal)
     if (url.pathname.startsWith('/api/mypage')) {
       return handleMypage(request, env, url);
+    }
+
+    // Public Events API
+    if (url.pathname === '/api/events') {
+      return handlePublicEvents(request, env);
     }
 
     // Public Register API
@@ -42,6 +79,11 @@ export default {
     // Calendar API
     if (url.pathname === '/api/calendar') {
       return handleCalendar(request, env);
+    }
+
+    // Binance Futures API Proxy
+    if (url.pathname.startsWith('/api/binance/')) {
+      return handleBinanceProxy(request, url);
     }
 
     // Static files
@@ -61,6 +103,12 @@ export default {
     } catch (e) {
       return new Response('Not Found', { status: 404 });
     }
+  },
+
+  // Cron 스케줄러: 매일 이벤트 크롤링 + 6시간마다 커미션 수집
+  async scheduled(event, env, ctx) {
+    ctx.waitUntil(crawlExchangeEvents(env));
+    ctx.waitUntil(collectAllCommissions(env));
   },
 };
 
@@ -109,12 +157,15 @@ async function handleAdmin(request, env, url) {
     if (path === '/accounts' && request.method === 'GET') {
       const q  = url.searchParams.get('search') || '';
       const st = url.searchParams.get('status') || '';
+      const ex = url.searchParams.get('exchange') || '';
       let sql = `SELECT a.id, a.email, a.nickname, a.my_referral_code, a.referral_code_used,
-                        a.status, a.created_at, COUNT(u.id) as uid_count
+                        a.status, a.created_at, COUNT(u.id) as uid_count,
+                        GROUP_CONCAT(DISTINCT u.exchange) as exchanges
                  FROM accounts a LEFT JOIN users u ON u.account_id = a.id`;
       const p = [], w = [];
       if (st) { w.push('a.status=?'); p.push(st); }
       if (q)  { w.push('(a.email LIKE ? OR a.nickname LIKE ?)'); p.push(`%${q}%`, `%${q}%`); }
+      if (ex) { w.push('u.exchange=?'); p.push(ex); }
       if (w.length) sql += ' WHERE ' + w.join(' AND ');
       sql += ' GROUP BY a.id ORDER BY a.created_at DESC';
       const r = await db.prepare(sql).bind(...p).all();
@@ -222,24 +273,33 @@ async function handleAdmin(request, env, url) {
     // ── Events ──
     if (path === '/events') {
       if (request.method === 'GET') {
-        const r = await db.prepare('SELECT * FROM events ORDER BY is_active DESC, start_date DESC').all();
+        const r = await db.prepare('SELECT * FROM events ORDER BY is_featured DESC, sort_order ASC, created_at DESC').all();
         return ajson({ events: r.results || [] });
       }
       if (request.method === 'POST') {
         const b = await request.json();
+        if (!b.title || !b.exchange) return ajson({ error: '제목과 거래소는 필수입니다' }, 400);
         const r = await db.prepare(
-          'INSERT INTO events (exchange,title,description,image_url,link,start_date,end_date,is_active) VALUES (?,?,?,?,?,?,?,?)'
-        ).bind(b.exchange||'', b.title||'', b.description||'', b.image_url||'', b.link||'', b.start_date||'', b.end_date||'', b.is_active?1:0).run();
+          'INSERT INTO events (title,description,exchange,type,image_url,link,start_date,end_date,prize,is_featured,sort_order,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
+        ).bind(b.title, b.description||'', b.exchange, b.type||'event', b.image_url||'', b.link||'', b.start_date||null, b.end_date||null, b.prize||'', b.is_featured?1:0, b.sort_order||0, b.status||'active').run();
         return ajson({ ok: true, id: r.meta.last_row_id });
       }
     }
     const eIdM = path.match(/^\/events\/(\d+)$/);
     if (eIdM) {
       const id = +eIdM[1];
-      if (request.method === 'PUT') {
+      if (request.method === 'PUT' || request.method === 'PATCH') {
         const b = await request.json();
-        await db.prepare('UPDATE events SET exchange=?,title=?,description=?,image_url=?,link=?,start_date=?,end_date=?,is_active=? WHERE id=?')
-          .bind(b.exchange||'', b.title||'', b.description||'', b.image_url||'', b.link||'', b.start_date||'', b.end_date||'', b.is_active?1:0, id).run();
+        const fields = [];
+        const values = [];
+        for (const key of ['title','description','exchange','type','image_url','link','start_date','end_date','prize','status','sort_order']) {
+          if (b[key] !== undefined) { fields.push(key+'=?'); values.push(b[key]); }
+        }
+        if (b.is_featured !== undefined) { fields.push('is_featured=?'); values.push(b.is_featured?1:0); }
+        if (fields.length === 0) return ajson({ error: '수정할 항목 없음' }, 400);
+        fields.push("updated_at=datetime('now')");
+        values.push(id);
+        await db.prepare('UPDATE events SET '+fields.join(',')+' WHERE id=?').bind(...values).run();
         return ajson({ ok: true });
       }
       if (request.method === 'DELETE') {
@@ -535,7 +595,159 @@ async function handleMypage(request, env, url) {
     return aj2({ ok: true, settlements: r.results || [] });
   }
 
+  // 출금 가능 잔액 조회
+  if (path === '/balance' && request.method === 'GET') {
+    const total = await db.prepare(
+      `SELECT COALESCE(SUM(s.payback_amount),0) as total_reward
+       FROM settlements s INNER JOIN users u ON s.user_id=u.id
+       WHERE u.account_id=? AND s.status='paid'`
+    ).bind(account.id).first();
+    const withdrawn = await db.prepare(
+      `SELECT COALESCE(SUM(amount),0) as total_withdrawn
+       FROM withdrawals WHERE account_id=? AND status IN ('completed','processing','pending')`
+    ).bind(account.id).first();
+    const balance = (total?.total_reward || 0) - (withdrawn?.total_withdrawn || 0);
+    return aj2({ ok: true, total_reward: total?.total_reward || 0, total_withdrawn: withdrawn?.total_withdrawn || 0, balance });
+  }
+
+  // 출금 내역 조회
+  if (path === '/withdrawals' && request.method === 'GET') {
+    const r = await db.prepare(
+      'SELECT * FROM withdrawals WHERE account_id=? ORDER BY requested_at DESC'
+    ).bind(account.id).all();
+    return aj2({ ok: true, withdrawals: r.results || [] });
+  }
+
+  // 출금 신청
+  if (path === '/withdraw' && request.method === 'POST') {
+    let body;
+    try { body = await request.json(); } catch(e) { return aj2({ error: '잘못된 형식' }, 400); }
+
+    const { amount, wallet_address, network } = body;
+    if (!amount || !wallet_address) return aj2({ error: '출금 금액과 지갑 주소를 입력해주세요' }, 400);
+    if (amount < 50) return aj2({ error: '최소 출금 금액은 $50 USDT입니다' }, 400);
+
+    const addr = String(wallet_address).trim();
+    if (addr.length < 20) return aj2({ error: '올바른 지갑 주소를 입력해주세요' }, 400);
+
+    // 잔액 확인
+    const total = await db.prepare(
+      `SELECT COALESCE(SUM(s.payback_amount),0) as total_reward
+       FROM settlements s INNER JOIN users u ON s.user_id=u.id
+       WHERE u.account_id=? AND s.status='paid'`
+    ).bind(account.id).first();
+    const withdrawn = await db.prepare(
+      `SELECT COALESCE(SUM(amount),0) as total_withdrawn
+       FROM withdrawals WHERE account_id=? AND status IN ('completed','processing','pending')`
+    ).bind(account.id).first();
+    const balance = (total?.total_reward || 0) - (withdrawn?.total_withdrawn || 0);
+
+    if (amount > balance) return aj2({ error: '출금 가능 잔액이 부족합니다 (잔액: $' + balance.toFixed(2) + ')' }, 400);
+
+    // 진행 중인 출금 요청 확인
+    const pending = await db.prepare(
+      "SELECT id FROM withdrawals WHERE account_id=? AND status='pending'"
+    ).bind(account.id).first();
+    if (pending) return aj2({ error: '이미 처리 대기 중인 출금 요청이 있습니다' }, 400);
+
+    const result = await db.prepare(
+      'INSERT INTO withdrawals (account_id, amount, wallet_address, network) VALUES (?,?,?,?)'
+    ).bind(account.id, amount, addr, network || 'TRC-20').run();
+
+    return aj2({ ok: true, id: result.meta.last_row_id, message: '출금 신청이 완료되었습니다' });
+  }
+
+  // 내 커미션 조회
+  if (path === '/commissions') {
+    const userUids = await db.prepare('SELECT uid, exchange FROM users WHERE account_id=?').bind(account.id).all();
+    const uids = (userUids.results || []);
+    if (!uids.length) return aj2({ commissions: [] });
+
+    const conditions = uids.map(() => '(invitee_uid=? AND exchange=?)').join(' OR ');
+    const vals = uids.flatMap(u => [u.uid, u.exchange]);
+
+    const month = url.searchParams.get('month') || '';
+    let where = `(${conditions})`;
+    if (month) { where += ' AND substr(commission_time,1,7)=?'; vals.push(month); }
+
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = 50;
+    vals.push(limit, (page - 1) * limit);
+    const r = await db.prepare(`SELECT * FROM commissions WHERE ${where} ORDER BY commission_time DESC LIMIT ? OFFSET ?`).bind(...vals).all();
+    return aj2({ commissions: r.results || [] });
+  }
+
+  // 내 커미션 월별 요약
+  if (path === '/commission-summary') {
+    const userIds = await db.prepare('SELECT id FROM users WHERE account_id=?').bind(account.id).all();
+    const ids = (userIds.results || []).map(u => u.id);
+    if (!ids.length) return aj2({ summaries: [], total_reward: 0 });
+
+    const placeholders = ids.map(() => '?').join(',');
+    const r = await db.prepare(`
+      SELECT cs.*, u.nickname, u.uid, u.exchange as user_exchange
+      FROM commission_summaries cs
+      LEFT JOIN users u ON u.id = cs.user_id
+      WHERE cs.user_id IN (${placeholders})
+      ORDER BY cs.month DESC
+    `).bind(...ids).all();
+
+    const summaries = r.results || [];
+    const totalReward = summaries.reduce((s, item) => s + (item.user_commission || 0), 0);
+    return aj2({ summaries, total_reward: totalReward });
+  }
+
   return aj2({ error: '알 수 없는 경로' }, 404);
+}
+
+// ── Admin Withdrawals ─────────────────────────────────────────────────────────
+
+async function handleAdminWithdrawals(request, env, url) {
+  if (!checkAuth(request, env)) return ajson({ error: '인증 필요' }, 401);
+
+  const db = env.DB;
+  if (!db) return ajson({ error: 'DB 미연결' }, 500);
+
+  const path = url.pathname.replace('/api/admin/withdrawals', '') || '/';
+
+  try {
+    // 출금 목록 조회
+    if ((path === '/' || path === '') && request.method === 'GET') {
+      const status = url.searchParams.get('status') || '';
+      let sql = `SELECT w.*, a.email, a.nickname
+                 FROM withdrawals w
+                 LEFT JOIN users u ON w.user_id=u.id
+                 LEFT JOIN accounts a ON u.account_id=a.id`;
+      const params = [];
+      if (status) { sql += ' WHERE w.status=?'; params.push(status); }
+      sql += ' ORDER BY w.requested_at DESC';
+      const r = await db.prepare(sql).bind(...params).all();
+      return ajson({ withdrawals: r.results || [] });
+    }
+
+    // 출금 상태 변경 (승인/거절/완료)
+    const idMatch = path.match(/^\/(\d+)$/);
+    if (idMatch && request.method === 'PATCH') {
+      const id = +idMatch[1];
+      const body = await request.json().catch(() => ({}));
+      const { status, tx_hash, reject_reason } = body;
+
+      if (!['processing','completed','rejected'].includes(status)) {
+        return ajson({ error: '올바른 상태값: processing, completed, rejected' }, 400);
+      }
+
+      const now = new Date().toISOString();
+      await db.prepare(
+        'UPDATE withdrawals SET status=?, tx_hash=?, reject_reason=?, processed_at=? WHERE id=?'
+      ).bind(status, tx_hash || '', reject_reason || '', now, id).run();
+
+      return ajson({ ok: true });
+    }
+
+    return ajson({ error: '알 수 없는 경로' }, 404);
+  } catch (err) {
+    return ajson({ error: err.message }, 500);
+  }
 }
 
 // ── Calendar ──────────────────────────────────────────────────────────────────
@@ -580,3 +792,831 @@ async function handleCalendar(request, env) {
     return new Response(JSON.stringify({ events: [], error: err.message }), { headers: CAL_CORS });
   }
 }
+
+// ========== Public Events API ==========
+async function handlePublicEvents(request, env) {
+  const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+  try {
+    const rows = await env.DB.prepare(
+      "SELECT id, title, description, exchange, type, image_url, link, start_date, end_date, prize, is_featured FROM events WHERE status = 'active' ORDER BY is_featured DESC, sort_order ASC, created_at DESC"
+    ).all();
+    return new Response(JSON.stringify({ ok: true, events: rows.results || [] }), { headers });
+  } catch(e) {
+    return new Response(JSON.stringify({ ok: false, error: e.message }), { headers });
+  }
+}
+
+// ========== Admin Events API ==========
+async function handleAdminEvents(request, env, url) {
+  const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+
+  // GET /api/admin/events — 전체 이벤트 목록
+  if (request.method === 'GET' && url.pathname === '/api/admin/events') {
+    const rows = await env.DB.prepare(
+      "SELECT * FROM events ORDER BY sort_order ASC, created_at DESC"
+    ).all();
+    return new Response(JSON.stringify({ ok: true, events: rows.results || [] }), { headers });
+  }
+
+  // POST /api/admin/events — 이벤트 생성
+  if (request.method === 'POST' && url.pathname === '/api/admin/events') {
+    const body = await request.json();
+    const { title, description, exchange, type, image_url, link, start_date, end_date, prize, is_featured, sort_order } = body;
+    if (!title || !exchange) {
+      return new Response(JSON.stringify({ ok: false, error: '제목과 거래소는 필수입니다.' }), { headers, status: 400 });
+    }
+    const r = await env.DB.prepare(
+      "INSERT INTO events (title, description, exchange, type, image_url, link, start_date, end_date, prize, is_featured, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+    ).bind(title, description || '', exchange, type || 'event', image_url || '', link || '', start_date || null, end_date || null, prize || '', is_featured ? 1 : 0, sort_order || 0).run();
+    return new Response(JSON.stringify({ ok: true, id: r.meta?.last_row_id }), { headers });
+  }
+
+  // PATCH /api/admin/events/:id — 이벤트 수정
+  const patchMatch = url.pathname.match(/^\/api\/admin\/events\/(\d+)$/);
+  if (request.method === 'PATCH' && patchMatch) {
+    const id = parseInt(patchMatch[1]);
+    const body = await request.json();
+    const fields = [];
+    const values = [];
+    for (const key of ['title', 'description', 'exchange', 'type', 'image_url', 'link', 'start_date', 'end_date', 'prize', 'status', 'sort_order']) {
+      if (body[key] !== undefined) {
+        fields.push(key + ' = ?');
+        values.push(body[key]);
+      }
+    }
+    if (body.is_featured !== undefined) {
+      fields.push('is_featured = ?');
+      values.push(body.is_featured ? 1 : 0);
+    }
+    if (fields.length === 0) {
+      return new Response(JSON.stringify({ ok: false, error: '수정할 항목이 없습니다.' }), { headers, status: 400 });
+    }
+    fields.push("updated_at = datetime('now')");
+    values.push(id);
+    await env.DB.prepare(
+      "UPDATE events SET " + fields.join(', ') + " WHERE id = ?"
+    ).bind(...values).run();
+    return new Response(JSON.stringify({ ok: true }), { headers });
+  }
+
+  // DELETE /api/admin/events/:id — 이벤트 삭제
+  const delMatch = url.pathname.match(/^\/api\/admin\/events\/(\d+)$/);
+  if (request.method === 'DELETE' && delMatch) {
+    const id = parseInt(delMatch[1]);
+    await env.DB.prepare("DELETE FROM events WHERE id = ?").bind(id).run();
+    return new Response(JSON.stringify({ ok: true }), { headers });
+  }
+
+  return new Response(JSON.stringify({ ok: false, error: 'Not found' }), { headers, status: 404 });
+}
+
+// ========== Exchange Event Crawler ==========
+async function crawlExchangeEvents(env) {
+  const db = env.DB;
+  if (!db) return;
+
+  const results = [];
+
+  // Bybit 공식 announcement API
+  try {
+    const res = await fetch('https://api.bybit.com/v5/announcements/index?locale=ko-KR&type=new_crypto&limit=10', {
+      cf: { cacheTtl: 600 }
+    });
+    const data = await res.json();
+    if (data.result?.list) {
+      for (const item of data.result.list) {
+        results.push({
+          title: item.title,
+          description: item.description?.substring(0, 200) || '',
+          exchange: 'Bybit',
+          type: item.type?.name?.includes('competition') ? 'competition' : 'event',
+          link: item.url || '',
+          start_date: item.startDateTimestamp ? new Date(item.startDateTimestamp).toISOString().slice(0,10) : null,
+          end_date: item.endDateTimestamp ? new Date(item.endDateTimestamp).toISOString().slice(0,10) : null,
+          source: 'bybit_api'
+        });
+      }
+    }
+  } catch(e) { console.warn('Bybit crawl fail:', e.message); }
+
+  // Bitget 공식 announcement API
+  try {
+    const res = await fetch('https://api.bitget.com/api/v2/public/annoucements?language=ko_KR&annType=activities&limit=10', {
+      cf: { cacheTtl: 600 }
+    });
+    const data = await res.json();
+    if (data.data) {
+      for (const item of data.data) {
+        results.push({
+          title: item.annTitle || item.title || '',
+          description: (item.annDesc || '').substring(0, 200),
+          exchange: 'Bitget',
+          type: (item.annTitle || '').toLowerCase().includes('competition') ? 'competition' : 'event',
+          link: item.annUrl || '',
+          start_date: null,
+          end_date: null,
+          source: 'bitget_api'
+        });
+      }
+    }
+  } catch(e) { console.warn('Bitget crawl fail:', e.message); }
+
+  // Gate.io announcement API
+  try {
+    const res = await fetch('https://www.gate.io/api/v4/announcements?page=1&limit=10&type=activities', {
+      cf: { cacheTtl: 600 }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          results.push({
+            title: item.title || '',
+            description: (item.content || '').substring(0, 200),
+            exchange: 'Gate.io',
+            type: (item.title || '').toLowerCase().includes('competition') ? 'competition' : 'event',
+            link: item.url || 'https://www.gate.com/competition/center/trading',
+            start_date: null,
+            end_date: null,
+            source: 'gate_api'
+          });
+        }
+      }
+    }
+  } catch(e) { console.warn('Gate.io crawl fail:', e.message); }
+
+  // OKX announcement (JSON endpoint)
+  try {
+    const res = await fetch('https://www.okx.com/api/v5/support/announcements?page=1&limit=10&annType=2', {
+      cf: { cacheTtl: 600 }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.data?.length) {
+        for (const item of data.data) {
+          results.push({
+            title: item.title || '',
+            description: '',
+            exchange: 'OKX',
+            type: (item.title || '').toLowerCase().includes('competition') ? 'competition' : 'event',
+            link: item.url || 'https://www.okx.com/events',
+            start_date: null,
+            end_date: null,
+            source: 'okx_api'
+          });
+        }
+      }
+    }
+  } catch(e) { console.warn('OKX crawl fail:', e.message); }
+
+  // DB에 upsert (중복 방지: 같은 title+exchange 조합이면 스킵)
+  let inserted = 0;
+  for (const ev of results) {
+    if (!ev.title) continue;
+    try {
+      const existing = await db.prepare(
+        "SELECT id FROM events WHERE title = ? AND exchange = ?"
+      ).bind(ev.title, ev.exchange).first();
+      if (!existing) {
+        await db.prepare(
+          "INSERT INTO events (title, description, exchange, type, image_url, link, start_date, end_date, prize, is_featured, sort_order, status) VALUES (?, ?, ?, ?, '', ?, ?, ?, '', 0, 99, 'active')"
+        ).bind(ev.title, ev.description, ev.exchange, ev.type, ev.link, ev.start_date, ev.end_date).run();
+        inserted++;
+      }
+    } catch(e) { /* skip duplicate */ }
+  }
+
+  console.log(`Event crawler: ${results.length} found, ${inserted} new inserted`);
+}
+
+// 수동 크롤링 트리거 (admin에서 호출)
+async function handleCrawlTrigger(request, env) {
+  await crawlExchangeEvents(env);
+  return new Response(JSON.stringify({ ok: true, message: '크롤링 완료' }), {
+    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+  });
+}
+
+// ===== Binance Futures API Proxy =====
+async function handleBinanceProxy(request, url) {
+  const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json',
+    'Cache-Control': 'public, max-age=10',
+  };
+  
+  try {
+    const path = url.pathname.replace('/api/binance/', '');
+    const search = url.search || '';
+    
+    let binanceUrl;
+    if (path.startsWith('futures/')) {
+      binanceUrl = 'https://fapi.binance.com/' + path + search;
+    } else if (path.startsWith('fapi/')) {
+      binanceUrl = 'https://fapi.binance.com/' + path + search;
+    } else {
+      binanceUrl = 'https://fapi.binance.com/fapi/v1/' + path + search;
+    }
+    
+    const res = await fetch(binanceUrl, {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+    });
+    const data = await res.json();
+    return new Response(JSON.stringify(data), { headers: CORS_HEADERS });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: CORS_HEADERS });
+  }
+}
+
+// ============================================================================
+// ══ 거래소 API 자동 수집 + 자동출금 시스템 ══
+// ============================================================================
+
+// ── 암호화 유틸 (AES-256-GCM) ────────────────────────────────────────────────
+
+async function getEncryptionKey(env) {
+  const raw = env.ENCRYPTION_KEY || 'default_dev_key_change_in_production!';
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey('raw', enc.encode(raw.slice(0, 32).padEnd(32, '0')), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: enc.encode('1pct_salt'), iterations: 1000, hash: 'SHA-256' }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+
+async function encryptValue(plaintext, env) {
+  if (!plaintext) return '';
+  const key = await getEncryptionKey(env);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const enc = new TextEncoder();
+  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(plaintext));
+  const buf = new Uint8Array(iv.length + ct.byteLength);
+  buf.set(iv); buf.set(new Uint8Array(ct), iv.length);
+  return btoa(String.fromCharCode(...buf));
+}
+
+async function decryptValue(ciphertext, env) {
+  if (!ciphertext) return '';
+  try {
+    const key = await getEncryptionKey(env);
+    const raw = Uint8Array.from(atob(ciphertext), c => c.charCodeAt(0));
+    const iv = raw.slice(0, 12);
+    const ct = raw.slice(12);
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
+    return new TextDecoder().decode(pt);
+  } catch { return ''; }
+}
+
+function maskKey(val) {
+  if (!val || val.length < 8) return '****';
+  return val.slice(0, 4) + '****' + val.slice(-4);
+}
+
+// ── 거래소 API 서명 함수 ─────────────────────────────────────────────────────
+
+async function hmacSHA256(secret, message) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(message));
+  return btoa(String.fromCharCode(...new Uint8Array(sig)));
+}
+
+async function hmacSHA512Hex(secret, message) {
+  const enc = new TextEncoder();
+  const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-512' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(message));
+  return [...new Uint8Array(sig)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function sha512Hex(message) {
+  const enc = new TextEncoder();
+  const hash = await crypto.subtle.digest('SHA-512', enc.encode(message));
+  return [...new Uint8Array(hash)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function buildBitgetHeaders(apiKey, secret, passphrase, method, path, queryString, body) {
+  const ts = String(Date.now());
+  const preSign = ts + method.toUpperCase() + path + (queryString ? '?' + queryString : '') + (body || '');
+  const sign = await hmacSHA256(secret, preSign);
+  return { 'ACCESS-KEY': apiKey, 'ACCESS-SIGN': sign, 'ACCESS-TIMESTAMP': ts, 'ACCESS-PASSPHRASE': passphrase, 'Content-Type': 'application/json' };
+}
+
+async function buildOKXHeaders(apiKey, secret, passphrase, method, path, body) {
+  const ts = new Date().toISOString();
+  const preSign = ts + method.toUpperCase() + path + (body || '');
+  const sign = await hmacSHA256(secret, preSign);
+  return { 'OK-ACCESS-KEY': apiKey, 'OK-ACCESS-SIGN': sign, 'OK-ACCESS-TIMESTAMP': ts, 'OK-ACCESS-PASSPHRASE': passphrase, 'Content-Type': 'application/json' };
+}
+
+async function buildGateHeaders(apiKey, secret, method, path, queryString, body) {
+  const ts = String(Math.floor(Date.now() / 1000));
+  const bodyHash = await sha512Hex(body || '');
+  const preSign = method.toUpperCase() + '\n' + path + '\n' + (queryString || '') + '\n' + bodyHash + '\n' + ts;
+  const sign = await hmacSHA512Hex(secret, preSign);
+  return { 'KEY': apiKey, 'SIGN': sign, 'Timestamp': ts, 'Content-Type': 'application/json' };
+}
+
+// ── 거래소 설정 API ──────────────────────────────────────────────────────────
+
+async function handleAdminExchangeConfigs(request, env, url) {
+  if (!checkAuth(request, env)) return ajson({ error: '인증 필요' }, 401);
+  const db = env.DB;
+  if (!db) return ajson({ error: 'DB 미연결' }, 500);
+
+  const path = url.pathname.replace('/api/admin/exchange-configs', '') || '/';
+
+  // GET / - 설정 목록
+  if (request.method === 'GET' && path === '/') {
+    const r = await db.prepare('SELECT * FROM exchange_api_configs ORDER BY exchange').all();
+    const configs = (r.results || []).map(c => ({
+      ...c,
+      api_key_display: c.api_key_enc ? '설정됨' : '미설정',
+      api_secret_display: c.api_secret_enc ? '설정됨' : '미설정',
+      passphrase_display: c.passphrase_enc ? '설정됨' : '미설정',
+    }));
+    return ajson({ configs });
+  }
+
+  // POST / - 저장
+  if (request.method === 'POST' && path === '/') {
+    const body = await request.json();
+    const { exchange, api_key, api_secret, passphrase, platform_rate, user_rate, is_active } = body;
+    if (!exchange) return ajson({ error: '거래소 필수' }, 400);
+
+    const keyEnc = api_key ? await encryptValue(api_key, env) : '';
+    const secretEnc = api_secret ? await encryptValue(api_secret, env) : '';
+    const passEnc = passphrase ? await encryptValue(passphrase, env) : '';
+
+    const existing = await db.prepare('SELECT id FROM exchange_api_configs WHERE exchange=?').bind(exchange).first();
+    if (existing) {
+      const updates = [];
+      const vals = [];
+      if (api_key) { updates.push('api_key_enc=?'); vals.push(keyEnc); }
+      if (api_secret) { updates.push('api_secret_enc=?'); vals.push(secretEnc); }
+      if (passphrase) { updates.push('passphrase_enc=?'); vals.push(passEnc); }
+      if (platform_rate !== undefined) { updates.push('platform_rate=?'); vals.push(platform_rate); }
+      if (user_rate !== undefined) { updates.push('user_rate=?'); vals.push(user_rate); }
+      if (is_active !== undefined) { updates.push('is_active=?'); vals.push(is_active ? 1 : 0); }
+      updates.push("updated_at=datetime('now')");
+      vals.push(existing.id);
+      await db.prepare(`UPDATE exchange_api_configs SET ${updates.join(',')} WHERE id=?`).bind(...vals).run();
+    } else {
+      await db.prepare(
+        'INSERT INTO exchange_api_configs (exchange,api_key_enc,api_secret_enc,passphrase_enc,platform_rate,user_rate,is_active) VALUES (?,?,?,?,?,?,?)'
+      ).bind(exchange, keyEnc, secretEnc, passEnc, platform_rate || 0, user_rate || 0, is_active ? 1 : 0).run();
+    }
+    return ajson({ ok: true });
+  }
+
+  // POST /test - 연결 테스트
+  if (request.method === 'POST' && path === '/test') {
+    const body = await request.json();
+    const { exchange } = body;
+    const config = await db.prepare('SELECT * FROM exchange_api_configs WHERE exchange=?').bind(exchange).first();
+    if (!config || !config.api_key_enc) return ajson({ error: 'API 키 미설정' }, 400);
+
+    try {
+      const apiKey = await decryptValue(config.api_key_enc, env);
+      const apiSecret = await decryptValue(config.api_secret_enc, env);
+      const passphrase = await decryptValue(config.passphrase_enc, env);
+
+      if (exchange === 'Bitget') {
+        const path = '/api/v2/broker/account/info';
+        const headers = await buildBitgetHeaders(apiKey, apiSecret, passphrase, 'GET', path, '', '');
+        const r = await fetch('https://api.bitget.com' + path, { headers });
+        const d = await r.json();
+        return ajson({ ok: true, data: d });
+      } else if (exchange === 'OKX') {
+        const path = '/api/v5/account/balance';
+        const headers = await buildOKXHeaders(apiKey, apiSecret, passphrase, 'GET', path, '');
+        const r = await fetch('https://www.okx.com' + path, { headers });
+        const d = await r.json();
+        return ajson({ ok: true, data: d });
+      } else if (exchange === 'Gate.io') {
+        const path = '/api/v4/wallet/total_balance';
+        const headers = await buildGateHeaders(apiKey, apiSecret, 'GET', path, '', '');
+        const r = await fetch('https://api.gateio.ws' + path, { headers });
+        const d = await r.json();
+        return ajson({ ok: true, data: d });
+      }
+      return ajson({ error: '지원하지 않는 거래소' }, 400);
+    } catch (err) {
+      return ajson({ error: '연결 실패: ' + err.message }, 500);
+    }
+  }
+
+  return ajson({ error: '알 수 없는 경로' }, 404);
+}
+
+// ── 커미션 수집 함수 (거래소별) ──────────────────────────────────────────────
+
+async function collectBitgetCommissions(env, config) {
+  const db = env.DB;
+  const apiKey = await decryptValue(config.api_key_enc, env);
+  const apiSecret = await decryptValue(config.api_secret_enc, env);
+  const passphrase = await decryptValue(config.passphrase_enc, env);
+
+  const now = Date.now();
+  const since = config.last_sync ? new Date(config.last_sync).getTime() : now - 24 * 60 * 60 * 1000;
+  let fetched = 0, inserted = 0;
+  let idLessThan = '';
+
+  while (true) {
+    const params = new URLSearchParams({ startTime: String(since), endTime: String(now), limit: '100' });
+    if (idLessThan) params.set('idLessThan', idLessThan);
+    const path = '/api/v2/broker/customer-commissions';
+    const qs = params.toString();
+    const headers = await buildBitgetHeaders(apiKey, apiSecret, passphrase, 'GET', path, qs, '');
+    const r = await fetch('https://api.bitget.com' + path + '?' + qs, { headers });
+    const d = await r.json();
+
+    const list = d.data || [];
+    if (!list.length) break;
+    fetched += list.length;
+
+    for (const item of list) {
+      try {
+        const fee = parseFloat(item.totalFee || item.fee || 0);
+        const platformComm = fee * config.platform_rate;
+        const userComm = fee * config.user_rate;
+        await db.prepare(
+          `INSERT OR IGNORE INTO commissions (exchange,invitee_uid,order_id,commission_time,trade_type,token,trading_fee,net_fee,platform_rate,user_rate,platform_commission,user_commission,raw_data)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        ).bind(
+          'Bitget', item.uid || '', item.id || String(Date.now()), item.createTime || new Date().toISOString(),
+          item.productType || '', item.coin || 'USDT', fee, parseFloat(item.netFee || fee),
+          config.platform_rate, config.user_rate, platformComm, userComm, JSON.stringify(item)
+        ).run();
+        inserted++;
+      } catch (e) { /* dedup or error, skip */ }
+    }
+
+    if (list.length < 100) break;
+    idLessThan = list[list.length - 1].id || '';
+    if (!idLessThan) break;
+  }
+  return { fetched, inserted };
+}
+
+async function collectOKXCommissions(env, config) {
+  const db = env.DB;
+  const apiKey = await decryptValue(config.api_key_enc, env);
+  const apiSecret = await decryptValue(config.api_secret_enc, env);
+  const passphrase = await decryptValue(config.passphrase_enc, env);
+
+  const now = Date.now();
+  const since = config.last_sync ? new Date(config.last_sync).getTime() : now - 24 * 60 * 60 * 1000;
+  let fetched = 0, inserted = 0;
+  let after = '';
+
+  while (true) {
+    const params = new URLSearchParams({ begin: String(since), end: String(now) });
+    if (after) params.set('after', after);
+    const path = '/api/v5/broker/fd/rebate-per-orders?' + params.toString();
+    const headers = await buildOKXHeaders(apiKey, apiSecret, passphrase, 'GET', path, '');
+    const r = await fetch('https://www.okx.com' + path, { headers });
+    const d = await r.json();
+
+    const list = (d.data || [])[0] || [];
+    if (!Array.isArray(list) || !list.length) {
+      const flatList = d.data || [];
+      if (!flatList.length) break;
+      for (const item of flatList) {
+        fetched++;
+        try {
+          const fee = parseFloat(item.fee || 0);
+          const platformComm = fee * config.platform_rate;
+          const userComm = fee * config.user_rate;
+          await db.prepare(
+            `INSERT OR IGNORE INTO commissions (exchange,invitee_uid,order_id,commission_time,trade_type,token,trading_fee,net_fee,platform_rate,user_rate,platform_commission,user_commission,raw_data)
+             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+          ).bind(
+            'OKX', item.subAcct || item.uid || '', item.ordId || item.billId || String(Date.now()),
+            item.ts ? new Date(parseInt(item.ts)).toISOString() : new Date().toISOString(),
+            item.instType || '', item.ccy || 'USDT', fee, parseFloat(item.netFee || fee),
+            config.platform_rate, config.user_rate, platformComm, userComm, JSON.stringify(item)
+          ).run();
+          inserted++;
+        } catch (e) { /* dedup */ }
+      }
+      break;
+    }
+
+    for (const item of list) {
+      fetched++;
+      try {
+        const fee = parseFloat(item.fee || 0);
+        const platformComm = fee * config.platform_rate;
+        const userComm = fee * config.user_rate;
+        await db.prepare(
+          `INSERT OR IGNORE INTO commissions (exchange,invitee_uid,order_id,commission_time,trade_type,token,trading_fee,net_fee,platform_rate,user_rate,platform_commission,user_commission,raw_data)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        ).bind(
+          'OKX', item.subAcct || item.uid || '', item.ordId || item.billId || String(Date.now()),
+          item.ts ? new Date(parseInt(item.ts)).toISOString() : new Date().toISOString(),
+          item.instType || '', item.ccy || 'USDT', fee, parseFloat(item.netFee || fee),
+          config.platform_rate, config.user_rate, platformComm, userComm, JSON.stringify(item)
+        ).run();
+        inserted++;
+      } catch (e) { /* dedup */ }
+    }
+
+    if (list.length < 100) break;
+    after = list[list.length - 1].ts || '';
+    if (!after) break;
+  }
+  return { fetched, inserted };
+}
+
+async function collectGateCommissions(env, config) {
+  const db = env.DB;
+  const apiKey = await decryptValue(config.api_key_enc, env);
+  const apiSecret = await decryptValue(config.api_secret_enc, env);
+
+  const now = Math.floor(Date.now() / 1000);
+  const since = config.last_sync ? Math.floor(new Date(config.last_sync).getTime() / 1000) : now - 24 * 60 * 60;
+  let fetched = 0, inserted = 0;
+  let offset = 0;
+
+  while (true) {
+    const qs = `from=${since}&to=${now}&limit=100&offset=${offset}`;
+    const apiPath = '/api/v4/rebate/partner/commission_history';
+    const headers = await buildGateHeaders(apiKey, apiSecret, 'GET', apiPath, qs, '');
+    const r = await fetch('https://api.gateio.ws' + apiPath + '?' + qs, { headers });
+    const list = await r.json();
+
+    if (!Array.isArray(list) || !list.length) break;
+    fetched += list.length;
+
+    for (const item of list) {
+      try {
+        const fee = parseFloat(item.commission_amount || item.amount || 0);
+        const platformComm = fee * config.platform_rate;
+        const userComm = fee * config.user_rate;
+        await db.prepare(
+          `INSERT OR IGNORE INTO commissions (exchange,invitee_uid,order_id,commission_time,trade_type,token,trading_fee,net_fee,platform_rate,user_rate,platform_commission,user_commission,raw_data)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        ).bind(
+          'Gate.io', String(item.user_id || ''), String(item.id || Date.now()),
+          item.commission_time || item.time || new Date().toISOString(),
+          item.source || '', item.currency || 'USDT', fee, fee,
+          config.platform_rate, config.user_rate, platformComm, userComm, JSON.stringify(item)
+        ).run();
+        inserted++;
+      } catch (e) { /* dedup */ }
+    }
+
+    if (list.length < 100) break;
+    offset += 100;
+  }
+  return { fetched, inserted };
+}
+
+// ── 월별 요약 집계 ───────────────────────────────────────────────────────────
+
+async function aggregateCommissionSummaries(env) {
+  const db = env.DB;
+  const months = await db.prepare(
+    "SELECT DISTINCT substr(commission_time,1,7) as m FROM commissions ORDER BY m DESC LIMIT 3"
+  ).all();
+
+  for (const row of (months.results || [])) {
+    const month = row.m;
+    const agg = await db.prepare(`
+      SELECT c.exchange, c.invitee_uid, u.id as user_id,
+        SUM(c.trading_fee) as total_fee, SUM(c.platform_commission) as pc,
+        SUM(c.user_commission) as uc, COUNT(*) as cnt
+      FROM commissions c
+      LEFT JOIN users u ON u.uid = c.invitee_uid AND u.exchange = c.exchange
+      WHERE substr(c.commission_time,1,7) = ?
+      GROUP BY c.exchange, c.invitee_uid
+    `).bind(month).all();
+
+    for (const r of (agg.results || [])) {
+      if (!r.user_id) continue;
+      await db.prepare(`
+        INSERT INTO commission_summaries (user_id, exchange, month, total_fee, platform_commission, user_commission, trade_count, last_updated)
+        VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        ON CONFLICT(user_id, exchange, month) DO UPDATE SET
+          total_fee=excluded.total_fee, platform_commission=excluded.platform_commission,
+          user_commission=excluded.user_commission, trade_count=excluded.trade_count,
+          last_updated=datetime('now')
+      `).bind(r.user_id, r.exchange, month, r.total_fee, r.pc, r.uc, r.cnt).run();
+    }
+  }
+}
+
+// ── 전체 수집 실행 (크론 + 수동) ──────────────────────────────────────────────
+
+async function collectAllCommissions(env) {
+  const db = env.DB;
+  if (!db) return;
+
+  let configs;
+  try {
+    configs = await db.prepare('SELECT * FROM exchange_api_configs WHERE is_active=1').all();
+  } catch { return; }
+
+  for (const config of (configs.results || [])) {
+    const startedAt = new Date().toISOString();
+    let logId;
+    try {
+      const lr = await db.prepare('INSERT INTO collection_logs (exchange,started_at,status) VALUES (?,?,?)').bind(config.exchange, startedAt, 'running').run();
+      logId = lr.meta.last_row_id;
+    } catch { logId = null; }
+
+    try {
+      let result = { fetched: 0, inserted: 0 };
+      if (config.exchange === 'Bitget') result = await collectBitgetCommissions(env, config);
+      else if (config.exchange === 'OKX') result = await collectOKXCommissions(env, config);
+      else if (config.exchange === 'Gate.io') result = await collectGateCommissions(env, config);
+
+      await db.prepare("UPDATE exchange_api_configs SET last_sync=datetime('now'), last_sync_status='success', updated_at=datetime('now') WHERE id=?").bind(config.id).run();
+      if (logId) await db.prepare("UPDATE collection_logs SET finished_at=datetime('now'), status='success', records_fetched=?, records_new=? WHERE id=?").bind(result.fetched, result.inserted, logId).run();
+    } catch (err) {
+      await db.prepare("UPDATE exchange_api_configs SET last_sync_status=?, updated_at=datetime('now') WHERE id=?").bind('error: ' + err.message, config.id).run();
+      if (logId) await db.prepare("UPDATE collection_logs SET finished_at=datetime('now'), status='error', error_message=? WHERE id=?").bind(err.message, logId).run();
+    }
+  }
+
+  try { await aggregateCommissionSummaries(env); } catch (e) { console.error('Aggregate error:', e); }
+}
+
+// ── 수동 수집 트리거 ─────────────────────────────────────────────────────────
+
+async function handleCollectTrigger(request, env) {
+  if (!checkAuth(request, env)) return ajson({ error: '인증 필요' }, 401);
+  try {
+    await collectAllCommissions(env);
+    return ajson({ ok: true, message: '수집 완료' });
+  } catch (err) {
+    return ajson({ error: '수집 실패: ' + err.message }, 500);
+  }
+}
+
+// ── 커미션 관리 API (어드민) ─────────────────────────────────────────────────
+
+async function handleAdminCommissions(request, env, url) {
+  if (!checkAuth(request, env)) return ajson({ error: '인증 필요' }, 401);
+  const db = env.DB;
+  if (!db) return ajson({ error: 'DB 미연결' }, 500);
+
+  // GET /api/admin/commissions
+  if (url.pathname === '/api/admin/commissions' && request.method === 'GET') {
+    const ex = url.searchParams.get('exchange') || '';
+    const uid = url.searchParams.get('uid') || '';
+    const from = url.searchParams.get('from') || '';
+    const to = url.searchParams.get('to') || '';
+    const page = parseInt(url.searchParams.get('page') || '1');
+    const limit = Math.min(parseInt(url.searchParams.get('limit') || '50'), 200);
+    const offset = (page - 1) * limit;
+
+    let where = '1=1';
+    const vals = [];
+    if (ex) { where += ' AND exchange=?'; vals.push(ex); }
+    if (uid) { where += ' AND invitee_uid LIKE ?'; vals.push('%' + uid + '%'); }
+    if (from) { where += ' AND commission_time>=?'; vals.push(from); }
+    if (to) { where += ' AND commission_time<=?'; vals.push(to); }
+
+    const total = await db.prepare(`SELECT COUNT(*) as cnt FROM commissions WHERE ${where}`).bind(...vals).first();
+    vals.push(limit, offset);
+    const r = await db.prepare(`SELECT * FROM commissions WHERE ${where} ORDER BY commission_time DESC LIMIT ? OFFSET ?`).bind(...vals).all();
+    return ajson({ commissions: r.results || [], total: total?.cnt || 0, page, limit });
+  }
+
+  // GET /api/admin/commission-summaries
+  if (url.pathname === '/api/admin/commission-summaries' && request.method === 'GET') {
+    const month = url.searchParams.get('month') || '';
+    const ex = url.searchParams.get('exchange') || '';
+    const st = url.searchParams.get('status') || '';
+
+    let where = '1=1';
+    const vals = [];
+    if (month) { where += ' AND cs.month=?'; vals.push(month); }
+    if (ex) { where += ' AND cs.exchange=?'; vals.push(ex); }
+    if (st) { where += ' AND cs.settlement_status=?'; vals.push(st); }
+
+    const r = await db.prepare(`
+      SELECT cs.*, u.nickname, u.uid, u.exchange as user_exchange
+      FROM commission_summaries cs
+      LEFT JOIN users u ON u.id = cs.user_id
+      WHERE ${where}
+      ORDER BY cs.month DESC, cs.exchange, u.nickname
+    `).bind(...vals).all();
+    return ajson({ summaries: r.results || [] });
+  }
+
+  // POST /api/admin/commission-summaries/:id/settle
+  const settleMatch = url.pathname.match(/^\/api\/admin\/commission-summaries\/(\d+)\/settle$/);
+  if (settleMatch && request.method === 'POST') {
+    const csId = parseInt(settleMatch[1]);
+    const cs = await db.prepare('SELECT cs.*, u.uid, u.exchange as user_exchange FROM commission_summaries cs LEFT JOIN users u ON u.id=cs.user_id WHERE cs.id=?').bind(csId).first();
+    if (!cs) return ajson({ error: '요약 없음' }, 404);
+    if (cs.settlement_status === 'settled') return ajson({ error: '이미 정산됨' }, 400);
+
+    const sr = await db.prepare(
+      'INSERT INTO settlements (user_id,exchange,month,volume,fee,payback_amount,status) VALUES (?,?,?,?,?,?,?)'
+    ).bind(cs.user_id, cs.exchange, cs.month, cs.total_volume || 0, cs.total_fee, cs.user_commission, 'pending').run();
+
+    await db.prepare("UPDATE commission_summaries SET settlement_status='settled', settlement_id=? WHERE id=?").bind(sr.meta.last_row_id, csId).run();
+    return ajson({ ok: true, settlement_id: sr.meta.last_row_id });
+  }
+
+  // GET /api/admin/collection-logs
+  if (url.pathname === '/api/admin/collection-logs' && request.method === 'GET') {
+    const r = await db.prepare('SELECT * FROM collection_logs ORDER BY started_at DESC LIMIT 50').all();
+    return ajson({ logs: r.results || [] });
+  }
+
+  return ajson({ error: '알 수 없는 경로' }, 404);
+}
+
+// ── 자동출금 실행 ────────────────────────────────────────────────────────────
+
+async function executeAutoWithdrawal(env, withdrawal) {
+  const db = env.DB;
+  const sourceEx = withdrawal.source_exchange || 'Bitget';
+  const config = await db.prepare('SELECT * FROM exchange_api_configs WHERE exchange=? AND is_active=1').bind(sourceEx).first();
+  if (!config) throw new Error(sourceEx + ' API 설정이 없거나 비활성 상태입니다');
+
+  const apiKey = await decryptValue(config.api_key_enc, env);
+  const apiSecret = await decryptValue(config.api_secret_enc, env);
+  const passphrase = await decryptValue(config.passphrase_enc, env);
+
+  if (sourceEx === 'Bitget') {
+    const body = JSON.stringify({
+      coin: 'USDT', transferType: 'on_chain', chain: 'TRC20',
+      address: withdrawal.wallet_address, size: String(withdrawal.amount),
+      clientOid: '1pct_' + withdrawal.id + '_' + Date.now()
+    });
+    const path = '/api/v2/spot/wallet/withdrawal';
+    const headers = await buildBitgetHeaders(apiKey, apiSecret, passphrase, 'POST', path, '', body);
+    const r = await fetch('https://api.bitget.com' + path, { method: 'POST', headers, body });
+    const d = await r.json();
+    if (d.code && d.code !== '00000') throw new Error('Bitget 출금 실패: ' + (d.msg || JSON.stringify(d)));
+    return { tx_id: d.data?.orderId || d.data?.id || '', exchange_data: d };
+  }
+
+  if (sourceEx === 'OKX') {
+    const body = JSON.stringify({
+      ccy: 'USDT', amt: String(withdrawal.amount), dest: '4',
+      toAddr: withdrawal.wallet_address, chain: 'USDT-TRC20', fee: '1'
+    });
+    const path = '/api/v5/asset/withdrawal';
+    const headers = await buildOKXHeaders(apiKey, apiSecret, passphrase, 'POST', path, body);
+    const r = await fetch('https://www.okx.com' + path, { method: 'POST', headers, body });
+    const d = await r.json();
+    if (d.code !== '0') throw new Error('OKX 출금 실패: ' + (d.msg || JSON.stringify(d)));
+    return { tx_id: d.data?.[0]?.wdId || '', exchange_data: d };
+  }
+
+  if (sourceEx === 'Gate.io') {
+    const body = JSON.stringify({
+      currency: 'USDT', amount: String(withdrawal.amount),
+      address: withdrawal.wallet_address, chain: 'TRX'
+    });
+    const path = '/api/v4/withdrawals';
+    const headers = await buildGateHeaders(apiKey, apiSecret, 'POST', path, '', body);
+    const r = await fetch('https://api.gateio.ws' + path, { method: 'POST', headers, body });
+    const d = await r.json();
+    if (d.id === undefined && d.message) throw new Error('Gate.io 출금 실패: ' + d.message);
+    return { tx_id: d.txid || String(d.id || ''), exchange_data: d };
+  }
+
+  throw new Error('지원하지 않는 거래소: ' + sourceEx);
+}
+
+async function handleAutoWithdrawal(request, env, url) {
+  if (!checkAuth(request, env)) return ajson({ error: '인증 필요' }, 401);
+  const db = env.DB;
+  if (!db) return ajson({ error: 'DB 미연결' }, 500);
+
+  const match = url.pathname.match(/\/api\/admin\/withdrawals\/(\d+)\/auto-send/);
+  if (!match) return ajson({ error: '잘못된 경로' }, 400);
+  const wId = parseInt(match[1]);
+
+  const withdrawal = await db.prepare('SELECT * FROM withdrawals WHERE id=?').bind(wId).first();
+  if (!withdrawal) return ajson({ error: '출금 요청 없음' }, 404);
+  if (withdrawal.status !== 'pending' && withdrawal.status !== 'processing') {
+    return ajson({ error: '처리할 수 없는 상태: ' + withdrawal.status }, 400);
+  }
+
+  await db.prepare("UPDATE withdrawals SET status='processing' WHERE id=?").bind(wId).run();
+
+  try {
+    const body = await request.json().catch(() => ({}));
+    if (body.source_exchange) {
+      await db.prepare("UPDATE withdrawals SET source_exchange=? WHERE id=?").bind(body.source_exchange, wId).run();
+      withdrawal.source_exchange = body.source_exchange;
+    }
+
+    const result = await executeAutoWithdrawal(env, withdrawal);
+    await db.prepare(
+      "UPDATE withdrawals SET status='completed', auto_sent=1, exchange_withdraw_id=?, tx_hash=?, processed_at=datetime('now') WHERE id=?"
+    ).bind(result.tx_id, result.tx_id, wId).run();
+    return ajson({ ok: true, tx_id: result.tx_id });
+  } catch (err) {
+    await db.prepare("UPDATE withdrawals SET status='pending' WHERE id=?").bind(wId).run();
+    return ajson({ error: err.message }, 500);
+  }
+}
+
+// ── 마이페이지 커미션 API ────────────────────────────────────────────────────
+// (handleMypage 함수에 추가할 라우트 - 아래에서 기존 함수에 패치)

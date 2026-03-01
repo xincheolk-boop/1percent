@@ -7,230 +7,610 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-primary: #0a0a0f;
-            --bg-secondary: #111118;
-            --bg-card: #16161f;
-            --bg-card-hover: #1c1c28;
-            --accent-cyan: #00b8d9;
-            --accent-purple: #9333ea;
-            --accent-green: #009985;
-            --accent-red: #dc2626;
-            --text-primary: #ffffff;
-            --text-secondary: #9ca3af;
-            --text-muted: #6b7280;
-            --border-color: rgba(255,255,255,0.08);
+        :root{--bg:#0a0a0f;--bg2:#111118;--card:#16161f;--card-h:#1c1c28;--cyan:#00b8d9;--purple:#9333ea;--green:#00D4A0;--red:#dc2626;--yellow:#f59e0b;--txt:#fff;--txt2:#9ca3af;--txt3:#6b7280;--border:rgba(255,255,255,0.08)}
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh}
+
+        /* 헤더 */
+        .top-bar{position:fixed;top:0;left:0;right:0;height:56px;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:1000}
+        .back-btn{display:flex;align-items:center;gap:6px;color:var(--txt2);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:8px;transition:all .2s}
+        .back-btn:hover{color:var(--cyan);background:var(--card)}
+        .top-title{margin-left:16px;font-family:'Orbitron',monospace;font-size:16px;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+        /* 네비게이션 */
+        .nav-bar{position:fixed;top:56px;left:0;right:0;height:40px;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:2px;padding:0 16px;z-index:999;overflow-x:auto;scrollbar-width:none}
+        .nav-bar::-webkit-scrollbar{display:none}
+        .nav-bar .nv{padding:6px 14px;color:var(--txt3);font-size:13px;font-weight:500;cursor:pointer;border-radius:6px;transition:all .2s;white-space:nowrap;text-decoration:none}
+        .nav-bar .nv:hover{color:var(--txt);background:var(--card)}
+        .nav-bar .nv.active{color:var(--cyan);background:rgba(0,184,217,0.1)}
+        .nav-bar .nv.ev{color:#f59e0b}.nav-bar .nv.ev::before{content:'🎁 '}
+
+        .wrap{max-width:1100px;margin:0 auto;padding:116px 24px 60px}
+
+        /* ===== 히어로 ===== */
+        .hero{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center;margin-bottom:60px}
+        .hero-left h1{font-size:32px;font-weight:800;line-height:1.4;margin-bottom:16px}
+        .hero-left h1 span{background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .hero-left p{font-size:15px;color:var(--txt2);line-height:1.7;margin-bottom:28px}
+        .hero-exchanges{display:flex;flex-wrap:wrap;gap:14px 18px;margin-top:8px}
+        .hero-ex{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:all .3s;text-decoration:none}
+        .hero-ex:hover{transform:translateY(-3px)}
+        .hero-ex.active .hex-icon{border-color:var(--cyan);box-shadow:0 0 14px rgba(0,184,217,0.3)}
+        .hero-ex.soon{opacity:.3;cursor:default;pointer-events:none}
+        .hero-ex.soon:hover{transform:none}
+        .hex-icon{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;border:2px solid var(--border);transition:all .3s;overflow:hidden}
+        .hero-ex:hover .hex-icon{border-color:rgba(255,255,255,0.25)}
+        .hex-icon img{width:100%;height:100%;object-fit:cover}
+        .hex-name{font-size:11px;color:var(--txt3);font-weight:500}
+        .hero-ex.active .hex-name{color:var(--txt)}
+        .hero-red{color:var(--red);-webkit-text-fill-color:var(--red)}
+
+        /* ===== 계산기 카드 ===== */
+        .calc-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;box-shadow:0 8px 40px rgba(0,0,0,0.4)}
+        .calc-logo{text-align:center;margin-bottom:20px}
+        .calc-logo span{font-family:'Orbitron',monospace;font-size:20px;font-weight:800;color:var(--cyan)}
+        .calc-group{margin-bottom:18px}
+        .calc-label{font-size:13px;color:var(--txt2);margin-bottom:8px;font-weight:500}
+        .calc-select,.calc-input{width:100%;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--txt);font-size:15px;font-family:'Orbitron',monospace;font-weight:600;outline:none;transition:border-color .2s;text-align:center}
+        .calc-select:focus,.calc-input:focus{border-color:var(--cyan)}
+        .calc-select option{background:var(--bg)}
+
+        /* 버튼 그룹 (배율, 횟수) */
+        .btn-group{display:flex;gap:6px;flex-wrap:wrap}
+        .btn-group .bg{flex:1;min-width:50px;padding:10px 6px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--txt2);font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit}
+        .btn-group .bg:hover{border-color:var(--txt3);color:var(--txt)}
+        .btn-group .bg.on{background:var(--cyan);border-color:var(--cyan);color:#000;font-weight:700}
+
+        /* 결과 */
+        .calc-result{background:var(--bg);border-radius:12px;padding:20px;margin-top:20px}
+        .calc-result-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+        .calc-result-row+.calc-result-row{border-top:1px solid var(--border)}
+        .calc-result-label{font-size:13px;color:var(--txt2);font-weight:500}
+        .calc-result-val{font-family:'Orbitron',monospace;font-size:16px;font-weight:700}
+        .calc-result-val.big{font-size:22px;color:var(--cyan)}
+        .calc-result-val.green{color:var(--green)}
+        .calc-note{font-size:11px;color:var(--txt3);margin-top:12px;text-align:center}
+        .calc-cta{display:block;width:100%;padding:16px;margin-top:16px;background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;border-radius:12px;color:#000;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none;text-align:center}
+        .calc-cta:hover{opacity:.9;transform:translateY(-2px)}
+
+        /* ===== 섹션 공통 ===== */
+        .section{margin-bottom:48px}
+        .section-title{font-size:22px;font-weight:800;margin-bottom:24px;display:flex;align-items:center;gap:10px}
+
+        /* ===== 작동 방식 ===== */
+        .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+        .step{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px 20px;text-align:center;transition:transform .2s}
+        .step:hover{transform:translateY(-3px)}
+        .step-num{width:36px;height:36px;margin:0 auto 12px;border-radius:50%;background:linear-gradient(135deg,var(--cyan),var(--purple));display:flex;align-items:center;justify-content:center;font-family:'Orbitron',monospace;font-size:14px;font-weight:800;color:#000}
+        .step-title{font-size:15px;font-weight:700;margin-bottom:6px}
+        .step-desc{font-size:13px;color:var(--txt2);line-height:1.6}
+
+        /* ===== 강점 ===== */
+        .adv-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+        .adv{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 20px;transition:border-color .2s}
+        .adv:hover{border-color:rgba(0,184,217,0.3)}
+        .adv-icon{font-size:28px;margin-bottom:10px}
+        .adv-title{font-size:15px;font-weight:700;margin-bottom:6px}
+        .adv-desc{font-size:13px;color:var(--txt2);line-height:1.6}
+        .adv-highlight{color:var(--cyan);font-weight:700}
+
+        /* ===== 거래소 비교 ===== */
+        .cmp-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+        .cmp-table th,.cmp-table td{padding:14px 16px;text-align:center;font-size:13px}
+        .cmp-table thead{background:var(--bg2);border-bottom:1px solid var(--border)}
+        .cmp-table th{color:var(--txt3);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
+        .cmp-table tbody tr{border-bottom:1px solid var(--border)}
+        .cmp-table tbody tr:last-child{border-bottom:none}
+        .cmp-table td:first-child{font-weight:700;text-align:left}
+        .cmp-best{color:var(--cyan);font-weight:800}
+        .cmp-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;background:var(--cyan);color:#000;margin-left:4px}
+
+        /* ===== 실시간 피드 ===== */
+        .feed-list{display:flex;flex-direction:column;gap:8px}
+        .feed-item{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--card);border:1px solid var(--border);border-radius:12px;animation:feedIn .5s ease}
+        @keyframes feedIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+        .feed-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+        .feed-user{font-size:13px;font-weight:600;flex:1}
+        .feed-amount{font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:var(--green)}
+        .feed-ex{font-size:11px;color:var(--txt3);background:var(--bg);padding:3px 8px;border-radius:4px}
+        .feed-time{font-size:11px;color:var(--txt3)}
+
+        /* ===== 가이드 박스 ===== */
+        .guide-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        .guide-box{display:flex;align-items:center;gap:16px;padding:22px 20px;background:var(--card);border:1px solid var(--border);border-radius:14px;text-decoration:none;color:var(--txt);transition:all .2s}
+        .guide-box:hover{border-color:rgba(0,184,217,0.3);transform:translateY(-2px)}
+        .guide-icon{font-size:32px;flex-shrink:0}
+        .guide-text{flex:1;min-width:0}
+        .guide-title{font-size:15px;font-weight:700;margin-bottom:4px}
+        .guide-desc{font-size:12px;color:var(--txt2);line-height:1.5}
+        .guide-arrow{font-size:18px;color:var(--txt3);flex-shrink:0;transition:transform .2s}
+        .guide-box:hover .guide-arrow{transform:translateX(4px);color:var(--cyan)}
+
+        /* ===== FAQ ===== */
+        .faq-list{display:flex;flex-direction:column;gap:8px}
+        .faq-item{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+        .faq-q{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .2s}
+        .faq-q:hover{background:var(--card-h)}
+        .faq-q-text{font-size:14px;font-weight:600}
+        .faq-arrow{font-size:12px;color:var(--txt3);transition:transform .3s}
+        .faq-item.open .faq-arrow{transform:rotate(180deg)}
+        .faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease}
+        .faq-item.open .faq-a{max-height:300px}
+        .faq-a-inner{padding:0 20px 16px;font-size:13px;color:var(--txt2);line-height:1.7;border-top:1px solid var(--border);padding-top:14px}
+        .faq-a-inner a{color:var(--cyan);text-decoration:none}
+        .faq-more{margin-top:14px;text-align:center}
+        .faq-more a{color:var(--txt3);font-size:13px;text-decoration:none;transition:color .2s}
+        .faq-more a:hover{color:var(--cyan)}
+
+        /* 푸터 */
+        .footer{padding:40px 0 24px;border-top:1px solid var(--border)}
+        .footer-copy{text-align:center;font-size:12px;color:var(--txt3);margin-bottom:24px}
+        .footer a{color:var(--txt2);text-decoration:none}
+        .disclaimers{padding-top:20px;border-top:1px solid var(--border)}
+        .disclaimers-title{font-size:11px;color:var(--txt3);font-weight:600;margin-bottom:10px}
+        .disclaimers ul{list-style:none;padding:0;margin:0}
+        .disclaimers li{font-size:10px;color:var(--txt3);line-height:1.9;padding-left:10px;position:relative;opacity:.7}
+        .disclaimers li::before{content:'·';position:absolute;left:0;font-weight:700}
+
+        /* ===== 명예의전당 (Reward Top List) ===== */
+        .rtop{margin-bottom:48px}
+        .rtop-title{font-size:22px;font-weight:800;margin-bottom:16px}
+        .rtop-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+        .rtop-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px 16px 20px;text-align:center;transition:all .2s;cursor:default}
+        .rtop-card:hover{border-color:rgba(255,255,255,0.15);transform:translateY(-2px)}
+        .rtop-card.gold{border-color:rgba(255,215,0,0.35);background:rgba(255,215,0,0.03)}
+        .rtop-card.gold:hover{border-color:rgba(255,215,0,0.5)}
+        .rtop-emblem{width:56px;height:56px;margin:0 auto 12px}
+        .rtop-emblem img{width:100%;height:100%;object-fit:contain}
+        .rtop-card.gold .rtop-emblem img{filter:drop-shadow(0 0 10px rgba(255,215,0,0.25))}
+        .rtop-rank{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;color:var(--txt3);margin-bottom:2px}
+        .rtop-card.gold .rtop-rank{color:#ffd700}
+        .rtop-card:nth-child(2) .rtop-rank{color:#ff6b6b}
+        .rtop-card:nth-child(3) .rtop-rank{color:#7db8ff}
+        .rtop-name{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:#fff;margin-bottom:4px}
+        .rtop-ex{font-size:12px;color:var(--txt3);margin-bottom:14px}
+        .rtop-amt{font-family:'Orbitron',monospace;font-size:16px;font-weight:700;padding:8px 16px;border-radius:8px;display:inline-block}
+        .rtop-card.gold .rtop-amt{color:#ffd700;background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2)}
+        .rtop-card:nth-child(2) .rtop-amt{color:#ff6b6b;background:rgba(220,50,50,0.06);border:1px solid rgba(220,50,50,0.15)}
+        .rtop-card:nth-child(3) .rtop-amt{color:#7db8ff;background:rgba(100,160,255,0.06);border:1px solid rgba(100,160,255,0.15)}
+        .rtop-amt span{font-size:11px;font-weight:400;opacity:.5;margin-left:3px}
+
+        /* 반응형 */
+        @media(max-width:768px){
+            .rtop-grid{grid-template-columns:1fr}
+            .hero{grid-template-columns:1fr;gap:24px}
+            .hero-left h1{font-size:24px}
+            .steps{grid-template-columns:1fr}
+            .adv-grid{grid-template-columns:1fr}
+            .guide-grid{grid-template-columns:1fr}
+            .cmp-table{font-size:12px}
+            .cmp-table th,.cmp-table td{padding:10px 8px}
+            .wrap{padding:116px 14px 40px}
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Noto Sans KR', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-        }
-        .top-bar {
-            position: fixed; top: 0; left: 0; right: 0; height: 56px;
-            background: rgba(10,10,15,0.95); backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-color);
-            display: flex; align-items: center; padding: 0 24px; z-index: 1000;
-        }
-        .back-btn {
-            display: flex; align-items: center; gap: 6px;
-            color: var(--text-secondary); text-decoration: none; font-size: 14px;
-            padding: 8px 12px; border-radius: 8px; transition: all 0.2s;
-        }
-        .back-btn:hover { color: var(--accent-cyan); background: var(--bg-card); }
-        .top-title {
-            margin-left: 16px; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700;
-            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-        .container { max-width: 600px; margin: 0 auto; padding: 80px 24px 40px; }
-        .page-header { text-align: center; margin-bottom: 32px; }
-        .page-header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
-        .page-header p { font-size: 14px; color: var(--text-secondary); }
-        .calc-card {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: 16px; padding: 28px; margin-bottom: 24px;
-        }
-        .calc-group { margin-bottom: 20px; }
-        .calc-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
-        .calc-select, .calc-input {
-            width: 100%; padding: 12px 16px;
-            background: var(--bg-primary); border: 1px solid var(--border-color);
-            border-radius: 10px; color: var(--text-primary);
-            font-size: 14px; font-family: inherit; outline: none;
-            transition: border-color 0.2s;
-        }
-        .calc-select:focus, .calc-input:focus { border-color: var(--accent-cyan); }
-        .calc-select option { background: var(--bg-primary); }
-        .calc-row { display: flex; gap: 12px; }
-        .calc-row .calc-group { flex: 1; }
-        .calc-btn {
-            width: 100%; padding: 14px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border: none; border-radius: 10px;
-            color: #000; font-size: 15px; font-weight: 700;
-            cursor: pointer; transition: all 0.2s; font-family: inherit;
-        }
-        .calc-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-        .result-card {
-            background: var(--bg-card); border: 1px solid var(--border-color);
-            border-radius: 16px; padding: 28px; text-align: center;
-            display: none;
-        }
-        .result-card.show { display: block; }
-        .result-label { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
-        .result-value {
-            font-family: 'Orbitron', monospace; font-size: 32px; font-weight: 800;
-            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            margin-bottom: 4px;
-        }
-        .result-sub { font-size: 13px; color: var(--text-secondary); }
-        .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
-        .result-item {
-            background: var(--bg-primary); border-radius: 10px; padding: 16px; text-align: center;
-        }
-        .result-item-label { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-        .result-item-value { font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 700; }
-        .result-item-value.cyan { color: var(--accent-cyan); }
-        .result-item-value.purple { color: var(--accent-purple); }
-        .result-item-value.green { color: var(--accent-green); }
-        .result-item-value.red { color: var(--accent-red); }
-        .info-box {
-            margin-top: 24px; padding: 20px;
-            background: rgba(0,184,217,0.05); border: 1px solid rgba(0,184,217,0.15);
-            border-radius: 12px;
-        }
-        .info-box h3 { font-size: 14px; margin-bottom: 12px; color: var(--accent-cyan); }
-        .info-box ul { list-style: none; }
-        .info-box li {
-            font-size: 13px; color: var(--text-secondary); padding: 6px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .info-box li:last-child { border-bottom: none; }
-        .info-box li strong { color: var(--text-primary); }
-        @media (max-width: 600px) {
-            .container { padding: 72px 12px 32px; }
-            .calc-card { padding: 20px 16px; }
-            .calc-row { flex-direction: column; gap: 0; }
-            .result-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .result-value { font-size: 26px; }
-            .result-card { padding: 20px 16px; }
+        @media(max-width:480px){
+            .hero-left h1{font-size:20px}
+            .calc-card{padding:20px 16px}
         }
     </style>
 </head>
 <body>
     <div class="top-bar">
-        <a href="index.html" class="back-btn">&larr; 돌아가기</a>
-        <span class="top-title">1% TRADING</span>
+        <a href="index.html" class="back-btn">&larr;</a>
+        <a href="index.html" class="top-title" style="text-decoration:none">1% TRADING</a>
     </div>
 
-    <div class="container">
-        <div class="page-header">
-            <h1>💰 리워드 계산기</h1>
-            <p>나의 거래량으로 예상 Reward를 계산해보세요</p>
-        </div>
+    <div class="nav-bar">
+        <a class="nv" href="index.html">홈</a>
+        <a class="nv" href="contract/liquidation.html">계약데이터</a>
+        <a class="nv" href="#">CFD</a>
+        <a class="nv" href="kimp.html">김프</a>
+        <a class="nv" href="news.html">뉴스</a>
+        <a class="nv" href="exchanges.html">거래소</a>
+        <a class="nv active" href="rewards.html">리워드</a>
+        <a class="nv" href="community.html">커뮤니티</a>
+        <a class="nv ev" href="events.html">이벤트</a>
+    </div>
 
-        <div class="calc-card">
-            <div class="calc-group">
-                <div class="calc-label">거래소 선택</div>
-                <select class="calc-select" id="calcExchange" onchange="updateCalc()">
-                    <option value="bitget">Bitget (85% Reward)</option>
-                    <option value="okx">OKX (50% Reward)</option>
-                    <option value="gate">Gate.io (70% Reward)</option>
-                </select>
-            </div>
-            <div class="calc-row">
-                <div class="calc-group">
-                    <div class="calc-label">일 평균 거래량 (USDT)</div>
-                    <input type="number" class="calc-input" id="calcVolume" placeholder="10000" value="10000" oninput="updateCalc()">
-                </div>
-                <div class="calc-group">
-                    <div class="calc-label">주문 유형</div>
-                    <select class="calc-select" id="calcOrderType" onchange="updateCalc()">
-                        <option value="maker">지정가 (Maker)</option>
-                        <option value="taker">시장가 (Taker)</option>
-                        <option value="mixed">혼합 (50:50)</option>
-                    </select>
-                </div>
-            </div>
-            <button class="calc-btn" onclick="showResult()">Reward 계산하기</button>
-        </div>
+    <div class="wrap">
 
-        <div class="result-card" id="resultCard">
-            <div class="result-label">예상 월간 Reward</div>
-            <div class="result-value" id="monthlyReward">$0.00</div>
-            <div class="result-sub" id="resultDesc">Bitget 85% Reward 기준</div>
-            <div class="result-grid">
-                <div class="result-item">
-                    <div class="result-item-label">일간 수수료</div>
-                    <div class="result-item-value cyan" id="dailyFee">$0.00</div>
+        <!-- ===== Reward Top List (명예의전당) ===== -->
+        <div class="rtop">
+            <div class="rtop-title">Reward Top List</div>
+            <div class="rtop-grid">
+                <div class="rtop-card gold">
+                    <div class="rtop-emblem"><img src="img/emblem-challenger.png" alt="Challenger"></div>
+                    <div class="rtop-rank">1st</div>
+                    <div class="rtop-name">tra***21</div>
+                    <div class="rtop-ex">Bitget</div>
+                    <div class="rtop-amt">4,281.50<span>USDT</span></div>
                 </div>
-                <div class="result-item">
-                    <div class="result-item-label">일간 Reward</div>
-                    <div class="result-item-value green" id="dailyReward">$0.00</div>
+                <div class="rtop-card">
+                    <div class="rtop-emblem"><img src="img/emblem-grandmaster.png" alt="Grandmaster"></div>
+                    <div class="rtop-rank">2nd</div>
+                    <div class="rtop-name">kim***er</div>
+                    <div class="rtop-ex">Gate.io</div>
+                    <div class="rtop-amt">3,845.20<span>USDT</span></div>
                 </div>
-                <div class="result-item">
-                    <div class="result-item-label">월간 수수료</div>
-                    <div class="result-item-value purple" id="monthlyFee">$0.00</div>
-                </div>
-                <div class="result-item">
-                    <div class="result-item-label">연간 Reward</div>
-                    <div class="result-item-value red" id="yearlyReward">$0.00</div>
+                <div class="rtop-card">
+                    <div class="rtop-emblem"><img src="img/emblem-diamond.png" alt="Diamond"></div>
+                    <div class="rtop-rank">3rd</div>
+                    <div class="rtop-name">cry***88</div>
+                    <div class="rtop-ex">Bitget</div>
+                    <div class="rtop-amt">2,156.80<span>USDT</span></div>
                 </div>
             </div>
         </div>
 
-        <div class="info-box">
-            <h3>거래소별 수수료 & Reward율</h3>
-            <ul>
-                <li><strong>Bitget</strong> — 지정가 0.002% / 시장가 0.004% — <strong>Reward 85%</strong></li>
-                <li><strong>OKX</strong> — 지정가 0.004% / 시장가 0.01% — <strong>Reward 50%</strong></li>
-                <li><strong>Gate.io</strong> — 지정가 0.004% / 시장가 0.01% — <strong>Reward 70%</strong></li>
-            </ul>
+        <!-- ===== 히어로: 텍스트 + 계산기 ===== -->
+        <div class="hero">
+            <div class="hero-left">
+                <h1>거래할수록 쌓이는<br><span>수수료 환급</span>, 최대 <span class="hero-red">85%</span></h1>
+                <p>1% Trading 전용 코드로 가입하면 발생하는 수수료를 업계 최고 비율로 돌려받습니다. 같은 거래, 다른 결과.</p>
+                <div class="hero-exchanges">
+                    <div class="hero-ex active" onclick="selectEx('bitget')" id="hexBitget">
+                        <div class="hex-icon" style="background:#00b8d9"><img src="bitget-logo.png" alt="Bitget"></div>
+                        <span class="hex-name">Bitget</span>
+                    </div>
+                    <div class="hero-ex" onclick="selectEx('okx')" id="hexOkx">
+                        <div class="hex-icon" style="background:#000"><span style="font-size:16px;font-weight:900;letter-spacing:-1px">X</span></div>
+                        <span class="hex-name">OKX</span>
+                    </div>
+                    <div class="hero-ex" onclick="selectEx('gate')" id="hexGate">
+                        <div class="hex-icon" style="background:#2354e6"><img src="gate-logo.jpg" alt="Gate.io"></div>
+                        <span class="hex-name">Gate</span>
+                    </div>
+                    <div class="hero-ex soon">
+                        <div class="hex-icon" style="background:#f0b90b"><span style="color:#1e2329;font-size:18px">◆</span></div>
+                        <span class="hex-name">Binance</span>
+                    </div>
+                    <div class="hero-ex soon">
+                        <div class="hex-icon" style="background:#f7a600"><span style="color:#fff;font-size:11px">BY</span></div>
+                        <span class="hex-name">Bybit</span>
+                    </div>
+                    <div class="hero-ex soon">
+                        <div class="hex-icon" style="background:#2b5aed"><span style="font-size:14px">✕</span></div>
+                        <span class="hex-name">BingX</span>
+                    </div>
+                    <div class="hero-ex soon">
+                        <div class="hex-icon" style="background:#1972e2"><span style="font-size:14px">M</span></div>
+                        <span class="hex-name">MEXC</span>
+                    </div>
+                    <div class="hero-ex soon">
+                        <div class="hex-icon" style="background:#7c3aed"><span style="font-size:11px">BU</span></div>
+                        <span class="hex-name">Bitunix</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-right">
+                <div class="calc-card">
+                    <div class="calc-logo"><span id="calcExName">Bitget</span></div>
+                    <div class="calc-group">
+                        <div class="calc-label">주문 유형</div>
+                        <div class="btn-group" id="orderGroup">
+                            <div class="bg" onclick="setOrder('maker',this)">한계</div>
+                            <div class="bg on" onclick="setOrder('taker',this)">시장</div>
+                        </div>
+                    </div>
+                    <div class="calc-group">
+                        <div class="calc-label">레버리지</div>
+                        <div class="btn-group" id="levGroup">
+                            <div class="bg" onclick="setLev(1,this)">1배</div>
+                            <div class="bg" onclick="setLev(5,this)">5배</div>
+                            <div class="bg" onclick="setLev(10,this)">10배</div>
+                            <div class="bg" onclick="setLev(20,this)">20배</div>
+                            <div class="bg" onclick="setLev(50,this)">50배</div>
+                            <div class="bg on" onclick="setLev(100,this)">100배</div>
+                        </div>
+                    </div>
+                    <div class="calc-group">
+                        <div class="calc-label">초기 투자 금액 (USDT)</div>
+                        <input type="number" class="calc-input" id="calcSeed" value="10000" oninput="calc()">
+                    </div>
+                    <div class="calc-group">
+                        <div class="calc-label">일일 거래 건수</div>
+                        <div class="btn-group" id="tradeGroup">
+                            <div class="bg" onclick="setTrade(1,this)">1 회</div>
+                            <div class="bg" onclick="setTrade(5,this)">5 회</div>
+                            <div class="bg" onclick="setTrade(10,this)">10 회</div>
+                            <div class="bg on" onclick="setTrade(50,this)">50 회</div>
+                        </div>
+                    </div>
+
+                    <div class="calc-result">
+                        <div class="calc-result-row">
+                            <span class="calc-result-label">일일</span>
+                            <span class="calc-result-val green" id="rDaily">--</span>
+                        </div>
+                        <div class="calc-result-row">
+                            <span class="calc-result-label">월간 예상 리워드</span>
+                            <span class="calc-result-val big" id="rMonthly">--</span>
+                        </div>
+                    </div>
+                    <div class="calc-note">*실제 수수료는 주문 유형(메이커/테이커) 및 시장 상황에 따라 달라질 수 있습니다.</div>
+                    <a class="calc-cta" id="calcCta" href="bitget.html">Bitget에 연결하세요</a>
+                </div>
+            </div>
         </div>
+
+        <!-- ===== 작동 방식 ===== -->
+        <div class="section">
+            <div class="section-title">작동 방식</div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-num">1</div>
+                    <div class="step-title">가입</div>
+                    <div class="step-desc">1% Trading 전용 링크로<br>거래소에 가입합니다.</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">2</div>
+                    <div class="step-title">거래</div>
+                    <div class="step-desc">평소처럼 자유롭게<br>선물/현물 거래를 합니다.</div>
+                </div>
+                <div class="step">
+                    <div class="step-num">3</div>
+                    <div class="step-title">리워드 수령</div>
+                    <div class="step-desc">발생한 수수료의 최대 85%가<br>자동으로 적립됩니다.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 왜 1% Trading ===== -->
+        <div class="section">
+            <div class="section-title">왜 <span style="background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:'Orbitron',monospace">1% TRADING</span> 인가요</div>
+            <div class="adv-grid">
+                <div class="adv">
+                    <div class="adv-icon">🏆</div>
+                    <div class="adv-title">업계 최고 환급률</div>
+                    <div class="adv-desc">Bitget <span class="adv-highlight">85%</span>, Gate.io <span class="adv-highlight">70%</span>, OKX <span class="adv-highlight">50%</span> — 타 플랫폼 대비 평균 20%p 이상 높은 환급률을 제공합니다.</div>
+                </div>
+                <div class="adv">
+                    <div class="adv-icon">⚡</div>
+                    <div class="adv-title">자동 정산</div>
+                    <div class="adv-desc">별도 신청 없이 거래 즉시 리워드가 계산되어 정기적으로 자동 지급됩니다. 번거로운 절차가 없습니다.</div>
+                </div>
+                <div class="adv">
+                    <div class="adv-icon">🔒</div>
+                    <div class="adv-title">거래소 직접 연동</div>
+                    <div class="adv-desc">거래소 공식 레퍼럴 시스템을 통한 정식 환급입니다. 자금이 제3자를 거치지 않아 100% 안전합니다.</div>
+                </div>
+                <div class="adv">
+                    <div class="adv-icon">📊</div>
+                    <div class="adv-title">투명한 리포트</div>
+                    <div class="adv-desc">거래량, 수수료, 리워드 내역을 실시간으로 확인할 수 있습니다. 모든 데이터가 투명하게 공개됩니다.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 거래소 비교 ===== -->
+        <div class="section">
+            <div class="section-title">거래소별 비교</div>
+            <table class="cmp-table">
+                <thead>
+                    <tr><th>거래소</th><th>리워드율</th><th>Maker 수수료</th><th>Taker 수수료</th><th>상태</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Bitget <span class="cmp-badge">BEST</span></td>
+                        <td class="cmp-best">85%</td>
+                        <td>0.002%</td>
+                        <td>0.004%</td>
+                        <td style="color:var(--green)">활성</td>
+                    </tr>
+                    <tr>
+                        <td>Gate.io</td>
+                        <td class="cmp-best">70%</td>
+                        <td>0.004%</td>
+                        <td>0.01%</td>
+                        <td style="color:var(--green)">활성</td>
+                    </tr>
+                    <tr>
+                        <td>OKX</td>
+                        <td>50%</td>
+                        <td>0.004%</td>
+                        <td>0.01%</td>
+                        <td style="color:var(--green)">활성</td>
+                    </tr>
+                    <tr>
+                        <td>Bybit</td>
+                        <td style="color:var(--txt3)">—</td>
+                        <td>0.01%</td>
+                        <td>0.06%</td>
+                        <td style="color:var(--txt3)">준비중</td>
+                    </tr>
+                    <tr>
+                        <td>BingX</td>
+                        <td style="color:var(--txt3)">—</td>
+                        <td>0.02%</td>
+                        <td>0.05%</td>
+                        <td style="color:var(--txt3)">준비중</td>
+                    </tr>
+                    <tr>
+                        <td>MEXC</td>
+                        <td style="color:var(--txt3)">—</td>
+                        <td>0.01%</td>
+                        <td>0.04%</td>
+                        <td style="color:var(--txt3)">준비중</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ===== 실시간 리워드 피드 ===== -->
+        <div class="section">
+            <div class="section-title">실시간 리워드 현황</div>
+            <div class="feed-list" id="feedList"></div>
+        </div>
+
+        <!-- ===== 가이드 ===== -->
+        <div class="section">
+            <div class="section-title">가이드</div>
+            <div class="guide-grid">
+                <a class="guide-box" href="guide.html#new">
+                    <div class="guide-icon">🚀</div>
+                    <div class="guide-text">
+                        <div class="guide-title">신규 회원 가이드</div>
+                        <div class="guide-desc">처음이신가요? 가입부터 첫 거래까지 단계별로 안내해 드립니다.</div>
+                    </div>
+                    <span class="guide-arrow">→</span>
+                </a>
+                <a class="guide-box" href="guide.html#existing">
+                    <div class="guide-icon">🔄</div>
+                    <div class="guide-text">
+                        <div class="guide-title">기존 회원 가이드</div>
+                        <div class="guide-desc">이미 거래소 계정이 있으신가요? UID 연동 방법을 확인하세요.</div>
+                    </div>
+                    <span class="guide-arrow">→</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- ===== 자주 묻는 질문 ===== -->
+        <div class="section">
+            <div class="section-title">자주 묻는 질문</div>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-q-text">리워드(Reward)가 무엇인가요?</span>
+                        <span class="faq-arrow">▼</span>
+                    </div>
+                    <div class="faq-a"><div class="faq-a-inner">선물 거래 시 발생하는 수수료의 일부를 돌려받는 것입니다. 1% Trading 전용 코드로 가입하면, 거래할 때마다 수수료의 최대 85%를 환급받을 수 있습니다.</div></div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-q-text">이미 가입한 거래소도 리워드를 받을 수 있나요?</span>
+                        <span class="faq-arrow">▼</span>
+                    </div>
+                    <div class="faq-a"><div class="faq-a-inner">코드는 신규 가입 시에만 적용됩니다. 이미 가입한 계정에는 적용할 수 없습니다. 단, 새로운 이메일로 재가입이 가능한 거래소의 경우 새 계정을 만들어 사용할 수 있습니다.</div></div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-q-text">리워드는 어떻게 받나요?</span>
+                        <span class="faq-arrow">▼</span>
+                    </div>
+                    <div class="faq-a"><div class="faq-a-inner">거래소에서 발생한 수수료의 환급분이 주 단위로 정산됩니다. 정산된 금액은 거래소 계정으로 직접 입금되며, 텔레그램을 통해 알림을 받으실 수 있습니다.</div></div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-q-text">현물 거래도 리워드 대상인가요?</span>
+                        <span class="faq-arrow">▼</span>
+                    </div>
+                    <div class="faq-a"><div class="faq-a-inner">현재 리워드 프로그램은 <strong>선물(Futures) 거래</strong>에만 적용됩니다. 현물 거래는 리워드 대상이 아닙니다.</div></div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-q-text">추가 비용이 있나요?</span>
+                        <span class="faq-arrow">▼</span>
+                    </div>
+                    <div class="faq-a"><div class="faq-a-inner">아닙니다. <strong>완전 무료</strong>입니다. 별도의 비용이 발생하지 않으며, 기존 거래소 수수료에서 일정 비율을 돌려받는 구조입니다.</div></div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">
+                        <span class="faq-q-text">UID는 어디서 확인하나요?</span>
+                        <span class="faq-arrow">▼</span>
+                    </div>
+                    <div class="faq-a"><div class="faq-a-inner">거래소 앱 또는 웹에 로그인 후, 프로필/계정 설정에서 UID(고유 번호)를 확인할 수 있습니다. 거래소마다 위치가 다를 수 있으며, <a href="guide.html" style="color:var(--cyan)">이용 가이드</a>를 참고하세요.</div></div>
+                </div>
+            </div>
+            <div class="faq-more">
+                <a href="faq.html">전체 FAQ 보기 →</a>
+            </div>
+        </div>
+
+        <!-- 푸터 -->
+        <footer class="footer">
+            <div class="footer-copy">&copy; 2025 1% Trading. All rights reserved.</div>
+            <div class="disclaimers">
+                <div class="disclaimers-title">유의사항</div>
+                <ul>
+                    <li>당사는 투자를 권유하지 않으며, 실시간 정보와 데이터만 제공합니다.</li>
+                    <li>거래소 사정에 따라 리워드 환급 비율은 변경될 수 있습니다.</li>
+                    <li>당사 혹은 거래소의 사정으로 리워드 환급 조건은 변경될 수 있습니다.</li>
+                    <li>당사 혹은 거래소의 사정으로 제휴 관계는 언제든 종료될 수 있으며, 이후에는 리워드 서비스를 이용하기 어려울 수 있습니다.</li>
+                    <li>Bitget 거래소의 경우, KYC가 진행되지 않은 계정에 대해서는 리워드 출금이 진행되지 않습니다.</li>
+                    <li>거래소 규정에 위반되는 행위에 대한 커미션 중단 처리는 당사에게도 동일하게 적용됩니다.</li>
+                    <li>각 거래소의 규정과 정책을 참조해 주시기 바랍니다.</li>
+                    <li>당사의 코드로 가입한 거래소 계정을 탈퇴하거나 코드를 변경할 경우, 1% Trading에서의 리워드 환급 출금이 불가합니다.</li>
+                </ul>
+            </div>
+        </footer>
     </div>
 
     <script>
-        const feeData = {
-            bitget: { maker: 0.00002, taker: 0.00004, reward: 0.85, name: 'Bitget',  rate: '85%' },
-            okx:    { maker: 0.00004, taker: 0.0001,  reward: 0.50, name: 'OKX',     rate: '50%' },
-            gate:   { maker: 0.00004, taker: 0.0001,  reward: 0.70, name: 'Gate.io', rate: '70%' }
+        // 거래소 데이터
+        const EX = {
+            bitget: {maker:.00002, taker:.00004, reward:.85, name:'Bitget', link:'bitget.html'},
+            okx:    {maker:.00004, taker:.0001,  reward:.50, name:'OKX',    link:'okx.html'},
+            gate:   {maker:.00004, taker:.0001,  reward:.70, name:'Gate.io',link:'gate.html'}
         };
 
-        function updateCalc() {
-            const card = document.getElementById('resultCard');
-            if (card.classList.contains('show')) showResult();
+        let curEx = 'bitget', curOrder = 'taker', curLev = 100, curTrade = 50;
+
+        function selectEx(id) {
+            if (!EX[id]) return;
+            curEx = id;
+            document.querySelectorAll('.hero-ex').forEach(e => e.classList.remove('active'));
+            const el = document.getElementById('hex' + id.charAt(0).toUpperCase() + id.slice(1));
+            if (el) el.classList.add('active');
+            document.getElementById('calcExName').textContent = EX[id].name;
+            document.getElementById('calcCta').textContent = EX[id].name + '에 연결하세요';
+            document.getElementById('calcCta').href = EX[id].link;
+            calc();
         }
 
-        function showResult() {
-            const exchange = document.getElementById('calcExchange').value;
-            const volume = parseFloat(document.getElementById('calcVolume').value) || 0;
-            const orderType = document.getElementById('calcOrderType').value;
-            const data = feeData[exchange];
+        function setOrder(v, el) {
+            curOrder = v;
+            el.parentNode.querySelectorAll('.bg').forEach(b => b.classList.remove('on'));
+            el.classList.add('on');
+            calc();
+        }
+        function setLev(v, el) {
+            curLev = v;
+            el.parentNode.querySelectorAll('.bg').forEach(b => b.classList.remove('on'));
+            el.classList.add('on');
+            calc();
+        }
+        function setTrade(v, el) {
+            curTrade = v;
+            el.parentNode.querySelectorAll('.bg').forEach(b => b.classList.remove('on'));
+            el.classList.add('on');
+            calc();
+        }
 
-            let feeRate;
-            if (orderType === 'maker') feeRate = data.maker;
-            else if (orderType === 'taker') feeRate = data.taker;
-            else feeRate = (data.maker + data.taker) / 2;
-
+        function calc() {
+            const data = EX[curEx];
+            if (!data) return;
+            const seed = parseFloat(document.getElementById('calcSeed').value) || 0;
+            const feeRate = curOrder === 'maker' ? data.maker : curOrder === 'taker' ? data.taker : (data.maker + data.taker) / 2;
+            const volume = seed * curLev * curTrade;
             const dailyFee = volume * feeRate;
-            const dailyRwd = dailyFee * data.reward;
-            const monthlyFee = dailyFee * 30;
-            const monthlyRwd = dailyRwd * 30;
-            const yearlyRwd = dailyRwd * 365;
+            const dailyReward = dailyFee * data.reward;
+            const monthlyReward = dailyReward * 30;
 
-            document.getElementById('dailyFee').textContent = '$' + dailyFee.toFixed(2);
-            document.getElementById('dailyReward').textContent = '$' + dailyRwd.toFixed(2);
-            document.getElementById('monthlyFee').textContent = '$' + monthlyFee.toFixed(2);
-            document.getElementById('monthlyReward').textContent = '$' + monthlyRwd.toFixed(2);
-            document.getElementById('yearlyReward').textContent = '$' + yearlyRwd.toFixed(2);
-            document.getElementById('resultDesc').textContent = data.name + ' ' + data.rate + ' Reward 기준';
-
-            document.getElementById('resultCard').classList.add('show');
+            document.getElementById('rDaily').textContent = dailyReward.toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' USDT / 일';
+            document.getElementById('rMonthly').textContent = '월 ' + monthlyReward.toLocaleString('en', {minimumFractionDigits:0, maximumFractionDigits:0}) + ' USDT';
         }
+
+        // 초기 계산
+        calc();
+
+        // 실시간 피드 (더미)
+        const feedNames = ['tra***21','kim***er','cry***88','btc***77','sol***kr','eth***90','dex***42','max***11','bnb***55','xrp***03'];
+        const feedExs = ['Bitget','OKX','Gate.io','Bitget','Gate.io'];
+        function genFeed() {
+            const list = document.getElementById('feedList');
+            list.innerHTML = '';
+            for (let i = 0; i < 8; i++) {
+                const name = feedNames[Math.floor(Math.random()*feedNames.length)];
+                const ex = feedExs[Math.floor(Math.random()*feedExs.length)];
+                const amt = (Math.random()*500+10).toFixed(2);
+                const mins = Math.floor(Math.random()*59)+1;
+                list.innerHTML += '<div class="feed-item"><span class="feed-dot"></span><span class="feed-user">' + name + '</span><span class="feed-ex">' + ex + '</span><span class="feed-amount">$' + amt + ' USDT</span><span class="feed-time">' + mins + '분 전</span></div>';
+            }
+        }
+        genFeed();
+        setInterval(genFeed, 30000);
     </script>
 </body>
 </html>

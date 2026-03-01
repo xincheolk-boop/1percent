@@ -125,7 +125,7 @@
     <script>
         async function load() {
             try {
-                const res = await fetch('https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=5m&limit=10');
+                const res = await fetch('/api/binance/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=5m&limit=10');
                 const data = await res.json();
                 const latest = data[data.length - 1];
                 const longR = parseFloat(latest.longAccount) * 100;
