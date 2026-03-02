@@ -2353,10 +2353,107 @@
             document.getElementById('preparingModal').style.display = 'none';
         }
 
-        // 모달 (로그인/회원가입)
+        // ===== 로그인/회원가입 모달 =====
         function openModal(type) {
-            document.getElementById('preparingModal').style.display = 'flex';
+            const m = document.getElementById('authModal');
+            m.style.display = 'flex';
+            if (type === 'signup') showSignup(); else showLogin();
         }
+        function closeAuth() {
+            document.getElementById('authModal').style.display = 'none';
+            document.getElementById('authError').style.display = 'none';
+        }
+        function showLogin() {
+            document.getElementById('authTitle').textContent = '로그인';
+            document.getElementById('authLoginForm').style.display = 'block';
+            document.getElementById('authSignupForm').style.display = 'none';
+            document.getElementById('authToggle').innerHTML = '계정이 없으신가요? <span onclick="showSignup()" style="color:var(--accent-cyan);cursor:pointer;font-weight:600">회원가입</span>';
+            document.getElementById('authError').style.display = 'none';
+        }
+        function showSignup() {
+            document.getElementById('authTitle').textContent = '회원가입';
+            document.getElementById('authLoginForm').style.display = 'none';
+            document.getElementById('authSignupForm').style.display = 'block';
+            document.getElementById('authToggle').innerHTML = '이미 계정이 있으신가요? <span onclick="showLogin()" style="color:var(--accent-cyan);cursor:pointer;font-weight:600">로그인</span>';
+            document.getElementById('authError').style.display = 'none';
+        }
+        async function doLogin() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const pw = document.getElementById('loginPw').value;
+            if (!email || !pw) return authErr('이메일과 비밀번호를 입력해주세요.');
+            const btn = document.getElementById('loginBtn');
+            btn.disabled = true; btn.textContent = '로그인 중...';
+            try {
+                const res = await fetch('/api/auth/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pw})});
+                const data = await res.json();
+                if (data.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('nickname', data.nickname);
+                    closeAuth();
+                    updateAuthUI();
+                } else { authErr(data.error || '로그인 실패'); }
+            } catch(e) { authErr('네트워크 오류'); }
+            btn.disabled = false; btn.textContent = '로그인';
+        }
+        async function doSignup() {
+            const email = document.getElementById('signupEmail').value.trim();
+            const pw = document.getElementById('signupPw').value;
+            const nick = document.getElementById('signupNick').value.trim();
+            const terms = document.getElementById('signupTerms').checked;
+            if (!email || !pw || !nick) return authErr('모든 항목을 입력해주세요.');
+            if (pw.length < 8) return authErr('비밀번호는 8자 이상이어야 합니다.');
+            if (!terms) return authErr('이용약관에 동의해주세요.');
+            const btn = document.getElementById('signupBtn');
+            btn.disabled = true; btn.textContent = '가입 중...';
+            try {
+                const res = await fetch('/api/auth/signup', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pw,nickname:nick,agreed_terms:true,agreed_privacy:true})});
+                const data = await res.json();
+                if (data.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('nickname', data.nickname);
+                    closeAuth();
+                    updateAuthUI();
+                } else { authErr(data.error || '가입 실패'); }
+            } catch(e) { authErr('네트워크 오류'); }
+            btn.disabled = false; btn.textContent = '회원가입';
+        }
+        function authErr(msg) {
+            const el = document.getElementById('authError');
+            el.textContent = msg; el.style.display = 'block';
+        }
+        function updateAuthUI() {
+            const nick = localStorage.getItem('nickname');
+            const loginBtn = document.querySelector('.btn-login');
+            const signupBtn = document.querySelector('.btn-signup');
+            if (nick) {
+                loginBtn.textContent = nick;
+                loginBtn.onclick = function(){ location.href='mypage.html'; };
+                signupBtn.textContent = '로그아웃';
+                signupBtn.onclick = doLogout;
+                signupBtn.style.background = 'var(--bg-card)';
+                signupBtn.style.color = 'var(--text-secondary)';
+                signupBtn.style.border = '1px solid var(--border-color)';
+            } else {
+                loginBtn.textContent = '로그인';
+                loginBtn.onclick = function(){ openModal('login'); };
+                signupBtn.textContent = '회원가입';
+                signupBtn.onclick = function(){ openModal('signup'); };
+                signupBtn.style.background = 'linear-gradient(135deg, var(--accent-cyan), var(--accent-purple))';
+                signupBtn.style.color = 'white';
+                signupBtn.style.border = 'none';
+            }
+        }
+        async function doLogout() {
+            const token = localStorage.getItem('token');
+            if (token) {
+                fetch('/api/auth/logout', {method:'POST',headers:{'Authorization':'Bearer '+token}}).catch(()=>{});
+            }
+            localStorage.removeItem('token');
+            localStorage.removeItem('nickname');
+            updateAuthUI();
+        }
+        // 페이지 로드 시 로그인 상태 확인
+        updateAuthUI();
         
         // ========== 실시간 데이터 ==========
         const MAIN_SYMBOLS = ['BTCUSDT','ETHUSDT','SOLUSDT','XRPUSDT','DOGEUSDT','BNBUSDT','ADAUSDT','AVAXUSDT','DOTUSDT','LINKUSDT'];
@@ -2889,6 +2986,51 @@
             <h3 style="font-size:18px; font-weight:700; margin-bottom:8px; color:#fff;">곧 오픈 예정입니다</h3>
             <p style="font-size:14px; color:#9ca3af; line-height:1.7; margin-bottom:20px;">해당 기능을 준비중입니다.<br>텔레그램에서 최신 소식을 받아보세요!</p>
             <a href="https://t.me/officialpercent" target="_blank" style="display:inline-block; padding:11px 28px; background:linear-gradient(135deg,#00d4ff,#a855f7); color:#000; font-size:14px; font-weight:700; border-radius:8px; text-decoration:none;">✈️ 텔레그램 참여하기</a>
+        </div>
+    </div>
+
+    <!-- 로그인/회원가입 모달 -->
+    <div id="authModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center;" onclick="if(event.target===this)closeAuth()">
+        <div style="background:#16161f; border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:32px 28px; max-width:400px; width:90%; position:relative;">
+            <span onclick="closeAuth()" style="position:absolute; top:14px; right:18px; font-size:20px; color:#6b7280; cursor:pointer;">×</span>
+            <h3 id="authTitle" style="font-size:20px; font-weight:700; margin-bottom:20px; text-align:center;">로그인</h3>
+            <div id="authError" style="display:none; background:rgba(220,38,38,0.1); border:1px solid rgba(220,38,38,0.3); border-radius:8px; padding:10px 14px; margin-bottom:16px; font-size:13px; color:#f87171;"></div>
+
+            <!-- 로그인 폼 -->
+            <div id="authLoginForm">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px; font-weight:600;">이메일</label>
+                    <input id="loginEmail" type="email" placeholder="example@email.com" style="width:100%; padding:12px 14px; background:#0a0a0f; border:1px solid rgba(255,255,255,0.08); border-radius:10px; color:#fff; font-size:14px; outline:none;" onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+                </div>
+                <div style="margin-bottom:20px;">
+                    <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px; font-weight:600;">비밀번호</label>
+                    <input id="loginPw" type="password" placeholder="비밀번호 입력" style="width:100%; padding:12px 14px; background:#0a0a0f; border:1px solid rgba(255,255,255,0.08); border-radius:10px; color:#fff; font-size:14px; outline:none;" onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'" onkeydown="if(event.key==='Enter')doLogin()">
+                </div>
+                <button id="loginBtn" onclick="doLogin()" style="width:100%; padding:14px; background:linear-gradient(135deg,#00b8d9,#9333ea); border:none; border-radius:10px; color:#000; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">로그인</button>
+            </div>
+
+            <!-- 회원가입 폼 -->
+            <div id="authSignupForm" style="display:none;">
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px; font-weight:600;">이메일</label>
+                    <input id="signupEmail" type="email" placeholder="example@email.com" style="width:100%; padding:12px 14px; background:#0a0a0f; border:1px solid rgba(255,255,255,0.08); border-radius:10px; color:#fff; font-size:14px; outline:none;" onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px; font-weight:600;">닉네임</label>
+                    <input id="signupNick" type="text" placeholder="닉네임 (2자 이상)" maxlength="20" style="width:100%; padding:12px 14px; background:#0a0a0f; border:1px solid rgba(255,255,255,0.08); border-radius:10px; color:#fff; font-size:14px; outline:none;" onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px; font-weight:600;">비밀번호</label>
+                    <input id="signupPw" type="password" placeholder="8자 이상" style="width:100%; padding:12px 14px; background:#0a0a0f; border:1px solid rgba(255,255,255,0.08); border-radius:10px; color:#fff; font-size:14px; outline:none;" onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'" onkeydown="if(event.key==='Enter')doSignup()">
+                </div>
+                <div style="margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                    <input id="signupTerms" type="checkbox" style="accent-color:#00b8d9; width:16px; height:16px;">
+                    <label for="signupTerms" style="font-size:12px; color:#9ca3af;"><a href="terms.html" target="_blank" style="color:#00b8d9; text-decoration:none;">이용약관</a> 및 <a href="privacy.html" target="_blank" style="color:#00b8d9; text-decoration:none;">개인정보처리방침</a>에 동의합니다.</label>
+                </div>
+                <button id="signupBtn" onclick="doSignup()" style="width:100%; padding:14px; background:linear-gradient(135deg,#00b8d9,#9333ea); border:none; border-radius:10px; color:#000; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;">회원가입</button>
+            </div>
+
+            <div id="authToggle" style="text-align:center; margin-top:16px; font-size:13px; color:#9ca3af;">계정이 없으신가요? <span onclick="showSignup()" style="color:#00b8d9; cursor:pointer; font-weight:600;">회원가입</span></div>
         </div>
     </div>
 
