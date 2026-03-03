@@ -1895,6 +1895,8 @@
         const translations = {
             ko: {
                 // 네비게이션
+                contractData: '계약데이터',
+                cfd: 'CFD',
                 kimp: '김프',
                 news: '뉴스',
                 exchange: '거래소',
@@ -1952,6 +1954,8 @@
                 langName: '한국어'
             },
             en: {
+                contractData: 'Contract Data',
+                cfd: 'CFD',
                 kimp: 'Kimp',
                 news: 'News',
                 exchange: 'Exchange',
@@ -2005,6 +2009,8 @@
                 langName: 'English'
             },
             ja: {
+                contractData: '契約データ',
+                cfd: 'CFD',
                 kimp: 'キムプ',
                 news: 'ニュース',
                 exchange: '取引所',
@@ -2058,6 +2064,8 @@
                 langName: '日本語'
             },
             zh: {
+                contractData: '合约数据',
+                cfd: 'CFD',
                 kimp: '泡菜溢价',
                 news: '新闻',
                 exchange: '交易所',
@@ -2111,6 +2119,8 @@
                 langName: '中文'
             },
             vi: {
+                contractData: 'Dữ liệu HĐ',
+                cfd: 'CFD',
                 kimp: 'Kimp',
                 news: 'Tin tức',
                 exchange: 'Sàn giao dịch',
@@ -2181,8 +2191,12 @@
             document.querySelectorAll('.lang-option').forEach(el => el.classList.remove('active'));
             document.querySelector(`.lang-option[onclick="setLang('${lang}')"]`).classList.add('active');
             
-            // 네비게이션
-            const navItems = document.querySelectorAll('.nav-menu .nav-item');
+            // 네비게이션 - 드롭다운 메뉴 타이틀
+            const dropItems = document.querySelectorAll('.nav-dropdown > .nav-item');
+            if(dropItems[0]) dropItems[0].innerHTML = t.contractData + ' <span style="font-size:9px;opacity:0.5;">▼</span>';
+            if(dropItems[1]) dropItems[1].innerHTML = t.cfd + ' <span style="font-size:9px;opacity:0.5;">▼</span>';
+            // 네비게이션 - 일반 메뉴
+            const navItems = document.querySelectorAll('.nav-menu > .nav-item');
             navItems[0].textContent = t.kimp;
             navItems[1].textContent = t.news;
             navItems[2].textContent = t.exchange;
