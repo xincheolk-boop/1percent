@@ -150,37 +150,37 @@
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 32px 36px;
+            padding: 40px 44px;
             z-index: 2000;
             box-shadow: 0 12px 40px rgba(0,0,0,0.6);
-            width: 1000px;
+            width: 1200px;
         }
         .mega-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 12px 24px;
+            gap: 16px 32px;
         }
         .mega-col-title {
-            font-size: 14px;
+            font-size: 15px;
             color: #e2e8f0;
             font-weight: 700;
             letter-spacing: 0.3px;
-            padding: 6px 12px 14px;
+            padding: 8px 14px 16px;
             border-bottom: 1px solid var(--border-color);
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
         .mega-item {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 11px 12px;
-            font-size: 14.5px;
+            gap: 12px;
+            padding: 13px 14px;
+            font-size: 15.5px;
             color: var(--text-secondary);
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 10px;
             transition: all 0.15s;
             white-space: nowrap;
-            line-height: 1.4;
+            line-height: 1.5;
         }
         .mega-item:hover:not(.prep) { background: rgba(0,184,217,0.08); color: var(--accent-cyan); }
         .mega-item.prep { opacity: 0.4; cursor: default; pointer-events: none; }
@@ -1465,42 +1465,14 @@
         <aside class="sidebar-left">
             <!-- 거래소별 이벤트 -->
             <div class="sl-section" id="eventSection">
-                <div class="sl-title">🎁 파트너 이벤트 <span class="sl-more" onclick="location.href=&#39;events.html&#39;">전체보기→</span></div>
-                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
-                    <div class="sl-event-badge" style="color:#00C9A7;">Bitget</div>
-                    <div class="sl-event-title">신규 가입 보너스 최대 1.7M USDT</div>
-                    <div class="sl-event-date">상시 진행</div>
-                </div>
-                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
-                    <div class="sl-event-badge" style="color:#6366f1;">Bitunix</div>
-                    <div class="sl-event-title">트레이딩 대회 $50,000 Prize</div>
-                    <div class="sl-event-date">상시 진행</div>
-                </div>
-                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
-                    <div class="sl-event-badge" style="color:#f7a600;">Bybit</div>
-                    <div class="sl-event-title">$100 입금 보너스 프로모션</div>
-                    <div class="sl-event-date">준비중</div>
-                </div>
-                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
-                    <div class="sl-event-badge" style="color:#1972e2;">MEXC</div>
-                    <div class="sl-event-title">신규 유저 수수료 0% 이벤트</div>
-                    <div class="sl-event-date">준비중</div>
-                </div>
+                <div class="sl-title">🎁 파트너 이벤트 <span class="sl-more" onclick="location.href='events.html'">전체보기→</span></div>
+                <div id="sidebarEventList" style="color:#6b7280;font-size:12px;padding:8px 0;">로딩중...</div>
             </div>
 
             <!-- 트레이딩 대회 -->
             <div class="sl-section">
-                <div class="sl-title">🏆 트레이딩 대회 <span class="sl-more" onclick="location.href=&#39;events.html&#39;">더보기→</span></div>
-                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
-                    <div class="sl-event-badge" style="color:#6366f1;">Bitunix</div>
-                    <div class="sl-event-title">주간 트레이딩 대회 $50,000</div>
-                    <div class="sl-event-date">진행중</div>
-                </div>
-                <div class="sl-event" onclick="location.href=&#39;events.html&#39;" style="cursor:pointer;">
-                    <div class="sl-event-badge" style="color:#00C9A7;">Bitget</div>
-                    <div class="sl-event-title">카피트레이딩 챌린지 $20,000</div>
-                    <div class="sl-event-date">예정</div>
-                </div>
+                <div class="sl-title">🏆 트레이딩 대회 <span class="sl-more" onclick="location.href='events.html'">더보기→</span></div>
+                <div id="sidebarCompList" style="color:#6b7280;font-size:12px;padding:8px 0;">로딩중...</div>
             </div>
 
             <!-- Exchange Reward 박스 -->
@@ -3040,5 +3012,65 @@
     </div>
 
 
+
+<script>
+(function() {
+    const EX_COLORS = {
+        'Bitget':'#00C9A7','OKX':'#e5e7eb','Gate.io':'#f87171','Bybit':'#f7a600',
+        'BingX':'#2b6cb0','MEXC':'#1972e2','Binance':'#f0b90b','Bitunix':'#6366f1',
+        'LBank':'#0052ff','KuCoin':'#23af91','DeepCoin':'#7c3aed'
+    };
+
+    function getStatus(start, end) {
+        const now = new Date(); now.setHours(0,0,0,0);
+        if (start) { const s = new Date(start); s.setHours(0,0,0,0); if (s > now) return '예정'; }
+        if (end) { const e = new Date(end); e.setHours(23,59,59,999); if (e < now) return '종료'; }
+        return '진행중';
+    }
+
+    function renderSidebarItem(ev) {
+        const color = EX_COLORS[ev.exchange] || '#9ca3af';
+        const status = getStatus(ev.start_date, ev.end_date);
+        const link = ev.link ? ev.link : 'events.html';
+        return `<div class="sl-event" onclick="window.open('${link}','_blank')" style="cursor:pointer;">
+            <div class="sl-event-badge" style="color:${color};">${ev.exchange}</div>
+            <div class="sl-event-title">${ev.title}</div>
+            <div class="sl-event-date">${status}${ev.prize ? ' · ' + ev.prize : ''}</div>
+        </div>`;
+    }
+
+    async function loadSidebarEvents() {
+        try {
+            const res = await fetch('/api/events');
+            const data = await res.json();
+            const events = data.events || [];
+
+            const eventList = events.filter(e => e.type !== 'competition').slice(0, 5);
+            const compList = events.filter(e => e.type === 'competition').slice(0, 3);
+
+            const eventEl = document.getElementById('sidebarEventList');
+            if (eventEl) {
+                eventEl.innerHTML = eventList.length
+                    ? eventList.map(renderSidebarItem).join('')
+                    : '<div style="color:#6b7280;font-size:12px;padding:4px 0;">등록된 이벤트가 없습니다</div>';
+            }
+
+            const compEl = document.getElementById('sidebarCompList');
+            if (compEl) {
+                compEl.innerHTML = compList.length
+                    ? compList.map(renderSidebarItem).join('')
+                    : '<div style="color:#6b7280;font-size:12px;padding:4px 0;">등록된 대회가 없습니다</div>';
+            }
+        } catch (err) {
+            const eventEl = document.getElementById('sidebarEventList');
+            if (eventEl) eventEl.innerHTML = '<div style="color:#6b7280;font-size:12px;">불러올 수 없습니다</div>';
+            const compEl = document.getElementById('sidebarCompList');
+            if (compEl) compEl.innerHTML = '<div style="color:#6b7280;font-size:12px;">불러올 수 없습니다</div>';
+        }
+    }
+
+    loadSidebarEvents();
+})();
+</script>
 
 </body></html>
