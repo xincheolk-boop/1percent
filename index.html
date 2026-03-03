@@ -2399,6 +2399,7 @@
             const email = document.getElementById('signupEmail').value.trim();
             const pw = document.getElementById('signupPw').value;
             const nick = document.getElementById('signupNick').value.trim();
+            const ref = document.getElementById('signupRef').value.trim();
             const terms = document.getElementById('signupTerms').checked;
             if (!email || !pw || !nick) return authErr('모든 항목을 입력해주세요.');
             if (pw.length < 8) return authErr('비밀번호는 8자 이상이어야 합니다.');
@@ -2406,7 +2407,7 @@
             const btn = document.getElementById('signupBtn');
             btn.disabled = true; btn.textContent = '가입 중...';
             try {
-                const res = await fetch('/api/auth/signup', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pw,nickname:nick,agreed_terms:true,agreed_privacy:true})});
+                const res = await fetch('/api/auth/signup', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pw,nickname:nick,referral_code:ref||undefined,agreed_terms:true,agreed_privacy:true})});
                 const data = await res.json();
                 if (data.ok) {
                     localStorage.setItem('token', data.token);
@@ -3022,6 +3023,10 @@
                 <div style="margin-bottom:14px;">
                     <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px; font-weight:600;">비밀번호</label>
                     <input id="signupPw" type="password" placeholder="8자 이상" style="width:100%; padding:12px 14px; background:#0a0a0f; border:1px solid rgba(255,255,255,0.08); border-radius:10px; color:#fff; font-size:14px; outline:none;" onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'" onkeydown="if(event.key==='Enter')doSignup()">
+                </div>
+                <div style="margin-bottom:14px;">
+                    <label style="display:block; font-size:12px; color:#9ca3af; margin-bottom:6px; font-weight:600;">추천코드 (선택)</label>
+                    <input id="signupRef" type="text" placeholder="추천코드 입력" maxlength="20" style="width:100%; padding:12px 14px; background:#0a0a0f; border:1px solid rgba(255,255,255,0.08); border-radius:10px; color:#fff; font-size:14px; outline:none;" onfocus="this.style.borderColor='#00b8d9'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
                 </div>
                 <div style="margin-bottom:18px; display:flex; align-items:center; gap:8px;">
                     <input id="signupTerms" type="checkbox" style="accent-color:#00b8d9; width:16px; height:16px;">
