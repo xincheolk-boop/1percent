@@ -1920,6 +1920,8 @@
                 exchangeEvent: '🎁 거래소 이벤트',
                 partner: '💎 공식 파트너',
                 rewardCalc: '💰 내가 받을 리워드',
+                partnerEvent: '🎁 파트너 이벤트',
+                tradingComp: '🏆 트레이딩 대회',
                 monthlyVolume: '월 거래량 (USDT)',
                 selectExchange: '거래소 선택',
                 expectedReward: '예상 월 리워드',
@@ -1986,6 +1988,8 @@
                 exchangeEvent: '🎁 Exchange Events',
                 partner: '💎 Official Partners',
                 rewardCalc: '💰 My Reward',
+                partnerEvent: '🎁 Partner Events',
+                tradingComp: '🏆 Trading Competition',
                 monthlyVolume: 'Monthly Volume (USDT)',
                 selectExchange: 'Select Exchange',
                 expectedReward: 'Expected Monthly Reward',
@@ -2050,6 +2054,8 @@
                 exchangeEvent: '🎁 取引所イベント',
                 partner: '💎 公式パートナー',
                 rewardCalc: '💰 マイリワード',
+                partnerEvent: '🎁 パートナーイベント',
+                tradingComp: '🏆 トレード大会',
                 monthlyVolume: '月間取引量 (USDT)',
                 selectExchange: '取引所選択',
                 expectedReward: '予想月間リワード',
@@ -2112,6 +2118,8 @@
                 exchangeEvent: '🎁 交易所活动',
                 partner: '💎 官方合作伙伴',
                 rewardCalc: '💰 我的奖励',
+                partnerEvent: '🎁 合作伙伴活动',
+                tradingComp: '🏆 交易大赛',
                 monthlyVolume: '月交易量 (USDT)',
                 selectExchange: '选择交易所',
                 expectedReward: '预计月奖励',
@@ -2174,6 +2182,8 @@
                 exchangeEvent: '🎁 Sự kiện sàn',
                 partner: '💎 Đối tác chính thức',
                 rewardCalc: '💰 Phần thưởng của tôi',
+                partnerEvent: '🎁 Sự kiện đối tác',
+                tradingComp: '🏆 Cuộc thi giao dịch',
                 monthlyVolume: 'Khối lượng hàng tháng (USDT)',
                 selectExchange: 'Chọn sàn',
                 expectedReward: 'Phần thưởng dự kiến hàng tháng',
@@ -2267,12 +2277,10 @@
             document.querySelector('.btn-primary').textContent = t.startBtn;
             document.querySelector('.btn-secondary').textContent = t.detailBtn;
             
-            // 사이드바 타이틀
-            const slTitles = document.querySelectorAll('.sl-title');
-            if(slTitles[0]) slTitles[0].innerHTML = t.realtimeNews + ' <span class="sl-more">' + t.more + '</span>';
-            if(slTitles[1]) slTitles[1].innerHTML = t.exchangeEvent + ' <span class="sl-more">' + t.more + '</span>';
-            if(slTitles[2]) slTitles[2].textContent = t.partner;
-            if(slTitles[3]) slTitles[3].innerHTML = t.rewardCalc + ' <span class="sl-more">' + t.more + '</span>';
+            // 왼쪽 사이드바 타이틀 (파트너 이벤트, 트레이딩 대회)
+            const slTitles = document.querySelectorAll('.sidebar-left .sl-title');
+            if(slTitles[0]) slTitles[0].innerHTML = t.partnerEvent + ' <span class="sl-more" onclick="location.href=\'events.html\'">' + t.allView + '</span>';
+            if(slTitles[1]) slTitles[1].innerHTML = t.tradingComp + ' <span class="sl-more" onclick="location.href=\'events.html\'">' + t.more + '</span>';
             
             // 리워드 계산기
             document.querySelector('.calc-input-group label').textContent = t.monthlyVolume;
