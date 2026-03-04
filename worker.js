@@ -31,6 +31,11 @@ export default {
       return handleAdminCommissions(request, env, url);
     }
 
+    // CSV commission upload
+    if (url.pathname === '/api/admin/upload-commissions' && request.method === 'POST') {
+      return handleCSVUpload(request, env);
+    }
+
     // Manual commission collection trigger
     if (url.pathname === '/api/admin/collect-commissions' && request.method === 'POST') {
       return handleCollectTrigger(request, env);
@@ -49,6 +54,11 @@ export default {
     // Manual crawl trigger (must come before /api/admin)
     if (url.pathname === '/api/admin/crawl-events' && request.method === 'POST') {
       return handleCrawlTrigger(request, env);
+    }
+
+    // Seed events (must come before /api/admin)
+    if (url.pathname === '/api/admin/seed-events' && request.method === 'POST') {
+      return handleSeedEvents(request, env);
     }
 
     // Admin API (catch-all for other admin routes)
@@ -86,6 +96,11 @@ export default {
       return handleBinanceProxy(request, url);
     }
 
+    // Bitget Market Data Proxy
+    if (url.pathname.startsWith('/api/market/')) {
+      return handleMarketProxy(request, url);
+    }
+
     // Static files
     try {
       // Clean URL support: /admin → admin.html, /register → register.html, etc.
@@ -117,7 +132,10 @@ export default {
 function checkAuth(request, env) {
   const h = request.headers.get('Authorization') || '';
   if (!h.startsWith('Bearer ')) return false;
-  return h.slice(7) === (env.ADMIN_PASSWORD || 'admin1234');
+  const token = h.slice(7);
+  const expectedUser = env.ADMIN_USERNAME || '1percentadmin';
+  const expectedPass = env.ADMIN_PASSWORD || 'admin1234';
+  return token === expectedUser + ':' + expectedPass;
 }
 
 const AH = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
@@ -131,8 +149,10 @@ async function handleAdmin(request, env, url) {
   // Auth (no token required)
   if (path === '/auth' && request.method === 'POST') {
     const body = await request.json().catch(() => ({}));
-    if (body.password === (env.ADMIN_PASSWORD || 'admin1234')) return ajson({ ok: true });
-    return ajson({ ok: false, error: '비밀번호가 틀렸습니다' }, 401);
+    const validUser = (body.username === (env.ADMIN_USERNAME || '1percentadmin'));
+    const validPass = (body.password === (env.ADMIN_PASSWORD || 'admin1234'));
+    if (validUser && validPass) return ajson({ ok: true });
+    return ajson({ ok: false, error: '아이디 또는 비밀번호가 틀렸습니다' }, 401);
   }
 
   if (!checkAuth(request, env)) return ajson({ error: '인증 필요' }, 401);
@@ -797,13 +817,62 @@ async function handleCalendar(request, env) {
 async function handlePublicEvents(request, env) {
   const headers = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
   try {
-    const rows = await env.DB.prepare(
+    const db = env.DB;
+    let rows = await db.prepare(
       "SELECT id, title, description, exchange, type, image_url, link, start_date, end_date, prize, is_featured FROM events WHERE status = 'active' ORDER BY is_featured DESC, sort_order ASC, created_at DESC"
     ).all();
+    // 비어있으면 자동 시드
+    if (!(rows.results || []).length) {
+      await autoSeedEvents(db);
+      rows = await db.prepare(
+        "SELECT id, title, description, exchange, type, image_url, link, start_date, end_date, prize, is_featured FROM events WHERE status = 'active' ORDER BY is_featured DESC, sort_order ASC, created_at DESC"
+      ).all();
+    }
     return new Response(JSON.stringify({ ok: true, events: rows.results || [] }), { headers });
   } catch(e) {
     return new Response(JSON.stringify({ ok: false, error: e.message }), { headers });
   }
+}
+
+async function autoSeedEvents(db) {
+  const seeds = [
+    { title:'신규 가입 보너스 최대 1.7M USDT', description:'1% Trading을 통해 Bitget에 가입하면 최대 1.7M USDT 보너스를 지급합니다.', exchange:'Bitget', type:'event', image_url:'', link:'https://www.bitget.com/referral/register?from=referral&clacCode=pkju', start_date:null, end_date:null, prize:'최대 1.7M USDT', is_featured:1, sort_order:1 },
+    { title:'선물 거래 수수료 85% Reward', description:'1% Trading 전용 코드를 통해 가입 시 선물 거래 수수료의 85%를 돌려받습니다.', exchange:'Bitget', type:'event', image_url:'', link:'https://www.bitget.com/referral/register?from=referral&clacCode=pkju', start_date:null, end_date:null, prize:'85% Reward', is_featured:1, sort_order:2 },
+    { title:'Gate.io 신규 가입 수수료 80% Reward', description:'Gate.io에서 1% Trading 코드로 가입하면 선물 거래 수수료의 80%를 Reward 받을 수 있습니다.', exchange:'Gate.io', type:'event', image_url:'', link:'', start_date:null, end_date:null, prize:'80% Reward', is_featured:1, sort_order:3 },
+    { title:'트레이딩 대회 $50,000 Prize', description:'Bitunix 주간 트레이딩 대회에 참가하고 상금을 받아보세요.', exchange:'Bitunix', type:'competition', image_url:'', link:'', start_date:null, end_date:null, prize:'$50,000', is_featured:0, sort_order:10 },
+    { title:'카피트레이딩 챌린지 $20,000', description:'Bitget 카피트레이딩 챌린지에 참가하세요.', exchange:'Bitget', type:'competition', image_url:'', link:'', start_date:null, end_date:null, prize:'$20,000', is_featured:0, sort_order:11 },
+  ];
+  for (const s of seeds) {
+    try {
+      await db.prepare(
+        "INSERT INTO events (title,description,exchange,type,image_url,link,start_date,end_date,prize,is_featured,sort_order,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+      ).bind(s.title, s.description, s.exchange, s.type, s.image_url, s.link, s.start_date, s.end_date, s.prize, s.is_featured, s.sort_order, 'active').run();
+    } catch(e) { /* 중복 무시 */ }
+  }
+}
+
+// ========== Seed Events ==========
+async function handleSeedEvents(request, env) {
+  if (!checkAuth(request, env)) return ajson({ error: '인증 필요' }, 401);
+  const db = env.DB;
+  const seeds = [
+    { title:'신규 가입 보너스 최대 1.7M USDT', description:'1% Trading을 통해 Bitget에 가입하면 최대 1.7M USDT 보너스를 지급합니다. 선물 거래 시작에 필요한 시드머니를 무료로 받아보세요.', exchange:'Bitget', type:'event', image_url:'', link:'https://www.bitget.com/referral/register?from=referral&clacCode=pkju', start_date:null, end_date:null, prize:'최대 1.7M USDT', is_featured:1, sort_order:1 },
+    { title:'선물 거래 수수료 85% Reward', description:'1% Trading 전용 코드를 통해 가입 시 선물 거래 수수료의 85%를 돌려받습니다. 업계 최고 수준의 Reward율입니다.', exchange:'Bitget', type:'event', image_url:'', link:'https://www.bitget.com/referral/register?from=referral&clacCode=pkju', start_date:null, end_date:null, prize:'85% Reward', is_featured:1, sort_order:2 },
+    { title:'Gate.io 신규 가입 수수료 80% Reward', description:'Gate.io에서 1% Trading 코드로 가입하면 선물 거래 수수료의 80%를 Reward 받을 수 있습니다.', exchange:'Gate.io', type:'event', image_url:'', link:'https://www.gate.io/referral/register?from=referral', start_date:null, end_date:null, prize:'80% Reward', is_featured:1, sort_order:3 },
+    { title:'트레이딩 대회 $50,000 Prize', description:'Bitunix 주간 트레이딩 대회에 참가하고 상금을 받아보세요.', exchange:'Bitunix', type:'competition', image_url:'', link:'', start_date:null, end_date:null, prize:'$50,000', is_featured:0, sort_order:10 },
+    { title:'카피트레이딩 챌린지 $20,000', description:'Bitget 카피트레이딩 챌린지에 참가하세요.', exchange:'Bitget', type:'competition', image_url:'', link:'', start_date:null, end_date:null, prize:'$20,000', is_featured:0, sort_order:11 },
+  ];
+  let inserted = 0;
+  for (const s of seeds) {
+    const exists = await db.prepare("SELECT id FROM events WHERE title = ? AND exchange = ?").bind(s.title, s.exchange).first();
+    if (!exists) {
+      await db.prepare(
+        "INSERT INTO events (title,description,exchange,type,image_url,link,start_date,end_date,prize,is_featured,sort_order,status) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)"
+      ).bind(s.title, s.description, s.exchange, s.type, s.image_url, s.link, s.start_date, s.end_date, s.prize, s.is_featured, s.sort_order, 'active').run();
+      inserted++;
+    }
+  }
+  return ajson({ ok:true, inserted, total:seeds.length });
 }
 
 // ========== Admin Events API ==========
@@ -879,7 +948,7 @@ async function crawlExchangeEvents(env) {
 
   // Bybit 공식 announcement API
   try {
-    const res = await fetch('https://api.bybit.com/v5/announcements/index?locale=ko-KR&type=new_crypto&limit=10', {
+    const res = await fetch('https://api.bybit.com/v5/announcements/index?locale=en-US&limit=10', {
       cf: { cacheTtl: 600 }
     });
     const data = await res.json();
@@ -901,7 +970,7 @@ async function crawlExchangeEvents(env) {
 
   // Bitget 공식 announcement API
   try {
-    const res = await fetch('https://api.bitget.com/api/v2/public/annoucements?language=ko_KR&annType=activities&limit=10', {
+    const res = await fetch('https://api.bitget.com/api/v2/public/annoucements?language=en_US&limit=10', {
       cf: { cacheTtl: 600 }
     });
     const data = await res.json();
@@ -947,18 +1016,19 @@ async function crawlExchangeEvents(env) {
 
   // OKX announcement (JSON endpoint)
   try {
-    const res = await fetch('https://www.okx.com/api/v5/support/announcements?page=1&limit=10&annType=2', {
+    const res = await fetch('https://www.okx.com/api/v5/support/announcements?page=1&limit=10', {
       cf: { cacheTtl: 600 }
     });
     if (res.ok) {
       const data = await res.json();
-      if (data.data?.length) {
-        for (const item of data.data) {
+      const items = data.data || [];
+      for (const group of items) {
+        for (const item of (group.details || [])) {
           results.push({
             title: item.title || '',
             description: '',
             exchange: 'OKX',
-            type: (item.title || '').toLowerCase().includes('competition') ? 'competition' : 'event',
+            type: (item.annType || '').includes('activit') || (item.title || '').toLowerCase().includes('competition') ? 'competition' : 'event',
             link: item.url || 'https://www.okx.com/events',
             start_date: null,
             end_date: null,
@@ -1029,6 +1099,57 @@ async function handleBinanceProxy(request, url) {
 }
 
 // ============================================================================
+// ══ Bitget Market Data Proxy ══
+// ============================================================================
+async function handleMarketProxy(request, url) {
+  const CORS_HEADERS = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET, OPTIONS',
+    'Cache-Control': 'public, max-age=10',
+  };
+  if (request.method === 'OPTIONS') return new Response(null, { headers: CORS_HEADERS });
+
+  const path = url.pathname.replace('/api/market/', '');
+  const BASE = 'https://api.bitget.com/api/v2/mix/market';
+  const HEADERS = { 'User-Agent': 'Mozilla/5.0', 'Content-Type': 'application/json' };
+
+  try {
+    let result = {};
+
+    if (path === 'all') {
+      // 한번에 모든 데이터 가져오기
+      const [frBtc, frEth, frSol, tBtc, oiBtc, lsBtc] = await Promise.all([
+        fetch(`${BASE}/current-fund-rate?symbol=BTCUSDT&productType=USDT-FUTURES`, { headers: HEADERS }).then(r => r.json()),
+        fetch(`${BASE}/current-fund-rate?symbol=ETHUSDT&productType=USDT-FUTURES`, { headers: HEADERS }).then(r => r.json()),
+        fetch(`${BASE}/current-fund-rate?symbol=SOLUSDT&productType=USDT-FUTURES`, { headers: HEADERS }).then(r => r.json()),
+        fetch(`${BASE}/ticker?symbol=BTCUSDT&productType=USDT-FUTURES`, { headers: HEADERS }).then(r => r.json()),
+        fetch(`${BASE}/open-interest?symbol=BTCUSDT&productType=USDT-FUTURES`, { headers: HEADERS }).then(r => r.json()),
+        fetch(`${BASE}/account-long-short?symbol=BTCUSDT&productType=USDT-FUTURES&period=5m`, { headers: HEADERS }).then(r => r.json()),
+      ]);
+
+      result = {
+        fundingBtc: frBtc.data,
+        fundingEth: frEth.data,
+        fundingSol: frSol.data,
+        tickerBtc: tBtc.data?.[0] || tBtc.data,
+        oiBtc: oiBtc.data,
+        longShortBtc: lsBtc.data,
+      };
+    } else {
+      // 개별 엔드포인트
+      const search = url.search || '';
+      const res = await fetch(`${BASE}/${path}${search}`, { headers: HEADERS });
+      result = await res.json();
+    }
+
+    return new Response(JSON.stringify(result), { headers: CORS_HEADERS });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: CORS_HEADERS });
+  }
+}
+
+// ============================================================================
 // ══ 거래소 API 자동 수집 + 자동출금 시스템 ══
 // ============================================================================
 
@@ -1049,7 +1170,9 @@ async function encryptValue(plaintext, env) {
   const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, enc.encode(plaintext));
   const buf = new Uint8Array(iv.length + ct.byteLength);
   buf.set(iv); buf.set(new Uint8Array(ct), iv.length);
-  return btoa(String.fromCharCode(...buf));
+  let binary = '';
+  for (let i = 0; i < buf.length; i++) binary += String.fromCharCode(buf[i]);
+  return btoa(binary);
 }
 
 async function decryptValue(ciphertext, env) {
@@ -1136,6 +1259,7 @@ async function handleAdminExchangeConfigs(request, env, url) {
 
   // POST / - 저장
   if (request.method === 'POST' && path === '/') {
+    try {
     const body = await request.json();
     const { exchange, api_key, api_secret, passphrase, platform_rate, user_rate, is_active } = body;
     if (!exchange) return ajson({ error: '거래소 필수' }, 400);
@@ -1163,6 +1287,7 @@ async function handleAdminExchangeConfigs(request, env, url) {
       ).bind(exchange, keyEnc, secretEnc, passEnc, platform_rate || 0, user_rate || 0, is_active ? 1 : 0).run();
     }
     return ajson({ ok: true });
+    } catch (err) { return ajson({ error: 'save_error: ' + err.message }, 500); }
   }
 
   // POST /test - 연결 테스트
@@ -1199,6 +1324,60 @@ async function handleAdminExchangeConfigs(request, env, url) {
       return ajson({ error: '지원하지 않는 거래소' }, 400);
     } catch (err) {
       return ajson({ error: '연결 실패: ' + err.message }, 500);
+    }
+  }
+
+  // POST /debug - 실제 API 응답 확인
+  if (request.method === 'POST' && path === '/debug') {
+    const body = await request.json();
+    const { exchange } = body;
+    const config = await db.prepare('SELECT * FROM exchange_api_configs WHERE exchange=?').bind(exchange).first();
+    if (!config || !config.api_key_enc) return ajson({ error: 'API 키 미설정' }, 400);
+    try {
+      const apiKey = await decryptValue(config.api_key_enc, env);
+      const apiSecret = await decryptValue(config.api_secret_enc, env);
+      const passphrase = await decryptValue(config.passphrase_enc, env);
+      const results = {};
+
+      if (exchange === 'Bitget') {
+        results.note = 'Bitget은 Cloudflare Workers에서 차단됨';
+      }
+
+      if (exchange === 'OKX') {
+        const now = Date.now();
+        const since = now - 90 * 24 * 60 * 60 * 1000;
+
+        // 1) 브로커 리베이트 - spot
+        const path1 = '/api/v5/broker/fd/rebate-per-orders';
+        const qs1a = `type=1&begin=${since}&end=${now}&limit=10`;
+        const h1a = await buildOKXHeaders(apiKey, apiSecret, passphrase, 'GET', path1 + '?' + qs1a, '');
+        const r1a = await fetch('https://www.okx.com' + path1 + '?' + qs1a, { headers: h1a });
+        results.broker_spot = await r1a.json();
+
+        // 2) 브로커 리베이트 - futures
+        const qs1b = `type=2&begin=${since}&end=${now}&limit=10`;
+        const h1b = await buildOKXHeaders(apiKey, apiSecret, passphrase, 'GET', path1 + '?' + qs1b, '');
+        const r1b = await fetch('https://www.okx.com' + path1 + '?' + qs1b, { headers: h1b });
+        results.broker_futures = await r1b.json();
+
+        // 3) 제휴 커미션 내역
+        const path3 = '/api/v5/affiliate/invitee/detail';
+        const qs3 = 'limit=10';
+        const h3 = await buildOKXHeaders(apiKey, apiSecret, passphrase, 'GET', path3 + '?' + qs3, '');
+        const r3 = await fetch('https://www.okx.com' + path3 + '?' + qs3, { headers: h3 });
+        results.affiliate_detail = await r3.json();
+
+        // 4) 펀딩 빌링 (모든 타입)
+        const path4 = '/api/v5/asset/bills';
+        const qs4 = 'limit=20';
+        const h4 = await buildOKXHeaders(apiKey, apiSecret, passphrase, 'GET', path4 + '?' + qs4, '');
+        const r4 = await fetch('https://www.okx.com' + path4 + '?' + qs4, { headers: h4 });
+        results.asset_bills_all = await r4.json();
+      }
+
+      return ajson({ ok: true, results });
+    } catch (err) {
+      return ajson({ error: 'debug_error: ' + err.message }, 500);
     }
   }
 
@@ -1261,57 +1440,35 @@ async function collectOKXCommissions(env, config) {
   const apiSecret = await decryptValue(config.api_secret_enc, env);
   const passphrase = await decryptValue(config.passphrase_enc, env);
 
-  const now = Date.now();
-  const since = config.last_sync ? new Date(config.last_sync).getTime() : now - 24 * 60 * 60 * 1000;
   let fetched = 0, inserted = 0;
   let after = '';
 
+  // /api/v5/asset/bills?type=150 (Affiliate commission)
   while (true) {
-    const params = new URLSearchParams({ begin: String(since), end: String(now) });
-    if (after) params.set('after', after);
-    const path = '/api/v5/broker/fd/rebate-per-orders?' + params.toString();
+    let qs = 'type=150&limit=100';
+    if (after) qs += '&after=' + after;
+    const path = '/api/v5/asset/bills?' + qs;
     const headers = await buildOKXHeaders(apiKey, apiSecret, passphrase, 'GET', path, '');
     const r = await fetch('https://www.okx.com' + path, { headers });
     const d = await r.json();
 
-    const list = (d.data || [])[0] || [];
-    if (!Array.isArray(list) || !list.length) {
-      const flatList = d.data || [];
-      if (!flatList.length) break;
-      for (const item of flatList) {
-        fetched++;
-        try {
-          const fee = parseFloat(item.fee || 0);
-          const platformComm = fee * config.platform_rate;
-          const userComm = fee * config.user_rate;
-          await db.prepare(
-            `INSERT OR IGNORE INTO commissions (exchange,invitee_uid,order_id,commission_time,trade_type,token,trading_fee,net_fee,platform_rate,user_rate,platform_commission,user_commission,raw_data)
-             VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
-          ).bind(
-            'OKX', item.subAcct || item.uid || '', item.ordId || item.billId || String(Date.now()),
-            item.ts ? new Date(parseInt(item.ts)).toISOString() : new Date().toISOString(),
-            item.instType || '', item.ccy || 'USDT', fee, parseFloat(item.netFee || fee),
-            config.platform_rate, config.user_rate, platformComm, userComm, JSON.stringify(item)
-          ).run();
-          inserted++;
-        } catch (e) { /* dedup */ }
-      }
-      break;
-    }
+    if (d.code !== '0') break;
+    const list = d.data || [];
+    if (!list.length) break;
+    fetched += list.length;
 
     for (const item of list) {
-      fetched++;
       try {
-        const fee = parseFloat(item.fee || 0);
-        const platformComm = fee * config.platform_rate;
-        const userComm = fee * config.user_rate;
+        const amount = Math.abs(parseFloat(item.balChg || 0));
+        const platformComm = amount * config.platform_rate;
+        const userComm = amount * config.user_rate;
+        const commTime = item.ts ? new Date(parseInt(item.ts)).toISOString() : new Date().toISOString();
         await db.prepare(
           `INSERT OR IGNORE INTO commissions (exchange,invitee_uid,order_id,commission_time,trade_type,token,trading_fee,net_fee,platform_rate,user_rate,platform_commission,user_commission,raw_data)
            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
         ).bind(
-          'OKX', item.subAcct || item.uid || '', item.ordId || item.billId || String(Date.now()),
-          item.ts ? new Date(parseInt(item.ts)).toISOString() : new Date().toISOString(),
-          item.instType || '', item.ccy || 'USDT', fee, parseFloat(item.netFee || fee),
+          'OKX', 'affiliate', item.billId || String(Date.now()), commTime,
+          'affiliate', item.ccy || 'USDT', amount, amount,
           config.platform_rate, config.user_rate, platformComm, userComm, JSON.stringify(item)
         ).run();
         inserted++;
@@ -1319,7 +1476,7 @@ async function collectOKXCommissions(env, config) {
     }
 
     if (list.length < 100) break;
-    after = list[list.length - 1].ts || '';
+    after = list[list.length - 1].billId || '';
     if (!after) break;
   }
   return { fetched, inserted };
@@ -1437,6 +1594,123 @@ async function collectAllCommissions(env) {
   }
 
   try { await aggregateCommissionSummaries(env); } catch (e) { console.error('Aggregate error:', e); }
+}
+
+// ── CSV 커미션 업로드 ─────────────────────────────────────────────────────────
+
+async function handleCSVUpload(request, env) {
+  if (!checkAuth(request, env)) return ajson({ error: '인증 필요' }, 401);
+  const db = env.DB;
+  if (!db) return ajson({ error: 'DB 미연결' }, 500);
+
+  try {
+    const formData = await request.formData();
+    const file = formData.get('file');
+    const exchange = formData.get('exchange');
+    if (!file || !exchange) return ajson({ error: '파일과 거래소는 필수입니다' }, 400);
+
+    const text = await file.text();
+    const lines = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n').filter(l => l.trim());
+    if (lines.length < 2) return ajson({ error: 'CSV에 데이터가 없습니다' }, 400);
+
+    // 헤더 파싱 + 컬럼 매핑
+    const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, '').toLowerCase());
+    const colMap = {};
+    const MAPPING = {
+      invitee_uid: ['uid', 'user_id', 'invitee_uid', '유저', '유저id'],
+      trading_fee: ['amount', 'commission', 'fee', '금액', '커미션', '수수료'],
+      commission_time: ['time', 'date', 'commission_time', '시간', '날짜'],
+      order_id: ['order_id', 'id', 'bill_id', '주문id'],
+      trade_type: ['type', 'trade_type', '유형'],
+      token: ['token', 'currency', 'coin', '통화'],
+      exchange_col: ['exchange', '거래소']
+    };
+    for (const [target, aliases] of Object.entries(MAPPING)) {
+      const idx = headers.findIndex(h => aliases.includes(h));
+      if (idx !== -1) colMap[target] = idx;
+    }
+
+    if (colMap.invitee_uid === undefined) return ajson({ error: '필수 컬럼 누락: UID (uid, user_id, invitee_uid)' }, 400);
+    if (colMap.trading_fee === undefined) return ajson({ error: '필수 컬럼 누락: 금액 (amount, commission, fee)' }, 400);
+    if (colMap.commission_time === undefined) return ajson({ error: '필수 컬럼 누락: 시간 (time, date, commission_time)' }, 400);
+
+    // exchange_api_configs에서 비율 조회
+    const config = await db.prepare('SELECT platform_rate, user_rate FROM exchange_api_configs WHERE exchange=?').bind(exchange).first();
+    const platformRate = config?.platform_rate || 0.5;
+    const userRate = config?.user_rate || 0.5;
+
+    const now = Date.now();
+    let total = 0, inserted = 0, skipped = 0;
+
+    for (let i = 1; i < lines.length; i++) {
+      const cols = parseCSVLine(lines[i]);
+      if (!cols.length) continue;
+      total++;
+
+      const uid = (cols[colMap.invitee_uid] || '').trim();
+      const fee = parseFloat(cols[colMap.trading_fee] || '0');
+      const time = (cols[colMap.commission_time] || '').trim();
+      if (!uid || !time) { skipped++; continue; }
+
+      const orderId = colMap.order_id !== undefined ? (cols[colMap.order_id] || '').trim() : `csv_${i}_${now}`;
+      const tradeType = colMap.trade_type !== undefined ? (cols[colMap.trade_type] || '').trim() : 'unknown';
+      const token = colMap.token !== undefined ? (cols[colMap.token] || '').trim() : 'USDT';
+      const rowExchange = colMap.exchange_col !== undefined ? (cols[colMap.exchange_col] || '').trim() : exchange;
+
+      const platformComm = fee * platformRate;
+      const userComm = fee * userRate;
+
+      try {
+        await db.prepare(
+          `INSERT OR IGNORE INTO commissions (exchange,invitee_uid,order_id,commission_time,trade_type,token,trading_fee,net_fee,platform_rate,user_rate,platform_commission,user_commission,raw_data)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`
+        ).bind(
+          rowExchange || exchange, uid, orderId || `csv_${i}_${now}`, time,
+          tradeType, token, fee, fee, platformRate, userRate, platformComm, userComm,
+          JSON.stringify({ source: 'csv_upload', row: i })
+        ).run();
+        inserted++;
+      } catch (e) {
+        skipped++;
+      }
+    }
+
+    // 월별 요약 자동 재생성
+    try { await aggregateCommissionSummaries(env); } catch (e) { console.error('Aggregate error:', e); }
+
+    // 수집 로그 기록
+    try {
+      await db.prepare(
+        "INSERT INTO collection_logs (exchange,started_at,finished_at,status,records_fetched,records_new) VALUES (?,datetime('now'),datetime('now'),?,?,?)"
+      ).bind(exchange, 'success', total, inserted).run();
+    } catch (e) { /* ignore log error */ }
+
+    return ajson({ ok: true, total, inserted, skipped });
+  } catch (err) {
+    console.error('CSV upload error:', err);
+    return ajson({ error: 'CSV 처리 실패: ' + err.message }, 500);
+  }
+}
+
+// CSV 라인 파싱 (따옴표 처리)
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') { current += '"'; i++; }
+      else if (ch === '"') { inQuotes = false; }
+      else { current += ch; }
+    } else {
+      if (ch === '"') { inQuotes = true; }
+      else if (ch === ',') { result.push(current); current = ''; }
+      else { current += ch; }
+    }
+  }
+  result.push(current);
+  return result;
 }
 
 // ── 수동 수집 트리거 ─────────────────────────────────────────────────────────

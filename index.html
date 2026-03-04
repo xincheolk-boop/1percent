@@ -1945,6 +1945,8 @@
                 join: '가입하기',
                 joinBenefit: '가입하고 혜택받기',
                 realtimePrice: '🔥 실시간 시세',
+                hotIssue: '🔥 핫이슈',
+                newsSidebar: '📰 뉴스',
                 realtimeSearch: '🔍 실시간 검색',
                 schedule: '📅 코인 주요 일정',
                 fundingRate: 'BTC 펀딩비',
@@ -2011,6 +2013,8 @@
                 join: 'Join',
                 joinBenefit: 'Join & Get Benefits',
                 realtimePrice: '🔥 Live Prices',
+                hotIssue: '🔥 Hot Issues',
+                newsSidebar: '📰 News',
                 realtimeSearch: '🔍 Trending Search',
                 schedule: '📅 Crypto Schedule',
                 fundingRate: 'BTC Funding Rate',
@@ -2077,6 +2081,8 @@
                 join: '登録',
                 joinBenefit: '登録して特典を受ける',
                 realtimePrice: '🔥 リアルタイム価格',
+                hotIssue: '🔥 ホットイシュー',
+                newsSidebar: '📰 ニュース',
                 realtimeSearch: '🔍 トレンド検索',
                 schedule: '📅 仮想通貨スケジュール',
                 fundingRate: 'BTC資金調達率',
@@ -2141,6 +2147,8 @@
                 join: '注册',
                 joinBenefit: '注册获取优惠',
                 realtimePrice: '🔥 实时价格',
+                hotIssue: '🔥 热门话题',
+                newsSidebar: '📰 新闻',
                 realtimeSearch: '🔍 热门搜索',
                 schedule: '📅 加密货币日程',
                 fundingRate: 'BTC资金费率',
@@ -2205,6 +2213,8 @@
                 join: 'Đăng ký',
                 joinBenefit: 'Đăng ký nhận ưu đãi',
                 realtimePrice: '🔥 Giá thời gian thực',
+                hotIssue: '🔥 Nổi bật',
+                newsSidebar: '📰 Tin tức',
                 realtimeSearch: '🔍 Tìm kiếm xu hướng',
                 schedule: '📅 Lịch Crypto',
                 fundingRate: 'Tỷ lệ tài trợ BTC',
@@ -2282,11 +2292,15 @@
             if(slTitles[0]) slTitles[0].innerHTML = t.partnerEvent + ' <span class="sl-more" onclick="location.href=\'events.html\'">' + t.allView + '</span>';
             if(slTitles[1]) slTitles[1].innerHTML = t.tradingComp + ' <span class="sl-more" onclick="location.href=\'events.html\'">' + t.more + '</span>';
             
-            // 리워드 계산기
-            document.querySelector('.calc-input-group label').textContent = t.monthlyVolume;
-            document.querySelectorAll('.calc-input-group label')[1].textContent = t.selectExchange;
-            document.querySelector('.calc-result-label').textContent = t.expectedReward;
-            document.querySelector('.calc-btn').textContent = t.calculate;
+            // 리워드 계산기 (요소 있을 때만)
+            const calcLabel = document.querySelector('.calc-input-group label');
+            if (calcLabel) calcLabel.textContent = t.monthlyVolume;
+            const calcLabels = document.querySelectorAll('.calc-input-group label');
+            if (calcLabels[1]) calcLabels[1].textContent = t.selectExchange;
+            const calcResult = document.querySelector('.calc-result-label');
+            if (calcResult) calcResult.textContent = t.expectedReward;
+            const calcBtn = document.querySelector('.calc-btn');
+            if (calcBtn) calcBtn.textContent = t.calculate;
             
             // 메뉴 사이드바
             document.querySelector('.hs-title').textContent = t.menu;
@@ -2308,10 +2322,11 @@
             if(sectionTitles[1]) sectionTitles[1].textContent = t.community;
             
             // 오른쪽 사이드바
-            const srTitles = document.querySelectorAll('.sr-title');
+            const srTitles = document.querySelectorAll('.sidebar-right .sr-title');
             if(srTitles[0]) srTitles[0].textContent = t.realtimePrice;
-            if(srTitles[1]) srTitles[1].textContent = t.realtimeSearch;
-            if(srTitles[2]) srTitles[2].innerHTML = t.schedule + ' <span class="sr-more">' + t.more + '</span>';
+            if(srTitles[1]) srTitles[1].textContent = (t.hotIssue || '🔥 핫이슈');
+            if(srTitles[2]) srTitles[2].innerHTML = (t.newsSidebar || '📰 뉴스') + ' <span class="sr-more" onclick="location.href=\'news.html\'">' + t.more + '</span>';
+            if(srTitles[3]) srTitles[3].innerHTML = t.schedule + ' <span class="sr-more" onclick="location.href=\'calendar.html\'">' + t.more + '</span>';
             
             // 선물 카드
             const futuresLabels = document.querySelectorAll('.futures-card .label');
@@ -2624,12 +2639,14 @@
         // 선물·시장 데이터 가져오기
         async function fetchFuturesData() {
             try {
+                // Bitget API 프록시로 한번에 데이터 수집
+                const mRes = await fetch('/api/market/all');
+                const m = await mRes.json();
+
                 // === PAGE 1: BTC 계약 데이터 ===
-                // BTC 펀딩비 + markPrice
-                const fRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=BTCUSDT');
-                const f = await fRes.json();
-                const fRate = parseFloat(f.lastFundingRate) * 100;
-                const btcPrice = parseFloat(f.markPrice);
+                // BTC 펀딩비
+                const fRate = parseFloat(m.fundingBtc?.fundingRate || 0) * 100;
+                const btcPrice = parseFloat(m.tickerBtc?.lastPr || m.tickerBtc?.last || 0);
                 const fEl = document.getElementById('fCardFunding');
                 if (fEl) {
                     fEl.textContent = (fRate >= 0 ? '+' : '') + fRate.toFixed(4) + '%';
@@ -2638,10 +2655,9 @@
                 }
 
                 // BTC 롱/숏 비율
-                const lsRes = await fetch('https://fapi.binance.com/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=5m&limit=1');
-                const ls = await lsRes.json();
-                if (ls[0]) {
-                    const longR = Math.round(parseFloat(ls[0].longAccount) * 100);
+                const lsData = Array.isArray(m.longShortBtc) ? m.longShortBtc[0] : m.longShortBtc;
+                if (lsData) {
+                    const longR = Math.round(parseFloat(lsData.longAccountRatio || lsData.longRatio || 0.5) * 100);
                     const shortR = 100 - longR;
                     const lsEl = document.getElementById('fCardLS');
                     if (lsEl) {
@@ -2652,10 +2668,8 @@
                 }
 
                 // BTC 24h 티커 (청산 추정 + 거래량 + 고래)
-                const ftRes = await fetch('https://fapi.binance.com/fapi/v1/ticker/24hr?symbol=BTCUSDT');
-                const ft = await ftRes.json();
-                const vol24h = parseFloat(ft.quoteVolume);
-                const changeP = parseFloat(ft.priceChangePercent);
+                const vol24h = parseFloat(m.tickerBtc?.quoteVolume || m.tickerBtc?.usdtVolume || 0);
+                const changeP = parseFloat(m.tickerBtc?.change24h || m.tickerBtc?.chgUTC || 0) * 100;
                 const liqEst = vol24h * (0.001 + Math.abs(changeP) * 0.0005);
                 const liqEl = document.getElementById('fCardLiq');
                 if (liqEl) {
@@ -2665,9 +2679,8 @@
                 }
 
                 // BTC OI
-                const oiRes = await fetch('https://fapi.binance.com/fapi/v1/openInterest?symbol=BTCUSDT');
-                const oi = await oiRes.json();
-                const oiUsd = parseFloat(oi.openInterest) * btcPrice;
+                const oiAmt = parseFloat(m.oiBtc?.amount || 0);
+                const oiUsd = oiAmt * btcPrice;
                 const oiEl = document.getElementById('fCardOI');
                 if (oiEl) {
                     oiEl.textContent = '$' + (oiUsd/1e9).toFixed(2) + 'B';
@@ -2677,9 +2690,7 @@
 
                 // === PAGE 2: 시장 지표 ===
                 // ETH 펀딩비
-                const ethFRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=ETHUSDT');
-                const ethF = await ethFRes.json();
-                const ethFRate = parseFloat(ethF.lastFundingRate) * 100;
+                const ethFRate = parseFloat(m.fundingEth?.fundingRate || 0) * 100;
                 const ethFEl = document.getElementById('fCardEthFunding');
                 if (ethFEl) {
                     ethFEl.textContent = (ethFRate >= 0 ? '+' : '') + ethFRate.toFixed(4) + '%';
@@ -2741,10 +2752,8 @@
                 } catch(e) { /* 김프 실패 시 무시 */ }
 
                 // === PAGE 3: 알트 지표 ===
-                // SOL 펀딩비
-                const solFRes = await fetch('https://fapi.binance.com/fapi/v1/premiumIndex?symbol=SOLUSDT');
-                const solF = await solFRes.json();
-                const solFRate = parseFloat(solF.lastFundingRate) * 100;
+                // SOL 펀딩비 (Bitget)
+                const solFRate = parseFloat(m.fundingSol?.fundingRate || 0) * 100;
                 const solFEl = document.getElementById('fCardSolFunding');
                 if (solFEl) {
                     solFEl.textContent = (solFRate >= 0 ? '+' : '') + solFRate.toFixed(4) + '%';
@@ -2760,11 +2769,11 @@
                     document.getElementById('fCardVolSub').textContent = 'BTC 선물 24h';
                 }
 
-                // 고래 이동 (24h 거래 횟수 기반 활성도)
-                const tradeCount = parseInt(ft.count) || 0;
+                // 고래 이동 (거래량 기반 활성도 추정)
+                const whaleEst = vol24h > 0 ? Math.round(vol24h / 50000) : 0;
                 const whaleEl = document.getElementById('fCardWhale');
                 if (whaleEl) {
-                    whaleEl.textContent = tradeCount >= 1e6 ? (tradeCount/1e6).toFixed(1)+'M건' : Math.round(tradeCount/1e3)+'K건';
+                    whaleEl.textContent = whaleEst >= 1e6 ? (whaleEst/1e6).toFixed(1)+'M건' : Math.round(whaleEst/1e3)+'K건';
                     whaleEl.className = 'value';
                     document.getElementById('fCardWhaleSub').textContent = '24h BTC 거래 횟수';
                 }
