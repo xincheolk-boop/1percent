@@ -1118,26 +1118,57 @@ async function handleMarketProxy(request, url) {
     let result = {};
 
     if (path === 'all') {
-      // 한번에 모든 데이터 가져오기
-      const [frBtc, frEth, frSol, tBtc, oiBtc, lsBtc] = await Promise.all([
+      const BN = 'https://fapi.binance.com';
+      // Bitget + Binance 동시 수집
+      const promises = await Promise.allSettled([
+        // Bitget
         fetch(`${BASE}/current-fund-rate?symbol=BTCUSDT&productType=USDT-FUTURES`, { headers: HEADERS }).then(r => r.json()),
         fetch(`${BASE}/current-fund-rate?symbol=ETHUSDT&productType=USDT-FUTURES`, { headers: HEADERS }).then(r => r.json()),
         fetch(`${BASE}/current-fund-rate?symbol=SOLUSDT&productType=USDT-FUTURES`, { headers: HEADERS }).then(r => r.json()),
         fetch(`${BASE}/ticker?symbol=BTCUSDT&productType=USDT-FUTURES`, { headers: HEADERS }).then(r => r.json()),
         fetch(`${BASE}/open-interest?symbol=BTCUSDT&productType=USDT-FUTURES`, { headers: HEADERS }).then(r => r.json()),
         fetch(`${BASE}/account-long-short?symbol=BTCUSDT&productType=USDT-FUTURES&period=5m`, { headers: HEADERS }).then(r => r.json()),
+        // Binance (서버사이드 프록시 - CORS 문제 없음)
+        fetch(`${BN}/fapi/v1/premiumIndex?symbol=BTCUSDT`, { headers: HEADERS }).then(r => r.json()),
+        fetch(`${BN}/fapi/v1/premiumIndex?symbol=ETHUSDT`, { headers: HEADERS }).then(r => r.json()),
+        fetch(`${BN}/fapi/v1/premiumIndex?symbol=SOLUSDT`, { headers: HEADERS }).then(r => r.json()),
+        fetch(`${BN}/fapi/v1/ticker/24hr?symbol=BTCUSDT`, { headers: HEADERS }).then(r => r.json()),
+        fetch(`${BN}/fapi/v1/openInterest?symbol=BTCUSDT`, { headers: HEADERS }).then(r => r.json()),
+        fetch(`${BN}/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=5m&limit=1`, { headers: HEADERS }).then(r => r.json()),
       ]);
 
+      const v = (i) => promises[i].status === 'fulfilled' ? promises[i].value : null;
+
+      // Bitget 데이터
+      const bg = {
+        fundingBtc: v(0)?.data, fundingEth: v(1)?.data, fundingSol: v(2)?.data,
+        tickerBtc: v(3)?.data?.[0] || v(3)?.data,
+        oiBtc: v(4)?.data, longShortBtc: v(5)?.data,
+      };
+      // Binance 데이터
+      const bn = {
+        fundingBtc: v(6), fundingEth: v(7), fundingSol: v(8),
+        tickerBtc: v(9), oiBtc: v(10), longShortBtc: v(11),
+      };
+
+      // Bitget 우선, Binance 폴백
       result = {
-        fundingBtc: frBtc.data,
-        fundingEth: frEth.data,
-        fundingSol: frSol.data,
-        tickerBtc: tBtc.data?.[0] || tBtc.data,
-        oiBtc: oiBtc.data,
-        longShortBtc: lsBtc.data,
+        fundingBtc: bg.fundingBtc || bn.fundingBtc,
+        fundingEth: bg.fundingEth || bn.fundingEth,
+        fundingSol: bg.fundingSol || bn.fundingSol,
+        tickerBtc: bg.tickerBtc || bn.tickerBtc,
+        oiBtc: bg.oiBtc || bn.oiBtc,
+        longShortBtc: bg.longShortBtc || bn.longShortBtc,
+        // Binance 추가 데이터 (Bitget에 없는 것)
+        binance: {
+          fundingBtc: bn.fundingBtc,
+          tickerBtc: bn.tickerBtc,
+          oiBtc: bn.oiBtc,
+          longShortBtc: bn.longShortBtc,
+        },
+        source: bg.fundingBtc ? 'bitget' : (bn.fundingBtc ? 'binance' : 'none'),
       };
     } else {
-      // 개별 엔드포인트
       const search = url.search || '';
       const res = await fetch(`${BASE}/${path}${search}`, { headers: HEADERS });
       result = await res.json();

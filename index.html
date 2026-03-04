@@ -2769,8 +2769,10 @@
                     document.getElementById('fCardVolSub').textContent = 'BTC 선물 24h';
                 }
 
-                // 고래 이동 (거래량 기반 활성도 추정)
-                const whaleEst = vol24h > 0 ? Math.round(vol24h / 50000) : 0;
+                // 고래 이동 (Binance 거래횟수 or 거래량 기반 추정)
+                const bnTicker = m.binance?.tickerBtc;
+                const tradeCount = bnTicker ? parseInt(bnTicker.count) || 0 : 0;
+                const whaleEst = tradeCount > 0 ? tradeCount : (vol24h > 0 ? Math.round(vol24h / 50000) : 0);
                 const whaleEl = document.getElementById('fCardWhale');
                 if (whaleEl) {
                     whaleEl.textContent = whaleEst >= 1e6 ? (whaleEst/1e6).toFixed(1)+'M건' : Math.round(whaleEst/1e3)+'K건';
