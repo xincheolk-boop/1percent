@@ -64,23 +64,22 @@
         .highlight { color: var(--accent-cyan); font-weight: 700; font-family: 'Orbitron', monospace; }
 
         .event-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 40px; }
-        .evt-card { position: relative; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; overflow: hidden; transition: all 0.25s; text-decoration: none; display: block; }
+        .evt-card { position: relative; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 24px; overflow: hidden; transition: all 0.25s; text-decoration: none; display: block; }
         .evt-card:hover { border-color: var(--accent-gate); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,201,167,0.15); }
-        .evt-card .evt-img { width: 100%; height: 140px; object-fit: cover; display: block; border-bottom: 1px solid var(--border-color); }
-        .evt-card .evt-body { padding: 16px 20px 18px; }
-        .evt-card .evt-badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-bottom: 10px; }
+        .evt-card .evt-badge { display: inline-block; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-bottom: 12px; }
         .evt-badge.live { background: rgba(0,212,160,0.15); color: var(--accent-green); }
         .evt-badge.new { background: rgba(0,184,217,0.15); color: var(--accent-cyan); }
         .evt-badge.hot { background: rgba(220,38,38,0.15); color: var(--accent-red); }
-        .evt-card .evt-title { font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; line-height: 1.4; }
-        .evt-card .evt-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .evt-card .evt-prize { font-family: 'Orbitron', monospace; font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+        .evt-card .evt-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; line-height: 1.4; }
+        .evt-card .evt-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px; }
+        .evt-card .evt-prize { font-family: 'Orbitron', monospace; font-size: 22px; font-weight: 800; margin-bottom: 6px; }
         .evt-card .evt-prize.green { color: var(--accent-gate); }
         .evt-card .evt-prize.cyan { color: var(--accent-cyan); }
-        .evt-card .evt-period { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+        .evt-card .evt-period { font-size: 11px; color: var(--text-muted); margin-bottom: 14px; }
         .evt-card .evt-btn { display: inline-block; padding: 8px 20px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; }
         .evt-btn.primary { background: linear-gradient(135deg, var(--accent-gate), #00966e); color: #000; }
         .evt-btn.secondary { background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .evt-card .evt-bg { position: absolute; top: -20px; right: -20px; font-size: 80px; opacity: 0.06; pointer-events: none; }
         @media (max-width: 768px) { .event-cards { grid-template-columns: 1fr; } }
 
         /* ===== 리워드 랭킹 ===== */
@@ -159,7 +158,7 @@
                 </div>
             </div>
             <a class="nav-item" href="exchanges.html">거래소</a>
-            <a class="nav-item" href="rewards.html">선물</a>
+            <a class="nav-item" href="rewards.html">리워드</a>
             <a class="nav-item" href="events.html">이벤트</a>
         </div>
     </div>
@@ -205,48 +204,40 @@
         <div class="section-title">이벤트</div>
         <div class="event-cards">
             <a class="evt-card" href="https://www.gate.com/share/ONEPROPP" target="_blank">
-                <img class="evt-img" src="https://gavatar.staticimgs.com/marketing_manager/2026-02-24/20260224-58a627ed-0324-4aef-a5d9-4a3943988755.webp" alt="Gate.io 신규 가입 보너스" loading="lazy">
-                <div class="evt-body">
-                    <span class="evt-badge new">NEW</span>
-                    <div class="evt-title">신규 가입 보너스</div>
-                    <div class="evt-desc">1% Trading 전용 링크로 가입 시 웰컴 보너스 + 거래 쿠폰 지급</div>
-                    <div class="evt-prize green">WELCOME BONUS</div>
-                    <div class="evt-period">상시 진행</div>
-                    <span class="evt-btn primary">가입하고 받기 →</span>
-                </div>
+                <div class="evt-bg">🎁</div>
+                <span class="evt-badge new">NEW</span>
+                <div class="evt-title">신규 가입 보너스</div>
+                <div class="evt-desc">1% Trading 전용 링크로 가입 시 웰컴 보너스 + 거래 쿠폰 지급</div>
+                <div class="evt-prize green">WELCOME BONUS</div>
+                <div class="evt-period">상시 진행</div>
+                <span class="evt-btn primary">가입하고 받기 →</span>
             </a>
             <a class="evt-card" href="https://www.gate.com/share/act/4630f579" target="_blank">
-                <img class="evt-img" src="https://gavatar.staticimgs.com/marketing_manager/2025-12-31/20251231-7c1ee2ff-f732-46f5-8ac2-ff9d5e8ae2da.webp" alt="GT Holder Benefits" loading="lazy">
-                <div class="evt-body">
-                    <span class="evt-badge live">● 진행중</span>
-                    <div class="evt-title">GT Holder Benefits</div>
-                    <div class="evt-desc">GT 토큰 보유 시 수수료 할인, 에어드랍 참여, Startup 우선권 등 혜택 제공</div>
-                    <div class="evt-prize green">GT 홀더 혜택</div>
-                    <div class="evt-period">상시 진행</div>
-                    <span class="evt-btn secondary">자세히 보기 →</span>
-                </div>
+                <div class="evt-bg">💎</div>
+                <span class="evt-badge live">● 진행중</span>
+                <div class="evt-title">GT Holder Benefits</div>
+                <div class="evt-desc">GT 토큰 보유 시 수수료 할인, 에어드랍 참여, Startup 우선권 등 혜택 제공</div>
+                <div class="evt-prize green">GT 홀더 혜택</div>
+                <div class="evt-period">상시 진행</div>
+                <span class="evt-btn secondary">자세히 보기 →</span>
             </a>
             <a class="evt-card" href="events.html">
-                <img class="evt-img" src="https://gavatar.staticimgs.com/marketing_manager/2026-03-03/20260303-d7c44ded-f09a-48d5-b7aa-2bd9e808eb8c.webp" alt="Startup 런치패드" loading="lazy">
-                <div class="evt-body">
-                    <span class="evt-badge hot">HOT</span>
-                    <div class="evt-title">Startup 런치패드</div>
-                    <div class="evt-desc">신규 토큰 사전 참여 기회! GT 보유량에 따라 배분량 결정</div>
-                    <div class="evt-prize cyan">FREE TOKEN</div>
-                    <div class="evt-period">수시 오픈</div>
-                    <span class="evt-btn secondary">자세히 보기 →</span>
-                </div>
+                <div class="evt-bg">🚀</div>
+                <span class="evt-badge hot">HOT</span>
+                <div class="evt-title">Startup 런치패드</div>
+                <div class="evt-desc">신규 토큰 사전 참여 기회! GT 보유량에 따라 배분량 결정</div>
+                <div class="evt-prize cyan">FREE TOKEN</div>
+                <div class="evt-period">수시 오픈</div>
+                <span class="evt-btn secondary">자세히 보기 →</span>
             </a>
             <a class="evt-card" href="events.html">
-                <img class="evt-img" src="https://gavatar.staticimgs.com/marketing_manager/2026-02-04/20260204-2863f3f0-1a2f-4dcd-9b92-60503c626425.webp" alt="트레이딩 대회" loading="lazy">
-                <div class="evt-body">
-                    <span class="evt-badge live">● 진행중</span>
-                    <div class="evt-title">트레이딩 대회</div>
-                    <div class="evt-desc">선물 거래량 및 수익률 경쟁, 상위 랭킹에게 상금 지급</div>
-                    <div class="evt-prize green">PRIZE POOL</div>
-                    <div class="evt-period">수시 진행</div>
-                    <span class="evt-btn secondary">전체 이벤트 보기 →</span>
-                </div>
+                <div class="evt-bg">🏆</div>
+                <span class="evt-badge live">● 진행중</span>
+                <div class="evt-title">트레이딩 대회</div>
+                <div class="evt-desc">선물 거래량 및 수익률 경쟁, 상위 랭킹에게 상금 지급</div>
+                <div class="evt-prize green">PRIZE POOL</div>
+                <div class="evt-period">수시 진행</div>
+                <span class="evt-btn secondary">전체 이벤트 보기 →</span>
             </a>
         </div>
 
