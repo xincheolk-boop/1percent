@@ -61,9 +61,19 @@ export default {
       return handleSeedEvents(request, env);
     }
 
+    // Admin Journal API (must come before /api/admin catch-all)
+    if (url.pathname.startsWith('/api/admin/journal/')) {
+      return handleAdminJournal(request, env, url.pathname);
+    }
+
     // Admin API (catch-all for other admin routes)
     if (url.pathname.startsWith('/api/admin')) {
       return handleAdmin(request, env, url);
+    }
+
+    // Journal (Trading Diary) API
+    if (url.pathname.startsWith('/api/journal/')) {
+      return handleJournal(request, env, url.pathname);
     }
 
     // Auth API
@@ -1925,3 +1935,239 @@ async function handleAutoWithdrawal(request, env, url) {
 
 // ── 마이페이지 커미션 API ────────────────────────────────────────────────────
 // (handleMypage 함수에 추가할 라우트 - 아래에서 기존 함수에 패치)
+
+// ── JSON Response Helper ────────────────────────────────────────────────────
+function jsonResp(data, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET,POST,PATCH,DELETE,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type,Authorization'
+    }
+  });
+}
+
+// ── 매매일지 (Trading Journal) API ──────────────────────────────────────────
+async function handleJournal(request, env, path) {
+  const method = request.method;
+
+  // GET /api/journal/trades - 트레이드 목록 (필터링/페이징)
+  if (path === '/api/journal/trades' && method === 'GET') {
+    const url = new URL(request.url);
+    const status = url.searchParams.get('status');
+    const symbol = url.searchParams.get('symbol');
+    const exchange = url.searchParams.get('exchange');
+    const from = url.searchParams.get('from');
+    const to = url.searchParams.get('to');
+    const limit = parseInt(url.searchParams.get('limit') || '50');
+    const offset = parseInt(url.searchParams.get('offset') || '0');
+
+    let query = 'SELECT * FROM trades WHERE 1=1';
+    const params = [];
+    if (status) { query += ' AND status = ?'; params.push(status); }
+    if (symbol) { query += ' AND symbol = ?'; params.push(symbol); }
+    if (exchange) { query += ' AND exchange = ?'; params.push(exchange); }
+    if (from) { query += ' AND trade_date >= ?'; params.push(from); }
+    if (to) { query += ' AND trade_date <= ?'; params.push(to); }
+    query += ' ORDER BY trade_date DESC, created_at DESC LIMIT ? OFFSET ?';
+    params.push(limit, offset);
+
+    const { results } = await env.DB.prepare(query).bind(...params).all();
+    return jsonResp({ trades: results, total: results.length, limit, offset });
+  }
+
+  // GET /api/journal/trades/:id - 개별 트레이드 조회
+  if (path.match(/^\/api\/journal\/trades\/[\w-]+$/) && method === 'GET') {
+    const tradeId = path.split('/').pop();
+    const { results } = await env.DB.prepare(
+      'SELECT * FROM trades WHERE trade_id = ? OR id = ?'
+    ).bind(tradeId, tradeId).all();
+    if (!results.length) return jsonResp({ error: 'Not found' }, 404);
+    return jsonResp(results[0]);
+  }
+
+  // POST /api/journal/trades - 트레이드 생성/업서트
+  if (path === '/api/journal/trades' && method === 'POST') {
+    const body = await request.json();
+    const {
+      trade_id, exchange, symbol, position,
+      result = '', pnl = 0, entry_price = 0, exit_price = 0, sl_price = 0,
+      size = 0, leverage = 1, fee = 0, trade_type = '', setup_type = '',
+      status = 'open', entry_reason = '', exit_reason = '', comment = '',
+      discipline_score = '', w_score = '', notion_page_id = '', chart_url = '',
+      trade_date
+    } = body;
+
+    if (!trade_id || !exchange || !symbol || !position) {
+      return jsonResp({ error: 'trade_id, exchange, symbol, position 필수' }, 400);
+    }
+
+    const date = trade_date || new Date().toISOString().slice(0, 10);
+    await env.DB.prepare(
+      `INSERT OR REPLACE INTO trades
+        (trade_id, exchange, symbol, position, result, pnl, entry_price, exit_price,
+         sl_price, size, leverage, fee, trade_type, setup_type, status, entry_reason,
+         exit_reason, comment, discipline_score, w_score, notion_page_id, chart_url,
+         trade_date, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`
+    ).bind(
+      trade_id, exchange, symbol, position, result, pnl, entry_price, exit_price,
+      sl_price, size, leverage, fee, trade_type, setup_type, status, entry_reason,
+      exit_reason, comment, discipline_score, w_score, notion_page_id, chart_url, date
+    ).run();
+    return jsonResp({ success: true, trade_id });
+  }
+
+  // PATCH /api/journal/trades/:id - 트레이드 수정
+  if (path.match(/^\/api\/journal\/trades\/[\w-]+$/) && method === 'PATCH') {
+    const tradeId = path.split('/').pop();
+    const body = await request.json();
+    const fields = [];
+    const values = [];
+    const allowed = [
+      'result', 'pnl', 'exit_price', 'fee', 'status', 'exit_reason',
+      'comment', 'discipline_score', 'notion_page_id', 'chart_url',
+      'trade_type', 'setup_type'
+    ];
+    for (const key of allowed) {
+      if (body[key] !== undefined) {
+        fields.push(`${key} = ?`);
+        values.push(body[key]);
+      }
+    }
+    if (!fields.length) return jsonResp({ error: 'No fields' }, 400);
+    fields.push("updated_at = datetime('now')");
+    values.push(tradeId, tradeId);
+    await env.DB.prepare(
+      `UPDATE trades SET ${fields.join(', ')} WHERE trade_id = ? OR id = ?`
+    ).bind(...values).run();
+    return jsonResp({ success: true });
+  }
+
+  // DELETE /api/journal/trades/:id - 트레이드 삭제
+  if (path.match(/^\/api\/journal\/trades\/[\w-]+$/) && method === 'DELETE') {
+    const tradeId = path.split('/').pop();
+    await env.DB.prepare(
+      'DELETE FROM trades WHERE trade_id = ? OR id = ?'
+    ).bind(tradeId, tradeId).run();
+    return jsonResp({ success: true });
+  }
+
+  // GET /api/journal/stats - 전체 통계
+  if (path === '/api/journal/stats' && method === 'GET') {
+    const { results } = await env.DB.prepare(
+      `SELECT
+        COUNT(*) as total_trades,
+        SUM(CASE WHEN result='승' THEN 1 ELSE 0 END) as wins,
+        SUM(CASE WHEN result='패' THEN 1 ELSE 0 END) as losses,
+        SUM(CASE WHEN result='무' THEN 1 ELSE 0 END) as breakeven,
+        ROUND(SUM(pnl),2) as total_pnl,
+        ROUND(SUM(fee),2) as total_fees,
+        ROUND(AVG(CASE WHEN pnl>0 THEN pnl END),2) as avg_win,
+        ROUND(AVG(CASE WHEN pnl<0 THEN ABS(pnl) END),2) as avg_loss
+       FROM trades WHERE status='closed'`
+    ).all();
+    const s = results[0] || {};
+    s.win_rate = (s.wins + s.losses) > 0
+      ? parseFloat(((s.wins / (s.wins + s.losses)) * 100).toFixed(2)) : 0;
+    s.rr_ratio = (s.avg_win && s.avg_loss)
+      ? parseFloat((s.avg_win / s.avg_loss).toFixed(2)) : 0;
+    return jsonResp(s);
+  }
+
+  // GET /api/journal/stats/daily - 일별 통계
+  if (path === '/api/journal/stats/daily' && method === 'GET') {
+    const url = new URL(request.url);
+    const days = parseInt(url.searchParams.get('days') || '30');
+    const { results } = await env.DB.prepare(
+      `SELECT trade_date as date, COUNT(*) as trades,
+        SUM(CASE WHEN result='승' THEN 1 ELSE 0 END) as wins,
+        ROUND(SUM(pnl),2) as pnl
+       FROM trades WHERE status='closed'
+        AND trade_date >= date('now','-'||?||' days')
+       GROUP BY trade_date ORDER BY trade_date DESC`
+    ).bind(days).all();
+    return jsonResp(results);
+  }
+
+  // GET /api/journal/stats/symbol - 심볼별 통계
+  if (path === '/api/journal/stats/symbol' && method === 'GET') {
+    const { results } = await env.DB.prepare(
+      `SELECT symbol, COUNT(*) as trades,
+        SUM(CASE WHEN result='승' THEN 1 ELSE 0 END) as wins,
+        ROUND(SUM(pnl),2) as pnl
+       FROM trades WHERE status='closed'
+       GROUP BY symbol ORDER BY pnl DESC`
+    ).all();
+    return jsonResp(results);
+  }
+
+  // GET /api/journal/positions - 오픈 포지션 목록
+  if (path === '/api/journal/positions' && method === 'GET') {
+    const { results } = await env.DB.prepare(
+      "SELECT * FROM trades WHERE status='open' ORDER BY created_at DESC"
+    ).all();
+    return jsonResp(results);
+  }
+
+  // GET /api/journal/today - 오늘 거래 요약
+  if (path === '/api/journal/today' && method === 'GET') {
+    const { results } = await env.DB.prepare(
+      "SELECT * FROM trades WHERE trade_date=date('now') ORDER BY created_at DESC"
+    ).all();
+    const pnl = results.reduce((s, t) => s + (t.pnl || 0), 0);
+    const wins = results.filter(t => t.result === '승').length;
+    return jsonResp({
+      trades: results,
+      summary: { count: results.length, wins, pnl: parseFloat(pnl.toFixed(2)) }
+    });
+  }
+
+  return jsonResp({ error: 'Not found' }, 404);
+}
+
+// ── 매매일지 관리자 API ─────────────────────────────────────────────────────
+async function handleAdminJournal(request, env, path) {
+  // GET /api/admin/journal/stats - 관리자 통계
+  if (path === '/api/admin/journal/stats') {
+    const { results } = await env.DB.prepare(
+      `SELECT
+        COUNT(*) as total,
+        SUM(CASE WHEN status='open' THEN 1 ELSE 0 END) as open_positions,
+        ROUND(SUM(CASE WHEN status='closed' THEN pnl ELSE 0 END),2) as total_pnl
+       FROM trades`
+    ).all();
+    return jsonResp(results[0] || {});
+  }
+
+  // POST /api/admin/journal/bulk - 대량 트레이드 입력
+  if (path === '/api/admin/journal/bulk' && request.method === 'POST') {
+    const body = await request.json();
+    const trades = body.trades || [];
+    let inserted = 0;
+    for (const t of trades) {
+      try {
+        await env.DB.prepare(
+          `INSERT OR IGNORE INTO trades
+            (trade_id, exchange, symbol, position, result, pnl, entry_price, exit_price,
+             sl_price, size, leverage, fee, trade_type, status, entry_reason, exit_reason, trade_date)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+        ).bind(
+          t.trade_id || `import_${Date.now()}_${inserted}`,
+          t.exchange || '', t.symbol || '', t.position || '',
+          t.result || '', t.pnl || 0, t.entry_price || 0, t.exit_price || 0,
+          t.sl_price || 0, t.size || 0, t.leverage || 1, t.fee || 0,
+          t.trade_type || '', t.status || 'closed',
+          t.entry_reason || '', t.exit_reason || '',
+          t.trade_date || new Date().toISOString().slice(0, 10)
+        ).run();
+        inserted++;
+      } catch (e) { /* skip duplicates */ }
+    }
+    return jsonResp({ success: true, inserted });
+  }
+
+  return jsonResp({ error: 'Not found' }, 404);
+}
