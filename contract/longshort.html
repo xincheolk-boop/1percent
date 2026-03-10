@@ -123,52 +123,86 @@
     </div>
 
     <script>
+        function parseLongShort(lsData) {
+            if (!lsData) return null;
+            const item = Array.isArray(lsData) ? lsData[lsData.length - 1] : lsData;
+            if (!item) return null;
+            const longR = parseFloat(item.longAccount || item.longAccountRatio || item.longRatio || 0) * 100;
+            const shortR = parseFloat(item.shortAccount || item.shortAccountRatio || item.shortRatio || 0) * 100;
+            return { longR: longR || 50, shortR: shortR || 50 };
+        }
+
+        function updateUI(longR, shortR, source) {
+            document.getElementById('longRatio').textContent = longR.toFixed(1) + '%';
+            document.getElementById('shortRatio').textContent = shortR.toFixed(1) + '%';
+            document.getElementById('longDesc').textContent = '매수 포지션';
+            document.getElementById('shortDesc').textContent = '매도 포지션';
+            document.getElementById('longBar').style.width = longR + '%';
+            document.getElementById('longPct').textContent = longR.toFixed(1) + '%';
+            document.getElementById('shortPct').textContent = shortR.toFixed(1) + '%';
+
+            let sentiment, sentimentSub;
+            if (longR > 65) { sentiment = '강한 롱'; sentimentSub = '과열 주의'; }
+            else if (longR > 55) { sentiment = '롱 우세'; sentimentSub = '매수 심리 강함'; }
+            else if (longR < 35) { sentiment = '강한 숏'; sentimentSub = '하락 우세'; }
+            else if (longR < 45) { sentiment = '숏 우세'; sentimentSub = '매도 심리 강함'; }
+            else { sentiment = '균형'; sentimentSub = '중립적 시장'; }
+            document.getElementById('sentiment').textContent = sentiment;
+            document.getElementById('sentimentSub').textContent = sentimentSub;
+
+            const now = new Date();
+            document.getElementById('refreshBadge').textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0') + ' 갱신 (' + source + ')';
+        }
+
         async function load() {
             try {
-                const res = await fetch('/api/binance/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=5m&limit=10');
-                const data = await res.json();
-                const latest = data[data.length - 1];
-                const longR = parseFloat(latest.longAccount) * 100;
-                const shortR = parseFloat(latest.shortAccount) * 100;
+                let historyLoaded = false;
 
-                document.getElementById('longRatio').textContent = longR.toFixed(1) + '%';
-                document.getElementById('shortRatio').textContent = shortR.toFixed(1) + '%';
-                document.getElementById('longDesc').textContent = '매수 포지션';
-                document.getElementById('shortDesc').textContent = '매도 포지션';
+                // 1차: Binance 프록시 (히스토리 포함)
+                try {
+                    const res = await fetch('/api/binance/futures/data/globalLongShortAccountRatio?symbol=BTCUSDT&period=5m&limit=10');
+                    if (!res.ok) throw new Error('proxy fail');
+                    const data = await res.json();
+                    if (data.error || !Array.isArray(data) || data.length === 0) throw new Error('bad data');
 
-                document.getElementById('longBar').style.width = longR + '%';
-                document.getElementById('longPct').textContent = longR.toFixed(1) + '%';
-                document.getElementById('shortPct').textContent = shortR.toFixed(1) + '%';
+                    const latest = data[data.length - 1];
+                    const longR = parseFloat(latest.longAccount) * 100;
+                    const shortR = parseFloat(latest.shortAccount) * 100;
+                    updateUI(longR, shortR, 'Binance');
 
-                let sentiment, sentimentSub;
-                if (longR > 65) { sentiment = '🔥 강한 롱'; sentimentSub = '과열 주의'; }
-                else if (longR > 55) { sentiment = '📈 롱 우세'; sentimentSub = '매수 심리 강함'; }
-                else if (longR < 35) { sentiment = '🧊 강한 숏'; sentimentSub = '하락 우세'; }
-                else if (longR < 45) { sentiment = '📉 숏 우세'; sentimentSub = '매도 심리 강함'; }
-                else { sentiment = '⚖️ 균형'; sentimentSub = '중립적 시장'; }
-                document.getElementById('sentiment').textContent = sentiment;
-                document.getElementById('sentimentSub').textContent = sentimentSub;
+                    const rows = [...data].reverse().map(item => {
+                        const lR = parseFloat(item.longAccount) * 100;
+                        const sR = parseFloat(item.shortAccount) * 100;
+                        const dt = new Date(parseInt(item.timestamp));
+                        const t = dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
+                        const dir = lR > sR ? '롱 우세' : '숏 우세';
+                        const col = lR > sR ? 'var(--accent-green)' : 'var(--accent-red)';
+                        return `<tr>
+                            <td style="color:var(--text-secondary);">${t}</td>
+                            <td style="color:var(--accent-green);font-family:Orbitron,monospace;font-weight:700;">${lR.toFixed(1)}%</td>
+                            <td style="color:var(--accent-red);font-family:Orbitron,monospace;font-weight:700;">${sR.toFixed(1)}%</td>
+                            <td><span style="font-size:11px;color:${col};background:${lR>sR?'rgba(0,212,160,0.1)':'rgba(220,38,38,0.1)'};padding:2px 8px;border-radius:4px;">${dir}</span></td>
+                        </tr>`;
+                    }).join('');
+                    document.getElementById('historyBody').innerHTML = rows;
+                    historyLoaded = true;
+                    return;
+                } catch(e) { /* fallback */ }
 
-                const rows = [...data].reverse().map(item => {
-                    const lR = parseFloat(item.longAccount) * 100;
-                    const sR = parseFloat(item.shortAccount) * 100;
-                    const dt = new Date(parseInt(item.timestamp));
-                    const t = dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
-                    const dir = lR > sR ? '롱 우세' : '숏 우세';
-                    const col = lR > sR ? 'var(--accent-green)' : 'var(--accent-red)';
-                    return `<tr>
-                        <td style="color:var(--text-secondary);">${t}</td>
-                        <td style="color:var(--accent-green);font-family:Orbitron,monospace;font-weight:700;">${lR.toFixed(1)}%</td>
-                        <td style="color:var(--accent-red);font-family:Orbitron,monospace;font-weight:700;">${sR.toFixed(1)}%</td>
-                        <td><span style="font-size:11px;color:${col};background:${lR>sR?'rgba(0,212,160,0.1)':'rgba(220,38,38,0.1)'};padding:2px 8px;border-radius:4px;">${dir}</span></td>
-                    </tr>`;
-                }).join('');
-                document.getElementById('historyBody').innerHTML = rows;
+                // 2차: /api/market/all 폴백 (현재값만)
+                const mRes = await fetch('/api/market/all');
+                if (!mRes.ok) throw new Error('market fail');
+                const m = await mRes.json();
+                const ls = parseLongShort(m.longShortBtc);
+                if (!ls) throw new Error('no ls data');
+                updateUI(ls.longR, ls.shortR, m.source || 'API');
 
-                const now = new Date();
-                document.getElementById('refreshBadge').textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0') + ' 갱신';
+                if (!historyLoaded) {
+                    document.getElementById('historyBody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">히스토리 데이터를 불러올 수 없습니다</td></tr>';
+                }
             } catch(e) {
                 document.getElementById('refreshBadge').textContent = '오류 발생';
+                console.warn('LongShort load fail:', e);
             }
         }
         load();

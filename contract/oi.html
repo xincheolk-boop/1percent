@@ -109,73 +109,106 @@
             return '$' + n.toFixed(0);
         }
         let prevOI = null;
+
+        async function fetchOIDirect() {
+            const [oiRes, priceRes] = await Promise.all([
+                fetch('/api/binance/fapi/v1/openInterest?symbol=BTCUSDT'),
+                fetch('/api/binance/fapi/v1/ticker/price?symbol=BTCUSDT')
+            ]);
+            if (!oiRes.ok || !priceRes.ok) throw new Error('proxy fail');
+            const oiD = await oiRes.json();
+            const priceD = await priceRes.json();
+            if (oiD.error || priceD.error) throw new Error('api error');
+            return {
+                oiBtc: parseFloat(oiD.openInterest),
+                btcPrice: parseFloat(priceD.price),
+                source: 'Binance'
+            };
+        }
+
+        async function fetchOIFallback() {
+            const res = await fetch('/api/market/all');
+            if (!res.ok) throw new Error('market fail');
+            const m = await res.json();
+            const oi = m.oiBtc;
+            const tk = m.tickerBtc || m.binance?.tickerBtc;
+            if (!oi && !tk) throw new Error('no data');
+            const oiBtc = parseFloat(oi?.openInterest || oi?.amount || 0);
+            const btcPrice = parseFloat(tk?.lastPrice || tk?.lastPr || tk?.last || 0);
+            return { oiBtc, btcPrice, source: m.source || 'API' };
+        }
+
         async function load() {
             try {
-                // 현재 OI
-                const oiRes = await fetch('/api/binance/fapi/v1/openInterest?symbol=BTCUSDT');
-                const oiD = await oiRes.json();
-                const oiBtc = parseFloat(oiD.openInterest);
+                let data;
+                try {
+                    data = await fetchOIDirect();
+                } catch(e) {
+                    data = await fetchOIFallback();
+                }
 
-                // BTC 현재가
-                const priceRes = await fetch('/api/binance/fapi/v1/ticker/price?symbol=BTCUSDT');
-                const priceD = await priceRes.json();
-                const btcPrice = parseFloat(priceD.price);
-                const oiUsd = oiBtc * btcPrice;
+                const oiUsd = data.oiBtc * data.btcPrice;
+                document.getElementById('oiUsd').textContent = oiUsd > 0 ? fmtB(oiUsd) : '--';
+                document.getElementById('oiBtc').textContent = data.oiBtc > 0 ? data.oiBtc.toLocaleString('en', {maximumFractionDigits:0}) + ' BTC' : '--';
+                document.getElementById('oiBtcSub').textContent = data.btcPrice > 0 ? '$' + data.btcPrice.toLocaleString() + '/BTC 기준' : '--';
 
-                document.getElementById('oiUsd').textContent = fmtB(oiUsd);
-                document.getElementById('oiBtc').textContent = oiBtc.toLocaleString('en', {maximumFractionDigits:0}) + ' BTC';
-                document.getElementById('oiBtcSub').textContent = '$' + btcPrice.toLocaleString() + '/BTC 기준';
-
-                if (prevOI !== null) {
-                    const chg = ((oiBtc - prevOI) / prevOI) * 100;
+                if (prevOI !== null && data.oiBtc > 0) {
+                    const chg = ((data.oiBtc - prevOI) / prevOI) * 100;
                     const el = document.getElementById('oiChange');
                     el.textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
                     el.className = 'metric-value ' + (chg >= 0 ? 'green' : 'red');
                     el.style.fontSize = '22px';
                     document.getElementById('oiChangeSub').textContent = chg >= 0 ? 'OI 증가 중' : 'OI 감소 중';
                 }
-                prevOI = oiBtc;
+                if (data.oiBtc > 0) prevOI = data.oiBtc;
 
                 // OI 히스토리
-                const histRes = await fetch('/api/binance/futures/data/openInterestHist?symbol=BTCUSDT&period=5m&limit=10');
-                const histData = await histRes.json();
+                try {
+                    const histRes = await fetch('/api/binance/futures/data/openInterestHist?symbol=BTCUSDT&period=5m&limit=10');
+                    if (!histRes.ok) throw new Error('hist fail');
+                    const histData = await histRes.json();
+                    if (histData.error || !Array.isArray(histData) || histData.length === 0) throw new Error('bad data');
 
-                // 미니 차트
-                const oiVals = histData.map(d => parseFloat(d.sumOpenInterest));
-                const minOI = Math.min(...oiVals);
-                const maxOI = Math.max(...oiVals);
-                const chartHTML = oiVals.map((v, i) => {
-                    const pct = maxOI === minOI ? 50 : ((v - minOI) / (maxOI - minOI)) * 70 + 10;
-                    const col = i === oiVals.length - 1 ? 'var(--accent-purple)' : 'rgba(147,51,234,0.4)';
-                    return `<div class="oi-bar" style="height:${pct}%;background:${col};"></div>`;
-                }).join('');
-                document.getElementById('oiChart').innerHTML = chartHTML;
+                    const oiVals = histData.map(d => parseFloat(d.sumOpenInterest));
+                    const minOI = Math.min(...oiVals);
+                    const maxOI = Math.max(...oiVals);
+                    const chartHTML = oiVals.map((v, i) => {
+                        const pct = maxOI === minOI ? 50 : ((v - minOI) / (maxOI - minOI)) * 70 + 10;
+                        const col = i === oiVals.length - 1 ? 'var(--accent-purple)' : 'rgba(147,51,234,0.4)';
+                        return `<div class="oi-bar" style="height:${pct}%;background:${col};"></div>`;
+                    }).join('');
+                    document.getElementById('oiChart').innerHTML = chartHTML;
 
-                const rows = [...histData].reverse().map((item, i) => {
-                    const oi = parseFloat(item.sumOpenInterest);
-                    const oiUsd2 = oi * btcPrice;
-                    const dt = new Date(parseInt(item.timestamp));
-                    const t = dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
-                    const prev = histData[histData.length - 1 - i - 1];
-                    let chgStr = '--';
-                    if (prev) {
-                        const chg = ((oi - parseFloat(prev.sumOpenInterest)) / parseFloat(prev.sumOpenInterest)) * 100;
-                        const c = chg >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
-                        chgStr = `<span style="color:${c};font-weight:700;">${chg>=0?'+':''}${chg.toFixed(2)}%</span>`;
-                    }
-                    return `<tr>
-                        <td style="color:var(--text-secondary);">${t}</td>
-                        <td style="font-family:Orbitron,monospace;font-size:11px;color:var(--accent-purple);">${fmtB(oiUsd2)}</td>
-                        <td style="color:var(--text-secondary);">${oi.toLocaleString('en',{maximumFractionDigits:0})} BTC</td>
-                        <td>${chgStr}</td>
-                    </tr>`;
-                }).join('');
-                document.getElementById('historyBody').innerHTML = rows;
+                    const rows = [...histData].reverse().map((item, i) => {
+                        const oi = parseFloat(item.sumOpenInterest);
+                        const oiUsd2 = oi * data.btcPrice;
+                        const dt = new Date(parseInt(item.timestamp));
+                        const t = dt.getHours().toString().padStart(2,'0') + ':' + dt.getMinutes().toString().padStart(2,'0');
+                        const prev = histData[histData.length - 1 - i - 1];
+                        let chgStr = '--';
+                        if (prev) {
+                            const chg = ((oi - parseFloat(prev.sumOpenInterest)) / parseFloat(prev.sumOpenInterest)) * 100;
+                            const c = chg >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+                            chgStr = `<span style="color:${c};font-weight:700;">${chg>=0?'+':''}${chg.toFixed(2)}%</span>`;
+                        }
+                        return `<tr>
+                            <td style="color:var(--text-secondary);">${t}</td>
+                            <td style="font-family:Orbitron,monospace;font-size:11px;color:var(--accent-purple);">${fmtB(oiUsd2)}</td>
+                            <td style="color:var(--text-secondary);">${oi.toLocaleString('en',{maximumFractionDigits:0})} BTC</td>
+                            <td>${chgStr}</td>
+                        </tr>`;
+                    }).join('');
+                    document.getElementById('historyBody').innerHTML = rows;
+                } catch(e) {
+                    document.getElementById('oiChart').innerHTML = '';
+                    document.getElementById('historyBody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">히스토리 데이터를 불러올 수 없습니다</td></tr>';
+                }
 
                 const now = new Date();
-                document.getElementById('refreshBadge').textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0') + ' 갱신';
+                document.getElementById('refreshBadge').textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0') + ' 갱신 (' + data.source + ')';
             } catch(e) {
                 document.getElementById('refreshBadge').textContent = '오류 발생';
+                console.warn('OI load fail:', e);
             }
         }
         load();

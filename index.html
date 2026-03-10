@@ -2639,14 +2639,38 @@
         // 선물·시장 데이터 가져오기
         async function fetchFuturesData() {
             try {
-                // Bitget API 프록시로 한번에 데이터 수집
                 const mRes = await fetch('/api/market/all');
                 const m = await mRes.json();
+                const isBinance = m.source === 'binance';
+
+                // 헬퍼: Bitget/Binance 필드명 호환
+                function getFundingRate(fd) {
+                    if (!fd) return 0;
+                    return parseFloat(fd.fundingRate || fd.lastFundingRate || 0);
+                }
+                function getBtcPrice(tk) {
+                    if (!tk) return 0;
+                    return parseFloat(tk.lastPr || tk.last || tk.lastPrice || 0);
+                }
+                function getVolume(tk) {
+                    if (!tk) return 0;
+                    return parseFloat(tk.quoteVolume || tk.usdtVolume || 0);
+                }
+                function getChange(tk) {
+                    if (!tk) return 0;
+                    if (tk.priceChangePercent !== undefined) return parseFloat(tk.priceChangePercent);
+                    return parseFloat(tk.change24h || tk.chgUTC || 0) * 100;
+                }
+                function getOI(oi, price) {
+                    if (!oi) return 0;
+                    if (oi.amount) return parseFloat(oi.amount) * price;
+                    if (oi.openInterest) return parseFloat(oi.openInterest) * price;
+                    return 0;
+                }
 
                 // === PAGE 1: BTC 계약 데이터 ===
-                // BTC 펀딩비
-                const fRate = parseFloat(m.fundingBtc?.fundingRate || 0) * 100;
-                const btcPrice = parseFloat(m.tickerBtc?.lastPr || m.tickerBtc?.last || 0);
+                const fRate = getFundingRate(m.fundingBtc) * 100;
+                const btcPrice = getBtcPrice(m.tickerBtc);
                 const fEl = document.getElementById('fCardFunding');
                 if (fEl) {
                     fEl.textContent = (fRate >= 0 ? '+' : '') + fRate.toFixed(4) + '%';
@@ -2657,7 +2681,7 @@
                 // BTC 롱/숏 비율
                 const lsData = Array.isArray(m.longShortBtc) ? m.longShortBtc[0] : m.longShortBtc;
                 if (lsData) {
-                    const longR = Math.round(parseFloat(lsData.longAccountRatio || lsData.longRatio || 0.5) * 100);
+                    const longR = Math.round(parseFloat(lsData.longAccountRatio || lsData.longAccount || lsData.longRatio || 0.5) * 100);
                     const shortR = 100 - longR;
                     const lsEl = document.getElementById('fCardLS');
                     if (lsEl) {
@@ -2668,8 +2692,8 @@
                 }
 
                 // BTC 24h 티커 (청산 추정 + 거래량 + 고래)
-                const vol24h = parseFloat(m.tickerBtc?.quoteVolume || m.tickerBtc?.usdtVolume || 0);
-                const changeP = parseFloat(m.tickerBtc?.change24h || m.tickerBtc?.chgUTC || 0) * 100;
+                const vol24h = getVolume(m.tickerBtc);
+                const changeP = getChange(m.tickerBtc);
                 const liqEst = vol24h * (0.001 + Math.abs(changeP) * 0.0005);
                 const liqEl = document.getElementById('fCardLiq');
                 if (liqEl) {
@@ -2679,18 +2703,16 @@
                 }
 
                 // BTC OI
-                const oiAmt = parseFloat(m.oiBtc?.amount || 0);
-                const oiUsd = oiAmt * btcPrice;
+                const oiUsd = getOI(m.oiBtc, btcPrice);
                 const oiEl = document.getElementById('fCardOI');
                 if (oiEl) {
-                    oiEl.textContent = '$' + (oiUsd/1e9).toFixed(2) + 'B';
+                    oiEl.textContent = oiUsd > 0 ? '$' + (oiUsd/1e9).toFixed(2) + 'B' : '--';
                     oiEl.className = 'value';
                     document.getElementById('fCardOISub').textContent = 'BTC 미결제약정';
                 }
 
                 // === PAGE 2: 시장 지표 ===
-                // ETH 펀딩비
-                const ethFRate = parseFloat(m.fundingEth?.fundingRate || 0) * 100;
+                const ethFRate = getFundingRate(m.fundingEth) * 100;
                 const ethFEl = document.getElementById('fCardEthFunding');
                 if (ethFEl) {
                     ethFEl.textContent = (ethFRate >= 0 ? '+' : '') + ethFRate.toFixed(4) + '%';
@@ -2752,8 +2774,7 @@
                 } catch(e) { /* 김프 실패 시 무시 */ }
 
                 // === PAGE 3: 알트 지표 ===
-                // SOL 펀딩비 (Bitget)
-                const solFRate = parseFloat(m.fundingSol?.fundingRate || 0) * 100;
+                const solFRate = getFundingRate(m.fundingSol) * 100;
                 const solFEl = document.getElementById('fCardSolFunding');
                 if (solFEl) {
                     solFEl.textContent = (solFRate >= 0 ? '+' : '') + solFRate.toFixed(4) + '%';

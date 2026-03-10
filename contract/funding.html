@@ -122,76 +122,115 @@
     </div>
 
     <script>
+        let cachedNextFundingTime = null;
+
+        async function fetchBinanceDirect() {
+            const res = await fetch('/api/binance/fapi/v1/premiumIndex?symbol=BTCUSDT');
+            if (!res.ok) throw new Error('proxy fail');
+            const d = await res.json();
+            if (d.error) throw new Error(d.error);
+            return {
+                rate: parseFloat(d.lastFundingRate) * 100,
+                nextTime: parseInt(d.nextFundingTime),
+                source: 'Binance'
+            };
+        }
+
+        async function fetchMarketFallback() {
+            const res = await fetch('/api/market/all');
+            if (!res.ok) throw new Error('market fail');
+            const m = await res.json();
+            const fd = m.fundingBtc;
+            if (!fd) throw new Error('no funding data');
+            const rate = parseFloat(fd.fundingRate || fd.lastFundingRate || 0) * 100;
+            const nextTime = parseInt(fd.nextFundingTime || 0);
+            return { rate, nextTime, source: m.source || 'API' };
+        }
+
+        async function fetchHistory() {
+            try {
+                const hRes = await fetch('/api/binance/fapi/v1/fundingRate?symbol=BTCUSDT&limit=10');
+                if (!hRes.ok) throw new Error('history fail');
+                const hData = await hRes.json();
+                if (hData.error || !Array.isArray(hData)) throw new Error('bad data');
+                return hData;
+            } catch(e) {
+                return null;
+            }
+        }
+
         async function load() {
             try {
-                // 현재 펀딩비
-                const res = await fetch('/api/binance/fapi/v1/premiumIndex?symbol=BTCUSDT');
-                const d = await res.json();
-                const rate = parseFloat(d.lastFundingRate) * 100;
-                const markPrice = parseFloat(d.markPrice);
-                const indexPrice = parseFloat(d.indexPrice);
-                const nextTime = parseInt(d.nextFundingTime);
+                let data;
+                try {
+                    data = await fetchBinanceDirect();
+                } catch(e) {
+                    data = await fetchMarketFallback();
+                }
 
                 const rateEl = document.getElementById('currentRate');
-                rateEl.textContent = (rate >= 0 ? '+' : '') + rate.toFixed(4) + '%';
-                rateEl.className = 'metric-value ' + (rate >= 0 ? 'green' : 'red');
-                document.getElementById('rateDesc').textContent = rate >= 0 ? '롱 우세 · 롱→숏 지급' : '숏 우세 · 숏→롱 지급';
+                rateEl.textContent = (data.rate >= 0 ? '+' : '') + data.rate.toFixed(4) + '%';
+                rateEl.className = 'metric-value ' + (data.rate >= 0 ? 'green' : 'red');
+                document.getElementById('rateDesc').textContent = data.rate >= 0 ? '롱 우세 · 롱→숏 지급' : '숏 우세 · 숏→롱 지급';
 
-                // 다음 정산까지
-                const now = Date.now();
-                const diff = nextTime - now;
-                const h = Math.floor(diff / 3600000);
-                const m = Math.floor((diff % 3600000) / 60000);
-                document.getElementById('nextFunding').textContent = h + 'h ' + m + 'm';
+                if (data.nextTime > 0) {
+                    cachedNextFundingTime = data.nextTime;
+                    const diff = data.nextTime - Date.now();
+                    const h = Math.floor(diff / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    document.getElementById('nextFunding').textContent = diff > 0 ? h + 'h ' + m + 'm' : '정산 중...';
+                }
 
-                // 연환산
-                const annual = rate * 3 * 365;
+                const annual = data.rate * 3 * 365;
                 const annEl = document.getElementById('annualRate');
                 annEl.textContent = (annual >= 0 ? '+' : '') + annual.toFixed(1) + '%';
-                annEl.className = 'metric-value ' + (annual >= 0 ? 'green' : 'red') + ' ';
+                annEl.className = 'metric-value ' + (annual >= 0 ? 'green' : 'red');
                 annEl.style.fontSize = '20px';
 
                 // 히스토리
-                const hRes = await fetch('/api/binance/fapi/v1/fundingRate?symbol=BTCUSDT&limit=10');
-                const hData = await hRes.json();
-                const rows = hData.reverse().map(item => {
-                    const r = parseFloat(item.fundingRate) * 100;
-                    const dt = new Date(item.fundingTime);
-                    const dateStr = (dt.getMonth()+1) + '/' + dt.getDate() + ' ' + dt.getHours().toString().padStart(2,'0') + ':00';
-                    const color = r >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
-                    const dir = r >= 0 ? '롱→숏' : '숏→롱';
-                    const barW = Math.min(Math.abs(r) / 0.01 * 60, 80);
-                    return `<tr>
-                        <td style="color:var(--text-secondary);">${dateStr}</td>
-                        <td style="font-family:Orbitron,monospace;color:${color};font-weight:700;">${(r>=0?'+':'')}${r.toFixed(4)}%</td>
-                        <td><span style="font-size:11px;background:${r>=0?'rgba(0,212,160,0.1)':'rgba(220,38,38,0.1)'};color:${color};padding:2px 8px;border-radius:4px;">${dir}</span></td>
-                        <td><div class="rate-bar-wrap"><div class="rate-bar" style="width:${barW}px;background:${color};"></div></div></td>
-                    </tr>`;
-                }).join('');
-                document.getElementById('historyBody').innerHTML = rows;
+                const hData = await fetchHistory();
+                if (hData && hData.length > 0) {
+                    const rows = hData.reverse().map(item => {
+                        const r = parseFloat(item.fundingRate) * 100;
+                        const dt = new Date(item.fundingTime);
+                        const dateStr = (dt.getMonth()+1) + '/' + dt.getDate() + ' ' + dt.getHours().toString().padStart(2,'0') + ':00';
+                        const color = r >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+                        const dir = r >= 0 ? '롱→숏' : '숏→롱';
+                        const barW = Math.min(Math.abs(r) / 0.01 * 60, 80);
+                        return `<tr>
+                            <td style="color:var(--text-secondary);">${dateStr}</td>
+                            <td style="font-family:Orbitron,monospace;color:${color};font-weight:700;">${(r>=0?'+':'')}${r.toFixed(4)}%</td>
+                            <td><span style="font-size:11px;background:${r>=0?'rgba(0,212,160,0.1)':'rgba(220,38,38,0.1)'};color:${color};padding:2px 8px;border-radius:4px;">${dir}</span></td>
+                            <td><div class="rate-bar-wrap"><div class="rate-bar" style="width:${barW}px;background:${color};"></div></div></td>
+                        </tr>`;
+                    }).join('');
+                    document.getElementById('historyBody').innerHTML = rows;
+                } else {
+                    document.getElementById('historyBody').innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:20px;">히스토리 데이터를 불러올 수 없습니다</td></tr>';
+                }
 
                 const now2 = new Date();
-                document.getElementById('refreshBadge').textContent = now2.getHours().toString().padStart(2,'0') + ':' + now2.getMinutes().toString().padStart(2,'0') + ':' + now2.getSeconds().toString().padStart(2,'0') + ' 갱신';
+                document.getElementById('refreshBadge').textContent = now2.getHours().toString().padStart(2,'0') + ':' + now2.getMinutes().toString().padStart(2,'0') + ':' + now2.getSeconds().toString().padStart(2,'0') + ' 갱신 (' + data.source + ')';
             } catch(e) {
                 document.getElementById('refreshBadge').textContent = '오류 발생';
+                console.warn('Funding load fail:', e);
             }
         }
         load();
         setInterval(load, 30000);
 
-        // 다음 정산 카운트다운
-        setInterval(async () => {
-            try {
-                const res = await fetch('/api/binance/fapi/v1/premiumIndex?symbol=BTCUSDT');
-                const d = await res.json();
-                const diff = parseInt(d.nextFundingTime) - Date.now();
-                if (diff > 0) {
-                    const h = Math.floor(diff / 3600000);
-                    const m = Math.floor((diff % 3600000) / 60000);
-                    const s = Math.floor((diff % 60000) / 1000);
-                    document.getElementById('nextFunding').textContent = h + 'h ' + m + 'm ' + s + 's';
-                }
-            } catch(e) {}
+        // 다음 정산 카운트다운 (캐시된 시간 사용, API 재호출 안 함)
+        setInterval(() => {
+            if (!cachedNextFundingTime) return;
+            const diff = cachedNextFundingTime - Date.now();
+            if (diff > 0) {
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                document.getElementById('nextFunding').textContent = h + 'h ' + m + 'm ' + s + 's';
+            } else {
+                document.getElementById('nextFunding').textContent = '정산 중...';
+            }
         }, 1000);
     </script>
 </body>
