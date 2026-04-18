@@ -89,6 +89,7 @@ tr:hover td{background:var(--bg4);}
 .ex-bitget{background:rgba(0,132,255,0.12);color:#3b82f6;}
 .ex-okx{background:rgba(255,255,255,0.08);color:#e5e7eb;}
 .ex-gate{background:rgba(220,38,38,0.12);color:#f87171;}
+.ex-bybit{background:rgba(247,166,0,0.12);color:#f7a600;}
 .ex-other{background:rgba(147,51,234,0.12);color:var(--purple);}
 
 /* ── Modal ── */
@@ -311,7 +312,7 @@ function showPage(page) {
 // ── Exchange helper ───────────────────────────────────────────────────────────
 
 function exBadge(ex) {
-  const cls = ex === 'Bitget' ? 'ex-bitget' : ex === 'OKX' ? 'ex-okx' : ex === 'Gate.io' ? 'ex-gate' : 'ex-other';
+  const cls = ex === 'Bitget' ? 'ex-bitget' : ex === 'OKX' ? 'ex-okx' : ex === 'Gate.io' ? 'ex-gate' : ex === 'Bybit' ? 'ex-bybit' : 'ex-other';
   return `<span class="ex-badge ${cls}">${ex}</span>`;
 }
 
@@ -369,12 +370,12 @@ async function renderDashboard() {
     <div class="stat-card">
       <div class="stat-label">활성 거래소</div>
       <div class="stat-val yellow">${(d.byExchange||[]).length}</div>
-      <div class="stat-sub">Bitget / OKX / Gate.io</div>
+      <div class="stat-sub">Bitget / OKX / Gate.io / Bybit</div>
     </div>`;
 
   const byEx = d.byExchange || [];
   const max = Math.max(1, ...byEx.map(x => x.cnt));
-  const exColors = { Bitget: '#3b82f6', OKX: '#e5e7eb', 'Gate.io': '#f87171' };
+  const exColors = { Bitget: '#3b82f6', OKX: '#e5e7eb', 'Gate.io': '#f87171', Bybit: '#f7a600' };
   document.getElementById('exChart').innerHTML = byEx.length ? byEx.map(x => `
     <div class="ex-bar-row">
       <div class="ex-bar-label">${x.exchange}</div>
@@ -473,6 +474,7 @@ async function renderUsers(ex='', st='', q='') {
           <option value="Bitget">Bitget</option>
           <option value="OKX">OKX</option>
           <option value="Gate.io">Gate.io</option>
+          <option value="Bybit">Bybit</option>
         </select>
         <select class="filter-select" id="filterSt" onchange="filterUsers()">
           <option value="">전체 상태</option>
@@ -590,7 +592,7 @@ function openUserModal(id = null) {
         <div class="form-row">
           <div class="form-group"><label class="form-label">거래소 *</label>
             <select class="form-select" id="fEx">
-              ${['Bitget','OKX','Gate.io'].map(e=>`<option${(u?.exchange===e)?' selected':''}>${e}</option>`).join('')}
+              ${['Bitget','OKX','Gate.io','Bybit'].map(e=>`<option${(u?.exchange===e)?' selected':''}>${e}</option>`).join('')}
             </select></div>
           <div class="form-group"><label class="form-label">텔레그램</label>
             <input class="form-input" id="fTg" value="${u?.telegram||''}" placeholder="@username"></div>
@@ -655,7 +657,7 @@ async function renderSettlements() {
         <input type="month" class="filter-input" id="sFilterMo" value="${curMonth}" onchange="loadSettlements()">
         <select class="filter-select" id="sFilterEx" onchange="loadSettlements()">
           <option value="">전체 거래소</option>
-          <option value="Bitget">Bitget</option><option value="OKX">OKX</option><option value="Gate.io">Gate.io</option>
+          <option value="Bitget">Bitget</option><option value="OKX">OKX</option><option value="Gate.io">Gate.io</option><option value="Bybit">Bybit</option>
         </select>
         <select class="filter-select" id="sFilterSt" onchange="loadSettlements()">
           <option value="">전체 상태</option>
@@ -761,7 +763,7 @@ async function openSettlModal(id = null) {
             <input type="month" class="form-input" id="sMonth" value="${s?.month||new Date().toISOString().slice(0,7)}"></div>
           <div class="form-group"><label class="form-label">거래소</label>
             <select class="form-select" id="sEx">
-              ${['Bitget','OKX','Gate.io'].map(e=>`<option${(s?.exchange||s?.user_exchange)===e?' selected':''}>${e}</option>`).join('')}
+              ${['Bitget','OKX','Gate.io','Bybit'].map(e=>`<option${(s?.exchange||s?.user_exchange)===e?' selected':''}>${e}</option>`).join('')}
             </select></div>
         </div>
         <div class="form-row">
@@ -879,7 +881,7 @@ function openEventModal(id=null) {
         <div class="form-row">
           <div class="form-group"><label class="form-label">거래소 *</label>
             <select class="form-select" id="eEx">
-              ${['Bitget','OKX','Gate.io'].map(ex=>`<option${e?.exchange===ex?' selected':''}>${ex}</option>`).join('')}
+              ${['Bitget','OKX','Gate.io','Bybit'].map(ex=>`<option${e?.exchange===ex?' selected':''}>${ex}</option>`).join('')}
             </select></div>
           <div class="form-group"><label class="form-label">활성 여부</label>
             <select class="form-select" id="eActive">
@@ -1157,12 +1159,38 @@ async function renderExchangeSettings() {
 async function loadExchangeConfigs() {
   const d = await fetch('/api/admin/exchange-configs', { headers: { 'Authorization': 'Bearer ' + TOKEN } }).then(r => r.json());
   const configs = d.configs || [];
-  const exchanges = ['Bitget', 'OKX', 'Gate.io'];
+  const exchanges = ['Bitget', 'OKX', 'Gate.io', 'Bybit'];
   const container = document.getElementById('exConfigCards');
   if (!container) return;
 
   container.innerHTML = exchanges.map(ex => {
     const c = configs.find(x => x.exchange === ex) || {};
+    if (ex === 'Bybit') {
+      return `
+      <div class="section" style="margin-bottom:0;">
+        <div class="section-header">
+          <div class="section-title2">${exBadge(ex)} ${ex} 설정 <span style="font-size:10px;padding:2px 8px;background:rgba(247,166,0,0.15);color:#f7a600;border-radius:4px;margin-left:6px;">수동 운영</span></div>
+          <label class="toggle"><input type="checkbox" id="exActive_${ex}" ${c.is_active?'checked':''}><span class="toggle-slider"></span></label>
+        </div>
+        <div style="padding:16px;">
+          <div style="background:rgba(247,166,0,0.08);border:1px solid rgba(247,166,0,0.3);padding:12px;border-radius:6px;margin-bottom:12px;font-size:12px;color:var(--txt2);line-height:1.6;">
+            <b style="color:#f7a600;">⚠️ Affiliate 등급 수동 운영</b><br>
+            • 수수료 수집: affiliates.bybit.com → Commissions 탭에서 확인 후 유저별 수동 입력<br>
+            • 출금: 관리자가 Bybit 앱/웹에서 직접 USDT 전송 후 "수동 완료" 처리<br>
+            • API 키 불필요
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">플랫폼 비율 (%)</label>
+              <input type="number" class="form-input" id="exPlatRate_${ex}" value="${(c.platform_rate||0)*100}" step="1" min="0" max="100"></div>
+            <div class="form-group"><label class="form-label">유저 환급 비율 (%)</label>
+              <input type="number" class="form-input" id="exUserRate_${ex}" value="${(c.user_rate||0)*100}" step="1" min="0" max="100"></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn-primary" onclick="saveExConfig('${ex}')">저장</button>
+          </div>
+        </div>
+      </div>`;
+    }
     return `
     <div class="section" style="margin-bottom:0;">
       <div class="section-header">
@@ -1174,7 +1202,7 @@ async function loadExchangeConfigs() {
           <input class="form-input" id="exKey_${ex}" placeholder="API Key 입력 (변경 시에만)" autocomplete="off"></div>
         <div class="form-group"><label class="form-label">API Secret ${c.api_secret_display==='설정됨'?'<span style="color:var(--green);font-size:10px;">✓ 설정됨</span>':''}</label>
           <input class="form-input" id="exSecret_${ex}" type="password" placeholder="Secret 입력 (변경 시에만)" autocomplete="off"></div>
-        ${ex!=='Gate.io'?`<div class="form-group"><label class="form-label">Passphrase ${c.passphrase_display==='설정됨'?'<span style="color:var(--green);font-size:10px;">✓ 설정됨</span>':''}</label>
+        ${(ex!=='Gate.io')?`<div class="form-group"><label class="form-label">Passphrase ${c.passphrase_display==='설정됨'?'<span style="color:var(--green);font-size:10px;">✓ 설정됨</span>':''}</label>
           <input class="form-input" id="exPass_${ex}" type="password" placeholder="Passphrase 입력 (변경 시에만)" autocomplete="off"></div>`:''}
         <div class="form-row">
           <div class="form-group"><label class="form-label">플랫폼 비율 (%)</label>
@@ -1264,7 +1292,7 @@ async function loadCommSummary() {
         <input type="month" class="filter-input" id="csMonth" value="${curMonth}" onchange="loadCommSummary()">
         <select class="filter-select" id="csEx" onchange="loadCommSummary()">
           <option value="">전체 거래소</option>
-          <option value="Bitget">Bitget</option><option value="OKX">OKX</option><option value="Gate.io">Gate.io</option>
+          <option value="Bitget">Bitget</option><option value="OKX">OKX</option><option value="Gate.io">Gate.io</option><option value="Bybit">Bybit</option>
         </select>
         <select class="filter-select" id="csSt" onchange="loadCommSummary()">
           <option value="">전체 상태</option>
@@ -1320,7 +1348,7 @@ async function loadCommRaw() {
         <input type="date" class="filter-input" id="crTo" onchange="fetchCommRaw()">
         <select class="filter-select" id="crEx" onchange="fetchCommRaw()">
           <option value="">전체 거래소</option>
-          <option value="Bitget">Bitget</option><option value="OKX">OKX</option><option value="Gate.io">Gate.io</option>
+          <option value="Bitget">Bitget</option><option value="OKX">OKX</option><option value="Gate.io">Gate.io</option><option value="Bybit">Bybit</option>
         </select>
         <input type="text" class="filter-input" id="crUid" placeholder="UID 검색" onkeydown="if(event.key==='Enter')fetchCommRaw()">
         <button class="btn-sm" onclick="fetchCommRaw()">검색</button>
@@ -1492,7 +1520,8 @@ async function autoSendWd(id) {
             <option value="Bitget">Bitget</option>
             <option value="OKX">OKX</option>
             <option value="Gate.io">Gate.io</option>
-          </select></div>
+          </select>
+          <div style="font-size:11px;color:var(--txt3);margin-top:6px;">※ Bybit은 수동 출금 거래소입니다. 앱/웹에서 직접 전송 후 "수동 완료" 버튼을 사용하세요.</div></div>
         <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:8px;padding:12px;margin-top:12px;">
           <div style="font-size:12px;color:var(--red);font-weight:600;">⚠️ 실제 USDT가 전송됩니다. 주소를 반드시 확인하세요.</div>
         </div>

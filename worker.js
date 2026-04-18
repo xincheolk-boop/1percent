@@ -421,7 +421,7 @@ async function handleRegister(request, env) {
 
   if (!exchange || !uid) return rjson({ error: '거래소와 UID는 필수입니다' }, 400);
 
-  const VALID_EX = ['Bitget', 'OKX', 'Gate.io'];
+  const VALID_EX = ['Bitget', 'OKX', 'Gate.io', 'Bybit'];
   if (!VALID_EX.includes(exchange)) return rjson({ error: '지원하지 않는 거래소입니다' }, 400);
 
   const cleanUid = String(uid).trim();
@@ -1277,6 +1277,8 @@ async function buildGateHeaders(apiKey, secret, method, path, queryString, body)
   return { 'KEY': apiKey, 'SIGN': sign, 'Timestamp': ts, 'Content-Type': 'application/json' };
 }
 
+// Bybit은 Affiliate 등급 수동 운영 → API 서명 빌더 불필요
+
 // ── 거래소 설정 API ──────────────────────────────────────────────────────────
 
 async function handleAdminExchangeConfigs(request, env, url) {
@@ -1361,6 +1363,8 @@ async function handleAdminExchangeConfigs(request, env, url) {
         const r = await fetch('https://api.gateio.ws' + path, { headers });
         const d = await r.json();
         return ajson({ ok: true, data: d });
+      } else if (exchange === 'Bybit') {
+        return ajson({ ok: true, manual: true, message: 'Bybit은 수동 운영 거래소 (Affiliate). API 불필요.' });
       }
       return ajson({ error: '지원하지 않는 거래소' }, 400);
     } catch (err) {
@@ -1567,6 +1571,8 @@ async function collectGateCommissions(env, config) {
   return { fetched, inserted };
 }
 
+// Bybit은 Affiliate 등급 수동 운영 → 자동 수수료 수집 함수 미존재 (admin.html에서 수동 입력)
+
 // ── 월별 요약 집계 ───────────────────────────────────────────────────────────
 
 async function aggregateCommissionSummaries(env) {
@@ -1625,6 +1631,7 @@ async function collectAllCommissions(env) {
       if (config.exchange === 'Bitget') result = await collectBitgetCommissions(env, config);
       else if (config.exchange === 'OKX') result = await collectOKXCommissions(env, config);
       else if (config.exchange === 'Gate.io') result = await collectGateCommissions(env, config);
+      // Bybit는 Affiliate 등급이라 수수료 API 미지원 → 수동 입력 (admin.html에서 처리)
 
       await db.prepare("UPDATE exchange_api_configs SET last_sync=datetime('now'), last_sync_status='success', updated_at=datetime('now') WHERE id=?").bind(config.id).run();
       if (logId) await db.prepare("UPDATE collection_logs SET finished_at=datetime('now'), status='success', records_fetched=?, records_new=? WHERE id=?").bind(result.fetched, result.inserted, logId).run();
@@ -1893,6 +1900,10 @@ async function executeAutoWithdrawal(env, withdrawal) {
     const d = await r.json();
     if (d.id === undefined && d.message) throw new Error('Gate.io 출금 실패: ' + d.message);
     return { tx_id: d.txid || String(d.id || ''), exchange_data: d };
+  }
+
+  if (sourceEx === 'Bybit') {
+    throw new Error('Bybit는 수동 출금 거래소입니다. 관리자가 직접 처리 후 수동 완료 처리하세요.');
   }
 
   throw new Error('지원하지 않는 거래소: ' + sourceEx);

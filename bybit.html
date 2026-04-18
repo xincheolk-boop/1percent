@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bybit - 1% Trading</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%230a0a0f'/><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%25' stop-color='%2300b8d9'/><stop offset='100%25' stop-color='%239333ea'/></linearGradient></defs><text x='16' y='22' text-anchor='middle' font-size='16' font-weight='900' fill='url(%23g)' font-family='monospace'>1%25</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-cyan: #00b8d9;
+            --accent-purple: #9333ea;
+            --accent-green: #00D4A0;
+            --accent-red: #dc2626;
+            --accent-bybit: #f7a600;
+            --text-primary: #ffffff;
+            --text-secondary: #9ca3af;
+            --text-muted: #6b7280;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; background-image: radial-gradient(ellipse at 20% 50%, rgba(247,166,0,0.04) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(0,184,217,0.03) 0%, transparent 60%); }
+
+        .header { position: fixed; top: 0; left: 0; right: 0; height: 56px; background: rgba(10,10,15,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; padding: 0 20px; z-index: 1000; }
+        .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; margin-right: 32px; }
+        .logo-text { font-family: 'Orbitron', monospace; font-size: 18px; font-weight: 700; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-menu { display: flex; gap: 4px; }
+        .nav-item { padding: 8px 14px; color: var(--text-secondary); font-size: 14px; font-weight: 500; cursor: pointer; border-radius: 8px; transition: all 0.2s; text-decoration: none; }
+        .nav-item:hover { color: var(--text-primary); background: var(--bg-card); }
+
+        .hero { margin-top: 56px; padding: 48px 24px 40px; text-align: center; background: linear-gradient(180deg, rgba(247,166,0,0.08) 0%, transparent 100%); border-bottom: 1px solid var(--border-color); }
+        .hero-logo { width: 88px; height: 88px; margin: 0 auto 16px; border-radius: 20px; background: linear-gradient(135deg, #f7a600, #ff8a00); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 32px; font-weight: 900; color: #000; box-shadow: 0 8px 32px rgba(247,166,0,0.3); }
+        .hero h1 { font-size: 32px; font-weight: 800; margin-bottom: 4px; }
+        .hero h1 span { color: var(--accent-bybit); }
+        .hero-tag { font-size: 13px; color: var(--accent-bybit); font-weight: 600; margin-bottom: 12px; }
+        .hero p { font-size: 15px; color: var(--text-secondary); max-width: 500px; margin: 0 auto 24px; line-height: 1.7; }
+        .hero-btn { display: inline-block; padding: 14px 40px; background: linear-gradient(135deg, #f7a600, #ff8a00); color: #000; font-size: 16px; font-weight: 800; border-radius: 10px; text-decoration: none; transition: all 0.2s; }
+        .hero-btn:hover { opacity: 0.92; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(247,166,0,0.3); }
+        .hero-code { margin-top: 12px; font-size: 12px; color: var(--text-muted); }
+        .hero-code span { color: var(--accent-bybit); font-family: 'Orbitron', monospace; font-weight: 700; }
+
+        .content { max-width: 1100px; margin: 0 auto; padding: 40px 40px 60px; }
+        .section-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 40px; }
+        .stat-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; text-align: center; }
+        .stat-value { font-family: 'Orbitron', monospace; font-size: 24px; font-weight: 800; color: var(--accent-bybit); margin-bottom: 4px; }
+        .stat-label { font-size: 12px; color: var(--text-muted); }
+
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+        .info-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        .info-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 12px; color: var(--accent-bybit); }
+        .info-card ul { padding-left: 16px; }
+        .info-card li { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+
+        .fee-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+        .fee-table th { background: var(--bg-secondary); padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--text-muted); text-align: center; }
+        .fee-table th:first-child { text-align: left; }
+        .fee-table td { padding: 14px 16px; font-size: 13px; text-align: center; border-top: 1px solid var(--border-color); }
+        .fee-table td:first-child { text-align: left; font-weight: 600; }
+        .highlight { color: var(--accent-bybit); font-weight: 700; font-family: 'Orbitron', monospace; }
+
+        .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 40px; }
+        .step { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; text-align: center; }
+        .step-num { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--accent-bybit), #ff8a00); display: flex; align-items: center; justify-content: center; font-family: 'Orbitron', monospace; font-size: 16px; font-weight: 800; color: #000; margin: 0 auto 12px; }
+        .step h3 { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+        .step p { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+
+        .cta-box { text-align: center; padding: 40px 24px; background: linear-gradient(135deg, rgba(247,166,0,0.08), rgba(255,138,0,0.08)); border: 1px solid rgba(247,166,0,0.2); border-radius: 16px; margin-bottom: 40px; }
+        .cta-box h2 { font-size: 22px; margin-bottom: 8px; }
+        .cta-box p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+
+        .footer { border-top: 1px solid var(--border-color); padding: 24px; text-align: center; font-size: 12px; color: var(--text-muted); background: var(--bg-secondary); }
+        .footer a { color: var(--text-muted); text-decoration: none; margin: 0 8px; }
+        .footer a:hover { color: var(--text-secondary); }
+
+        @media (max-width: 768px) {
+            .nav-menu { display: none; }
+            .hero { padding: 32px 16px; }
+            .hero h1 { font-size: 24px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .info-grid { grid-template-columns: 1fr; }
+            .steps { grid-template-columns: 1fr; }
+            .content { padding: 24px 14px 40px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="logo"><span class="logo-text">1% TRADING</span></a>
+        <div class="nav-menu">
+            <a class="nav-item" href="index.html">홈</a>
+            <a class="nav-item" href="exchanges.html">거래소</a>
+            <a class="nav-item" href="rewards.html">선물</a>
+            <a class="nav-item" href="events.html">이벤트</a>
+        </div>
+    </div>
+
+    <div class="hero">
+        <div class="hero-logo">BY</div>
+        <div class="hero-tag">PARTNER · 수수료 50% 리워드</div>
+        <h1><span>Bybit</span> 가입하고 리워드 받기</h1>
+        <p>1% Trading 전용 링크로 가입하면 선물 거래 수수료의 50%를 리워드로 돌려받습니다.</p>
+        <a class="hero-btn" href="https://partner.bybit.com/b/158211" target="_blank">Bybit 가입하기 →</a>
+        <div class="hero-code">추천 코드 자동 적용: <span>158211</span></div>
+    </div>
+
+    <div class="content">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">50%</div>
+                <div class="stat-label">리워드율</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">500+</div>
+                <div class="stat-label">선물 페어</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">100x</div>
+                <div class="stat-label">최대 레버리지</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">글로벌 Top 3</div>
+                <div class="stat-label">거래량 순위</div>
+            </div>
+        </div>
+
+        <div class="section-title">수수료 구조</div>
+        <table class="fee-table">
+            <thead>
+                <tr><th>구분</th><th>일반 수수료</th><th>할인율</th><th>1% Trading 리워드 후</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>지정가 (Maker)</td><td>0.02%</td><td class="highlight">50%</td><td class="highlight">0.010%</td></tr>
+                <tr><td>시장가 (Taker)</td><td>0.055%</td><td class="highlight">50%</td><td class="highlight">0.0275%</td></tr>
+            </tbody>
+        </table>
+
+        <div class="section-title">주요 특징</div>
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>트레이딩</h3>
+                <ul>
+                    <li>USDT-M / USDC-M / Inverse 선물</li>
+                    <li>500+ 선물 페어</li>
+                    <li>최대 100배 레버리지</li>
+                    <li>업계 최고 수준 체결 엔진</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h3>부가 서비스</h3>
+                <ul>
+                    <li>카피 트레이딩</li>
+                    <li>Trading Bot (그리드, DCA, Martingale)</li>
+                    <li>런치패드 / 런치풀</li>
+                    <li>Earn / 스테이킹 상품</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h3>보안 & 신뢰</h3>
+                <ul>
+                    <li>Proof of Reserves 월별 공개</li>
+                    <li>글로벌 Top 3 거래소</li>
+                    <li>Bybit 보호 기금 운영</li>
+                    <li>2중 인증 (2FA), 콜드월렛</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h3>혜택</h3>
+                <ul>
+                    <li>신규 가입 최대 30,000 USDT 보너스</li>
+                    <li>첫 입금 보너스</li>
+                    <li>주간 이벤트 상시 진행</li>
+                    <li>VIP 등급별 수수료 추가 할인</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-title">가입 방법</div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>가입하기 클릭</h3>
+                <p>위 버튼을 클릭하면<br>코드 158211이 자동 적용됩니다</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>이메일 인증</h3>
+                <p>이메일 입력 후<br>인증 코드 확인</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>UID 등록 → 거래 시작</h3>
+                <p><a href="register.html" style="color:var(--accent-cyan);">UID 등록</a> 후<br>선물 거래 시 50% 리워드 자동 집계</p>
+            </div>
+        </div>
+
+        <div class="section-title">가이드</div>
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>신규 가입 시</h3>
+                <ul>
+                    <li>위 가입 버튼을 통해 가입 (코드 158211 자동 적용)</li>
+                    <li>이메일 인증 완료</li>
+                    <li>KYC 인증 진행 (권장, 출금 한도 상향)</li>
+                    <li><a href="register.html" style="color:var(--accent-cyan);">1% Trading에 UID 등록</a></li>
+                    <li>선물 거래 시작 → 수수료 50% 자동 리워드</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h3>기존 회원 전환 시</h3>
+                <ul>
+                    <li>기존 Bybit 계정은 레퍼럴 코드 변경이 불가합니다</li>
+                    <li>새 이메일로 신규 가입이 필요합니다</li>
+                    <li>위 가입 버튼을 통해 새 계정 생성</li>
+                    <li>기존 계정 자산 → 새 계정으로 이체</li>
+                    <li>문의: <a href="https://t.me/officialpercent" target="_blank" style="color:var(--accent-cyan);">텔레그램</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="section-title">자주 묻는 질문</div>
+        <div style="margin-bottom:40px;">
+            <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:18px 20px;margin-bottom:8px;">
+                <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent-bybit);">Q. 리워드는 어떻게 지급되나요?</div>
+                <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">거래 수수료의 50%가 USDT로 자동 적립됩니다. 1% Trading에 UID 등록 후 거래만 하면 됩니다.</div>
+            </div>
+            <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:18px 20px;margin-bottom:8px;">
+                <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent-bybit);">Q. 리워드 지급 주기는?</div>
+                <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">매월 정산되어 지급됩니다. 마이페이지에서 실시간 적립 현황을 확인할 수 있습니다.</div>
+            </div>
+            <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:18px 20px;margin-bottom:8px;">
+                <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent-bybit);">Q. 기존 Bybit 계정도 적용 가능한가요?</div>
+                <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">아니요. 기존 계정은 레퍼럴 코드 변경이 불가합니다. 새 이메일로 위 링크를 통해 신규 가입해야 적용됩니다.</div>
+            </div>
+            <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:18px 20px;margin-bottom:8px;">
+                <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent-bybit);">Q. UID는 어디서 확인하나요?</div>
+                <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;">Bybit 앱 → 프로필 → 계정 정보 → UID (숫자). 이 UID를 <a href="register.html" style="color:var(--accent-cyan);">등록 페이지</a>에 입력하면 자동 집계됩니다.</div>
+            </div>
+            <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:18px 20px;">
+                <div style="font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent-bybit);">Q. 문의는 어디서 하나요?</div>
+                <div style="font-size:13px;color:var(--text-secondary);line-height:1.7;"><a href="https://t.me/officialpercent" target="_blank" style="color:var(--accent-cyan);">텔레그램 채널</a>로 문의해주세요.</div>
+            </div>
+        </div>
+
+        <div class="cta-box">
+            <h2>지금 Bybit에서 시작하세요</h2>
+            <p>1% Trading 전용 코드 <strong style="color:var(--accent-bybit);">158211</strong> 자동 적용 · 수수료 50% 리워드</p>
+            <a class="hero-btn" href="https://partner.bybit.com/b/158211" target="_blank">Bybit 가입하기 →</a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2026 1% Trading PRO. All rights reserved.</p>
+        <p style="margin-top:8px;">
+            <a href="index.html">홈</a>
+            <a href="exchanges.html">거래소</a>
+            <a href="terms.html">이용약관</a>
+            <a href="privacy.html">개인정보처리방침</a>
+        </p>
+    </div>
+</body>
+</html>

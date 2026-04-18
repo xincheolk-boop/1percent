@@ -51,7 +51,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 .form-hint{font-size:11px;color:var(--txt3);margin-top:5px;line-height:1.5;}
 
 /* exchange selector */
-.ex-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+@media(max-width:480px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
 .ex-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;background:var(--bg2);border:1.5px solid var(--border);border-radius:12px;cursor:pointer;transition:all 0.2s;font-size:12px;color:var(--txt2);}
 .ex-btn:hover{border-color:rgba(255,255,255,0.2);color:var(--txt);}
 .ex-btn.selected{border-color:var(--cyan);background:rgba(0,184,217,0.08);color:var(--txt);}
@@ -84,6 +85,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 .success-uid-val.ex-bitget{color:#3b82f6;}
 .success-uid-val.ex-okx{color:#e5e7eb;}
 .success-uid-val.ex-gate{color:#f87171;}
+.success-uid-val.ex-bybit{color:#f7a600;}
 .home-btn{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:#000;font-weight:700;border-radius:10px;text-decoration:none;font-size:14px;}
 
 @media(max-width:480px){
@@ -146,6 +148,12 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
               <span class="ex-rate">70% 환급</span>
               <span class="ex-check">✓</span>
             </div>
+            <div class="ex-btn" id="exBybit" onclick="selectEx('Bybit')">
+              <img class="ex-logo" src="https://assets.coingecko.com/coins/images/27041/small/bybit.jpg" onerror="this.style.display='none'" alt="">
+              <span class="ex-name">Bybit</span>
+              <span class="ex-rate">50% 환급</span>
+              <span class="ex-check">✓</span>
+            </div>
           </div>
           <div class="form-error" id="errEx">거래소를 선택해주세요.</div>
         </div>
@@ -204,7 +212,7 @@ let selectedEx = '';
 
 function selectEx(ex) {
   selectedEx = ex;
-  ['Bitget','OKX','Gate.io'].forEach(e => {
+  ['Bitget','OKX','Gate.io','Bybit'].forEach(e => {
     const id = 'ex' + e.replace('.','');
     const el = document.getElementById(id);
     if (el) el.classList.toggle('selected', e === ex);
@@ -260,7 +268,7 @@ async function submitForm(e) {
     if (data.ok) {
       // 성공 화면
       document.getElementById('formArea').style.display = 'none';
-      const exClass = selectedEx === 'Bitget' ? 'ex-bitget' : selectedEx === 'OKX' ? 'ex-okx' : 'ex-gate';
+      const exClass = selectedEx === 'Bitget' ? 'ex-bitget' : selectedEx === 'OKX' ? 'ex-okx' : selectedEx === 'Bybit' ? 'ex-bybit' : 'ex-gate';
       document.getElementById('successInfo').innerHTML = `
         <div class="success-uid-row"><span class="success-uid-key">거래소</span><span class="success-uid-val ${exClass}">${selectedEx}</span></div>
         <div class="success-uid-row"><span class="success-uid-key">UID</span><span class="success-uid-val">${uid}</span></div>
