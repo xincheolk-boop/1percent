@@ -131,10 +131,10 @@
         </div>
 
         <div class="tabs">
-            <div class="tab active">전체</div>
-            <div class="tab">진행중</div>
-            <div class="tab">예정</div>
-            <div class="tab">종료</div>
+            <div class="tab active" data-cat="all" onclick="filterEvents(this)">전체</div>
+            <div class="tab" data-cat="active" onclick="filterEvents(this)">진행중</div>
+            <div class="tab" data-cat="upcoming" onclick="filterEvents(this)">예정</div>
+            <div class="tab" data-cat="ended" onclick="filterEvents(this)">종료</div>
         </div>
 
         <div class="section-title">🎁 파트너 이벤트 <span class="badge live">LIVE</span></div>
@@ -227,5 +227,20 @@
             </div>
         </div>
     </div>
+    <script>
+        function filterEvents(el) {
+            const cat = el.getAttribute('data-cat');
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('.event-card').forEach(card => {
+                const st = card.querySelector('.event-status');
+                const cls = st ? (st.className.split(/\s+/).find(c => c !== 'event-status') || '') : '';
+                card.style.display = (cat === 'all' || cls === cat) ? '' : 'none';
+            });
+            document.querySelectorAll('.comp-card').forEach(card => {
+                card.style.display = (cat === 'all' || cat === 'active') ? '' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>

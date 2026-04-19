@@ -114,10 +114,10 @@
         </div>
 
         <div class="tabs">
-            <div class="tab active">인기글</div>
-            <div class="tab">최신글</div>
-            <div class="tab">분석/전략</div>
-            <div class="tab">Q&A</div>
+            <div class="tab active" data-cat="all" onclick="filterPosts(this)">인기글</div>
+            <div class="tab" data-cat="all" onclick="filterPosts(this)">최신글</div>
+            <div class="tab" data-cat="analysis" onclick="filterPosts(this)">분석/전략</div>
+            <div class="tab" data-cat="qa" onclick="filterPosts(this)">Q&A</div>
         </div>
 
         <div class="post-list">
@@ -206,5 +206,19 @@
             <a href="https://t.me/officialpercent" target="_blank" class="tg-btn">✈️ 텔레그램 참여하기</a>
         </div>
     </div>
+    <script>
+        function filterPosts(el) {
+            const cat = el.getAttribute('data-cat');
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('.post-item').forEach(item => {
+                const c = item.querySelector('.post-category');
+                if (!c) return;
+                if (c.classList.contains('notice')) { item.style.display = ''; return; }
+                const cls = [...c.classList].find(x => x !== 'post-category') || '';
+                item.style.display = (cat === 'all' || cls === cat) ? '' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>

@@ -140,11 +140,11 @@
         </div>
 
         <div class="tabs">
-            <div class="tab active">전체</div>
-            <div class="tab">시장분석</div>
-            <div class="tab">거래소</div>
-            <div class="tab">규제</div>
-            <div class="tab">DeFi</div>
+            <div class="tab active" data-cat="all" onclick="filterNews(this)">전체</div>
+            <div class="tab" data-cat="market" onclick="filterNews(this)">시장분석</div>
+            <div class="tab" data-cat="exchange" onclick="filterNews(this)">거래소</div>
+            <div class="tab" data-cat="regulation" onclick="filterNews(this)">규제</div>
+            <div class="tab" data-cat="defi" onclick="filterNews(this)">DeFi</div>
         </div>
 
         <div class="news-list">
@@ -206,5 +206,18 @@
             </div>
         </div>
     </div>
+    <script>
+        function filterNews(el) {
+            const cat = el.getAttribute('data-cat');
+            document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            document.querySelectorAll('.news-item').forEach(item => {
+                const tagEl = item.querySelector('.news-tag');
+                if (!tagEl) return;
+                const cls = tagEl.className.split(/\s+/).find(c => c !== 'news-tag') || '';
+                item.style.display = (cat === 'all' || cls === cat) ? '' : 'none';
+            });
+        }
+    </script>
 </body>
 </html>

@@ -1452,11 +1452,11 @@
     </header>
 
     <!-- 티커 -->
-    <div class="ticker-bar">
-        <div class="ticker-item"><span class="sym">BTC</span><span class="price">$104,235</span><span class="up">+2.14%</span></div>
-        <div class="ticker-item"><span class="sym">ETH</span><span class="price">$3,312</span><span class="up">+1.52%</span></div>
-        <div class="ticker-item"><span class="sym">SOL</span><span class="price">$198.45</span><span class="down">-0.62%</span></div>
-        <div class="ticker-item"><span class="sym">김프</span><span class="up">2.1%</span></div>
+    <div class="ticker-bar" id="tickerBar">
+        <div class="ticker-item" data-sym="BTCUSDT"><span class="sym">BTC</span><span class="price">$--</span><span class="up">--%</span></div>
+        <div class="ticker-item" data-sym="ETHUSDT"><span class="sym">ETH</span><span class="price">$--</span><span class="up">--%</span></div>
+        <div class="ticker-item" data-sym="SOLUSDT"><span class="sym">SOL</span><span class="price">$--</span><span class="up">--%</span></div>
+        <div class="ticker-item" id="kimchiTicker"><span class="sym">김프</span><span class="up">--%</span></div>
     </div>
 
     <!-- 레이아웃 -->
@@ -1647,11 +1647,22 @@
                         <div class="ex-fee">0.004%</div>
                         <button class="ex-btn bitget" onclick="window.open(&#39;https://partner.bitget.com/bg/1propp&#39;)">가입</button>
                     </div>
+                    <!-- Bybit -->
+                    <div class="exchange-item">
+                        <div class="ex-logo bybit">BY</div>
+                        <div class="ex-info">
+                            <div class="ex-name bybit">Bybit <span class="badge new">NEW</span></div>
+                        </div>
+                        <div class="ex-rate bybit">50%</div>
+                        <div class="ex-fee">0.02%</div>
+                        <div class="ex-fee">0.055%</div>
+                        <button class="ex-btn bybit" onclick="window.open('https://partner.bybit.com/b/158211')">가입</button>
+                    </div>
                     <!-- OKX -->
                     <div class="exchange-item">
                         <div class="ex-logo okx">OKX</div>
                         <div class="ex-info">
-                            <div class="ex-name okx">OKX <span class="badge new">NEW</span></div>
+                            <div class="ex-name okx">OKX</div>
                         </div>
                         <div class="ex-rate okx">50%</div>
                         <div class="ex-fee">0.004%</div>
@@ -1669,16 +1680,16 @@
                         <div class="ex-fee">0.01%</div>
                         <button class="ex-btn gate" onclick="window.open(&#39;https://www.gate.com/share/ONEPROPP&#39;)">가입</button>
                     </div>
-                    <!-- Bybit -->
+                    <!-- Bitunix -->
                     <div class="exchange-item">
-                        <div class="ex-logo bybit">BY</div>
+                        <div class="ex-logo bitunix">BU</div>
                         <div class="ex-info">
-                            <div class="ex-name bybit">Bybit</div>
+                            <div class="ex-name bitunix">Bitunix</div>
                         </div>
-                        <div class="ex-rate bybit">50%</div>
-                        <div class="ex-fee">0.02%</div>
-                        <div class="ex-fee">0.055%</div>
-                        <button class="ex-btn bybit" onclick="window.open('https://partner.bybit.com/b/158211')">가입</button>
+                        <div class="ex-rate bitunix">--%</div>
+                        <div class="ex-fee">0.003%</div>
+                        <div class="ex-fee">0.009%</div>
+                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled="">준비중</button>
                     </div>
                     <!-- Binance -->
                     <div class="exchange-item">
@@ -1711,17 +1722,6 @@
                         <div class="ex-rate bingx">--%</div>
                         <div class="ex-fee">0.008%</div>
                         <div class="ex-fee">0.02%</div>
-                        <button class="ex-btn disabled" style="cursor:not-allowed;" disabled="">준비중</button>
-                    </div>
-                    <!-- Bitunix -->
-                    <div class="exchange-item">
-                        <div class="ex-logo bitunix">BU</div>
-                        <div class="ex-info">
-                            <div class="ex-name bitunix">Bitunix</div>
-                        </div>
-                        <div class="ex-rate bitunix">--%</div>
-                        <div class="ex-fee">0.003%</div>
-                        <div class="ex-fee">0.009%</div>
                         <button class="ex-btn disabled" style="cursor:not-allowed;" disabled="">준비중</button>
                     </div>
                 </div>
@@ -2601,7 +2601,43 @@
                         '<span class="sr-coin-price" style="font-size:11px;color:var(--text-muted)">' + volStr + '</span>' +
                         '<span class="sr-coin-change ' + cls + '">' + formatChange(c.priceChangePercent) + '</span></div>';
                 }).join('');
+
+                // 상단 티커바 BTC/ETH/SOL 업데이트
+                document.querySelectorAll('#tickerBar .ticker-item[data-sym]').forEach(el => {
+                    const sym = el.getAttribute('data-sym');
+                    const c = pairs.find(t => t.symbol === sym);
+                    if (!c) return;
+                    const price = parseFloat(c.lastPrice);
+                    const chg = parseFloat(c.priceChangePercent);
+                    const priceStr = '$' + (price >= 100 ? price.toLocaleString('en-US',{maximumFractionDigits:2}) : price.toFixed(price < 1 ? 4 : 2));
+                    const chgStr = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+                    el.querySelector('.price').textContent = priceStr;
+                    const chgEl = el.querySelector('.up, .down');
+                    chgEl.textContent = chgStr;
+                    chgEl.className = chg >= 0 ? 'up' : 'down';
+                });
             } catch(e) { console.warn('Coin fetch fail:', e); }
+        }
+
+        // 김치프리미엄 티커
+        async function fetchKimchi() {
+            try {
+                const [upbit, binance] = await Promise.all([
+                    fetch('https://api.upbit.com/v1/ticker?markets=KRW-BTC').then(r=>r.json()),
+                    fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT').then(r=>r.json())
+                ]);
+                const krw = upbit[0]?.trade_price;
+                const usd = parseFloat(binance.price);
+                if (!krw || !usd) return;
+                const usdKrw = await fetch('https://open.er-api.com/v6/latest/USD').then(r=>r.json()).catch(()=>null);
+                const rate = usdKrw?.rates?.KRW || 1380;
+                const kimp = ((krw / (usd * rate)) - 1) * 100;
+                const el = document.querySelector('#kimchiTicker .up, #kimchiTicker .down');
+                if (el) {
+                    el.textContent = (kimp >= 0 ? '+' : '') + kimp.toFixed(2) + '%';
+                    el.className = kimp >= 0 ? 'up' : 'down';
+                }
+            } catch(e) { console.warn('Kimchi fetch fail:', e); }
         }
 
         // 슬라이더 제어
@@ -3017,6 +3053,7 @@
         function loadAllData() {
             fetchCoinData();
             fetchFuturesData();
+            fetchKimchi();
         }
 
         // 초기 로드
@@ -3024,9 +3061,10 @@
         fetchNews();
         loadCalendar();
         loadHotIssues();
+        setInterval(fetchKimchi, 60000);
 
-        // 자동 갱신: 시세 15초, 선물 30초, 티커 4초, 뉴스 5분, 핫이슈 10분
-        setInterval(fetchCoinData, 300000);
+        // 자동 갱신: 시세 30초, 선물 30초, 티커 4초, 뉴스 5분, 핫이슈 10분
+        setInterval(fetchCoinData, 30000);
         setInterval(fetchFuturesData, 30000);
         setInterval(loadCalendar, 3600000);
         setInterval(rotateRewardTicker, 4000);

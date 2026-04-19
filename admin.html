@@ -369,8 +369,8 @@ async function renderDashboard() {
     </div>
     <div class="stat-card">
       <div class="stat-label">활성 거래소</div>
-      <div class="stat-val yellow">${(d.byExchange||[]).length}</div>
-      <div class="stat-sub">Bitget / OKX / Gate.io / Bybit</div>
+      <div class="stat-val yellow">${d.activeExchanges ?? (d.byExchange||[]).length}</div>
+      <div class="stat-sub">Bitget / Bybit / OKX / Gate.io</div>
     </div>`;
 
   const byEx = d.byExchange || [];

@@ -174,13 +174,14 @@ async function handleAdmin(request, env, url) {
     // ── Stats ──
     if (path === '/stats' && request.method === 'GET') {
       const curMonth = new Date().toISOString().slice(0, 7);
-      const [u, s, p] = await Promise.all([
+      const [u, s, p, a] = await Promise.all([
         db.prepare('SELECT COUNT(*) as c FROM accounts').first(),
         db.prepare('SELECT COALESCE(SUM(payback_amount),0) as c FROM settlements WHERE month=?').bind(curMonth).first(),
         db.prepare("SELECT COUNT(*) as c FROM settlements WHERE status='pending'").first(),
+        db.prepare('SELECT COUNT(*) as c FROM exchange_api_configs WHERE is_active=1').first(),
       ]);
       const byEx = await db.prepare('SELECT exchange, COUNT(*) as cnt FROM users GROUP BY exchange').all();
-      return ajson({ totalUsers: u.c, monthlySettlement: s.c, unpaidCount: p.c, byExchange: byEx.results });
+      return ajson({ totalUsers: u.c, monthlySettlement: s.c, unpaidCount: p.c, activeExchanges: a.c, byExchange: byEx.results });
     }
 
     // ── Accounts (회원 목록) ──

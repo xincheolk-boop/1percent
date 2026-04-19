@@ -203,7 +203,7 @@
     <div class="nav-bar">
         <a class="nv" href="index.html">홈</a>
         <a class="nv" href="contract/liquidation.html">계약데이터</a>
-        <a class="nv" href="#">CFD</a>
+        <a class="nv" href="javascript:alert('CFD 페이지 준비중입니다.')">CFD</a>
         <a class="nv" href="kimp.html">김프</a>
         <a class="nv" href="news.html">뉴스</a>
         <a class="nv" href="exchanges.html">거래소</a>
@@ -249,36 +249,36 @@
                 <p>1% Trading 전용 코드로 가입하면 발생하는 수수료를 업계 최고 비율로 돌려받습니다. 같은 거래, 다른 결과.</p>
                 <div class="hero-exchanges">
                     <div class="hero-ex active" onclick="selectEx('bitget')" id="hexBitget">
-                        <div class="hex-icon" style="background:#00b8d9"><img src="bitget-logo.png" alt="Bitget"></div>
+                        <div class="hex-icon" style="background:#00b8d9"><img src="img/bitget-logo.png" alt="Bitget"></div>
                         <span class="hex-name">Bitget</span>
+                    </div>
+                    <div class="hero-ex" onclick="selectEx('bybit')" id="hexBybit">
+                        <div class="hex-icon" style="background:#f7a600"><span style="color:#fff;font-size:11px">BY</span></div>
+                        <span class="hex-name">Bybit</span>
                     </div>
                     <div class="hero-ex" onclick="selectEx('okx')" id="hexOkx">
                         <div class="hex-icon" style="background:#000"><span style="font-size:16px;font-weight:900;letter-spacing:-1px">X</span></div>
                         <span class="hex-name">OKX</span>
                     </div>
                     <div class="hero-ex" onclick="selectEx('gate')" id="hexGate">
-                        <div class="hex-icon" style="background:#2354e6"><img src="gate-logo.jpg" alt="Gate.io"></div>
+                        <div class="hex-icon" style="background:#2354e6"><img src="img/gate-logo.jpg" alt="Gate.io"></div>
                         <span class="hex-name">Gate</span>
+                    </div>
+                    <div class="hero-ex soon">
+                        <div class="hex-icon" style="background:#7c3aed"><span style="font-size:11px">BU</span></div>
+                        <span class="hex-name">Bitunix</span>
                     </div>
                     <div class="hero-ex soon">
                         <div class="hex-icon" style="background:#f0b90b"><span style="color:#1e2329;font-size:18px">◆</span></div>
                         <span class="hex-name">Binance</span>
                     </div>
                     <div class="hero-ex soon">
-                        <div class="hex-icon" style="background:#f7a600"><span style="color:#fff;font-size:11px">BY</span></div>
-                        <span class="hex-name">Bybit</span>
-                    </div>
-                    <div class="hero-ex soon">
-                        <div class="hex-icon" style="background:#2b5aed"><span style="font-size:14px">✕</span></div>
-                        <span class="hex-name">BingX</span>
-                    </div>
-                    <div class="hero-ex soon">
                         <div class="hex-icon" style="background:#1972e2"><span style="font-size:14px">M</span></div>
                         <span class="hex-name">MEXC</span>
                     </div>
                     <div class="hero-ex soon">
-                        <div class="hex-icon" style="background:#7c3aed"><span style="font-size:11px">BU</span></div>
-                        <span class="hex-name">Bitunix</span>
+                        <div class="hex-icon" style="background:#2b5aed"><span style="font-size:14px">✕</span></div>
+                        <span class="hex-name">BingX</span>
                     </div>
                 </div>
             </div>
@@ -399,10 +399,10 @@
                         <td style="color:var(--green)">활성</td>
                     </tr>
                     <tr>
-                        <td>Gate.io</td>
-                        <td class="cmp-best">70%</td>
-                        <td>0.004%</td>
-                        <td>0.01%</td>
+                        <td>Bybit</td>
+                        <td>50%</td>
+                        <td>0.02%</td>
+                        <td>0.055%</td>
                         <td style="color:var(--green)">활성</td>
                     </tr>
                     <tr>
@@ -413,24 +413,38 @@
                         <td style="color:var(--green)">활성</td>
                     </tr>
                     <tr>
-                        <td>Bybit</td>
-                        <td style="color:var(--txt3)">—</td>
+                        <td>Gate.io</td>
+                        <td class="cmp-best">70%</td>
+                        <td>0.004%</td>
                         <td>0.01%</td>
-                        <td>0.06%</td>
+                        <td style="color:var(--green)">활성</td>
+                    </tr>
+                    <tr>
+                        <td>Bitunix</td>
+                        <td style="color:var(--txt3)">—</td>
+                        <td>0.003%</td>
+                        <td>0.009%</td>
                         <td style="color:var(--txt3)">준비중</td>
                     </tr>
                     <tr>
-                        <td>BingX</td>
+                        <td>Binance</td>
                         <td style="color:var(--txt3)">—</td>
-                        <td>0.02%</td>
-                        <td>0.05%</td>
+                        <td>0.0096%</td>
+                        <td>0.024%</td>
                         <td style="color:var(--txt3)">준비중</td>
                     </tr>
                     <tr>
                         <td>MEXC</td>
                         <td style="color:var(--txt3)">—</td>
+                        <td>0%</td>
                         <td>0.01%</td>
-                        <td>0.04%</td>
+                        <td style="color:var(--txt3)">준비중</td>
+                    </tr>
+                    <tr>
+                        <td>BingX</td>
+                        <td style="color:var(--txt3)">—</td>
+                        <td>0.008%</td>
+                        <td>0.02%</td>
                         <td style="color:var(--txt3)">준비중</td>
                     </tr>
                 </tbody>
@@ -541,6 +555,7 @@
         // 거래소 데이터
         const EX = {
             bitget: {maker:.00002, taker:.00004, reward:.85, name:'Bitget', link:'bitget.html'},
+            bybit:  {maker:.0002,  taker:.00055, reward:.50, name:'Bybit',  link:'bybit.html'},
             okx:    {maker:.00004, taker:.0001,  reward:.50, name:'OKX',    link:'okx.html'},
             gate:   {maker:.00004, taker:.0001,  reward:.70, name:'Gate.io',link:'gate.html'}
         };
