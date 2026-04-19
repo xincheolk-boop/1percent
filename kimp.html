@@ -180,40 +180,8 @@
     </style>
 </head>
 <body>
-    <!-- 헤더 1줄 -->
-    <div class="top-bar">
-        <a href="index.html" class="back-arrow">←</a>
-        <a href="index.html" class="top-title">1% TRADING</a>
-        <div class="hdr-right">
-            <button class="icon-btn" onclick="toggleDark()" title="다크모드"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 009.79 9.79z"/></svg></button>
-            <button class="icon-btn" onclick="alert('알림 기능 준비중입니다.')" title="알림"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
-            <button class="icon-btn" onclick="alert('로그인 기능 준비중입니다.')" title="내정보"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></button>
-            <div style="position:relative">
-                <button class="lang-btn" onclick="toggleLang()">KR ▼</button>
-                <div class="lang-dd" id="langDD">
-                    <div class="lang-opt active" onclick="setLang('ko')">한국어</div>
-                    <div class="lang-opt" onclick="setLang('en')">English</div>
-                    <div class="lang-opt" onclick="setLang('zh')">中文</div>
-                    <div class="lang-opt" onclick="setLang('ja')">日本語</div>
-                    <div class="lang-opt" onclick="setLang('vi')">Tiếng Việt</div>
-                </div>
-            </div>
-            <div class="menu-toggle" onclick="openSidebar()">☰</div>
-        </div>
-    </div>
-
-    <!-- 네비게이션 바 -->
-    <div class="nav-bar">
-        <a class="nv" href="index.html">홈</a>
-        <a class="nv" href="contract/liquidation.html">계약데이터</a>
-        <a class="nv" href="javascript:alert('CFD 페이지 준비중입니다.')">CFD</a>
-        <a class="nv active" href="kimp.html">김프</a>
-        <a class="nv" href="news.html">뉴스</a>
-        <a class="nv" href="exchanges.html">거래소</a>
-        <a class="nv" href="rewards.html">리워드</a>
-        <a class="nv" href="community.html">커뮤니티</a>
-        <a class="nv ev" href="events.html">이벤트</a>
-    </div>
+    <div id="site-header"></div>
+    <script src="site-header.js"></script>
 
     <!-- 헤더 2줄 - 티커 -->
     <div class="ticker-bar" id="tickerBar">

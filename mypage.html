@@ -156,20 +156,8 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--txt)
 <body>
 
 <!-- Header -->
-<header class="header">
-  <a href="index.html" class="logo">1% TRADING</a>
-  <div class="header-right">
-    <div id="authBtns">
-      <button class="btn-login" onclick="openAuthModal('login')">로그인</button>
-      <button class="btn-signup" onclick="openAuthModal('signup')">회원가입</button>
-    </div>
-    <div id="userBtns" style="display:none;" class="user-row">
-      <div class="h-avatar" id="hAvatar">?</div>
-      <span class="h-nick" id="hNick">--</span>
-      <button class="h-logout" onclick="doLogout()">로그아웃</button>
-    </div>
-  </div>
-</header>
+<div id="site-header"></div>
+<script src="site-header.js"></script>
 
 <!-- ===== Auth Modal ===== -->
 <div id="authModal" class="overlay" style="display:none;" onclick="if(event.target===this)closeAuthModal()">

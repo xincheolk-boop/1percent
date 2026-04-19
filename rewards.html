@@ -16,6 +16,20 @@
         .back-btn{display:flex;align-items:center;gap:6px;color:var(--txt2);text-decoration:none;font-size:14px;padding:8px 12px;border-radius:8px;transition:all .2s}
         .back-btn:hover{color:var(--cyan);background:var(--card)}
         .top-title{margin-left:16px;font-family:'Orbitron',monospace;font-size:16px;font-weight:700;background:linear-gradient(90deg,var(--cyan),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .top-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+        .top-right .lang-wrap{position:relative}
+        .top-right .lang-btn{background:var(--card);border:1px solid var(--border);color:var(--txt2);font-size:12px;font-weight:600;padding:7px 12px;border-radius:8px;cursor:pointer;transition:all .2s;font-family:inherit}
+        .top-right .lang-btn:hover{color:var(--cyan);border-color:rgba(0,184,217,0.3)}
+        .top-right .lang-drop{position:absolute;top:calc(100% + 6px);right:0;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:6px;min-width:140px;box-shadow:0 10px 30px rgba(0,0,0,.45);display:none;z-index:1100}
+        .top-right .lang-drop.open{display:block}
+        .top-right .lang-drop div{padding:8px 12px;border-radius:6px;font-size:13px;color:var(--txt2);cursor:pointer;transition:all .15s}
+        .top-right .lang-drop div:hover{background:var(--bg);color:var(--txt)}
+        .top-right .lang-drop div.act{color:var(--cyan)}
+        .top-right .btn-login{padding:7px 14px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--txt2);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit;text-decoration:none}
+        .top-right .btn-login:hover{color:var(--cyan);border-color:rgba(0,184,217,0.3)}
+        .top-right .btn-signup{padding:7px 14px;background:linear-gradient(135deg,var(--cyan),var(--purple));border:none;border-radius:8px;color:#000;font-size:12px;font-weight:800;cursor:pointer;transition:all .2s;font-family:inherit;text-decoration:none}
+        .top-right .btn-signup:hover{opacity:.9;transform:translateY(-1px)}
+        @media(max-width:768px){.top-right .btn-login,.top-right .lang-btn{display:none}}
 
         /* 네비게이션 */
         .nav-bar{position:fixed;top:56px;left:0;right:0;height:40px;background:rgba(10,10,15,0.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:2px;padding:0 16px;z-index:999;overflow-x:auto;scrollbar-width:none}
@@ -176,6 +190,50 @@
         .rtop-card:nth-child(3) .rtop-amt{color:#7db8ff;background:rgba(100,160,255,0.06);border:1px solid rgba(100,160,255,0.15)}
         .rtop-amt span{font-size:11px;font-weight:400;opacity:.5;margin-left:3px}
 
+        /* ===== 파트너 거래소 혜택 (SigBTC style) ===== */
+        .exb-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-wrap:wrap;gap:10px}
+        .exb-head-left h2{font-size:22px;font-weight:800;margin-bottom:4px}
+        .exb-head-left p{font-size:13px;color:var(--txt2)}
+        .exb-count{background:rgba(0,212,160,0.12);color:var(--green);font-size:12px;font-weight:700;padding:8px 14px;border-radius:20px;border:1px solid rgba(0,212,160,0.25)}
+        .exb-table{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+        .exb-colh{display:grid;grid-template-columns:2fr 1.1fr 1.1fr 1.3fr 30px;gap:14px;padding:14px 22px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:11px;color:var(--txt3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;align-items:center}
+        .exb-colh .t-pay{color:var(--cyan);border-bottom:2px solid var(--cyan);padding-bottom:4px;justify-self:center}
+        .exb-colh .t-disc{color:var(--green);border-bottom:2px solid var(--green);padding-bottom:4px;justify-self:center}
+        .exb-colh .t-stat{color:var(--txt2);justify-self:center}
+        .exb-row{display:grid;grid-template-columns:2fr 1.1fr 1.1fr 1.3fr 30px;gap:14px;padding:18px 22px;align-items:center;border-bottom:1px solid var(--border);cursor:pointer;text-decoration:none;color:var(--txt);border-left:3px solid transparent;transition:background .2s,border-left-color .2s}
+        .exb-row:last-child{border-bottom:none}
+        .exb-row:hover{background:var(--card-h);border-left-color:var(--cyan)}
+        .exb-row.soon{opacity:.45;cursor:not-allowed}
+        .exb-row.soon:hover{background:transparent;border-left-color:transparent}
+        .exb-name-cell{display:flex;align-items:center;gap:14px;min-width:0}
+        .exb-logo{width:42px;height:42px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:#fff;overflow:hidden;background:#fff;border:1px solid var(--border)}
+        .exb-logo img{width:100%;height:100%;object-fit:contain;background:#fff}
+        .exb-name-text{min-width:0}
+        .exb-name{font-size:15px;font-weight:800;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+        .exb-tag{font-size:10px;color:var(--cyan);font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(0,184,217,0.12)}
+        .exb-tag.hot{color:#ffd700;background:rgba(255,215,0,0.12)}
+        .exb-tag.end{color:var(--txt3);background:var(--bg2)}
+        .exb-sub{font-size:11px;color:var(--txt3);margin-top:3px;display:flex;align-items:center;gap:5px}
+        .exb-sub::before{content:'✔';color:var(--cyan);font-size:9px}
+        .exb-metric{text-align:center}
+        .exb-metric-lab{display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;margin-bottom:5px}
+        .exb-metric-lab.pay{background:rgba(0,184,217,0.12);color:var(--cyan)}
+        .exb-metric-lab.disc{background:rgba(0,212,160,0.12);color:var(--green)}
+        .exb-metric-lab.total{background:rgba(147,51,234,0.14);color:#c4b5fd}
+        .exb-metric-val{font-family:'Orbitron',monospace;font-size:18px;font-weight:800;letter-spacing:-.5px}
+        .exb-metric-val.pay{color:var(--cyan)}
+        .exb-metric-val.disc{color:var(--green)}
+        .exb-metric-val.total{color:#c4b5fd}
+        .exb-metric-val .unit{font-size:11px;color:var(--txt3);font-weight:500;margin-left:4px}
+        .exb-metric-val.mute{color:var(--txt3)}
+        .exb-status{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:800;font-family:'Noto Sans KR',sans-serif;letter-spacing:0}
+        .exb-status.on{background:rgba(0,212,160,0.14);color:var(--green);border:1px solid rgba(0,212,160,0.3)}
+        .exb-status.off{background:rgba(156,163,175,0.08);color:var(--txt3);border:1px solid rgba(156,163,175,0.15)}
+        .exb-status::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor;box-shadow:0 0 6px currentColor}
+        .exb-status.off::before{box-shadow:none;opacity:.6}
+        .exb-arrow{font-size:18px;color:var(--txt3);justify-self:end}
+        .exb-row:hover .exb-arrow{color:var(--cyan)}
+
         /* 반응형 */
         @media(max-width:768px){
             .rtop-grid{grid-template-columns:1fr}
@@ -187,6 +245,11 @@
             .cmp-table{font-size:12px}
             .cmp-table th,.cmp-table td{padding:10px 8px}
             .wrap{padding:116px 14px 40px}
+            .exb-colh{display:none}
+            .exb-row{grid-template-columns:1fr;gap:10px;padding:16px}
+            .exb-metric{text-align:left;display:flex;align-items:center;gap:10px}
+            .exb-metric-lab{margin-bottom:0}
+            .exb-arrow{display:none}
         }
         @media(max-width:480px){
             .hero-left h1{font-size:20px}
@@ -195,22 +258,8 @@
     </style>
 </head>
 <body>
-    <div class="top-bar">
-        <a href="index.html" class="back-btn">&larr;</a>
-        <a href="index.html" class="top-title" style="text-decoration:none">1% TRADING</a>
-    </div>
-
-    <div class="nav-bar">
-        <a class="nv" href="index.html">홈</a>
-        <a class="nv" href="contract/liquidation.html">계약데이터</a>
-        <a class="nv" href="javascript:alert('CFD 페이지 준비중입니다.')">CFD</a>
-        <a class="nv" href="kimp.html">김프</a>
-        <a class="nv" href="news.html">뉴스</a>
-        <a class="nv" href="exchanges.html">거래소</a>
-        <a class="nv active" href="rewards.html">리워드</a>
-        <a class="nv" href="community.html">커뮤니티</a>
-        <a class="nv ev" href="events.html">이벤트</a>
-    </div>
+    <div id="site-header"></div>
+    <script src="site-header.js"></script>
 
     <div class="wrap">
 
@@ -238,6 +287,138 @@
                     <div class="rtop-name">cry***88</div>
                     <div class="rtop-ex">Bitget</div>
                     <div class="rtop-amt">2,156.80<span>USDT</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 파트너 거래소 혜택 ===== -->
+        <div class="section">
+            <div class="exb-head">
+                <div class="exb-head-left">
+                    <h2>🏦 파트너 거래소 혜택</h2>
+                    <p>아래 거래소를 클릭하여 레퍼럴 링크로 가입하세요</p>
+                </div>
+                <div class="exb-count">8개 파트너 거래소</div>
+            </div>
+            <div class="exb-table">
+                <div class="exb-colh">
+                    <div>거래소</div>
+                    <div class="t-pay">수수료 페이백</div>
+                    <div class="t-disc">거래 할인</div>
+                    <div class="t-stat">상태</div>
+                    <div></div>
+                </div>
+                <!-- Bitget -->
+                <a class="exb-row" href="https://partner.bitget.com/bg/1propp" target="_blank" rel="noopener">
+                    <div class="exb-name-cell">
+                        <div class="exb-logo"><img src="https://s2.coinmarketcap.com/static/img/exchanges/64x64/513.png" alt="Bitget" onerror="this.parentNode.textContent='BG';this.parentNode.style.background='#00b8d9'"></div>
+                        <div class="exb-name-text">
+                            <div class="exb-name">Bitget <span class="exb-tag hot">인기 1위</span></div>
+                            <div class="exb-sub">파트너 거래소</div>
+                        </div>
+                    </div>
+                    <div class="exb-metric"><div class="exb-metric-lab pay">페이백</div><div class="exb-metric-val pay">60%</div></div>
+                    <div class="exb-metric"><div class="exb-metric-lab disc">할인</div><div class="exb-metric-val disc">50%</div></div>
+                    <div class="exb-metric"><span class="exb-status on">활성</span></div>
+                    <div class="exb-arrow">›</div>
+                </a>
+                <!-- Bybit -->
+                <a class="exb-row" href="https://partner.bybit.com/b/158211" target="_blank" rel="noopener">
+                    <div class="exb-name-cell">
+                        <div class="exb-logo"><img src="https://s2.coinmarketcap.com/static/img/exchanges/64x64/521.png" alt="Bybit" onerror="this.parentNode.textContent='BY';this.parentNode.style.background='#f7a600'"></div>
+                        <div class="exb-name-text">
+                            <div class="exb-name">Bybit <span class="exb-tag">NEW</span></div>
+                            <div class="exb-sub">파트너 거래소</div>
+                        </div>
+                    </div>
+                    <div class="exb-metric"><div class="exb-metric-lab pay">페이백</div><div class="exb-metric-val pay">50%</div></div>
+                    <div class="exb-metric"><div class="exb-metric-lab disc">할인</div><div class="exb-metric-val disc">20%</div></div>
+                    <div class="exb-metric"><span class="exb-status on">활성</span></div>
+                    <div class="exb-arrow">›</div>
+                </a>
+                <!-- OKX -->
+                <a class="exb-row" href="https://okx.com/join/1PERCENT" target="_blank" rel="noopener">
+                    <div class="exb-name-cell">
+                        <div class="exb-logo"><img src="https://s2.coinmarketcap.com/static/img/exchanges/64x64/294.png" alt="OKX" onerror="this.parentNode.textContent='OKX';this.parentNode.style.background='#000'"></div>
+                        <div class="exb-name-text">
+                            <div class="exb-name">OKX</div>
+                            <div class="exb-sub">파트너 거래소</div>
+                        </div>
+                    </div>
+                    <div class="exb-metric"><div class="exb-metric-lab pay">페이백</div><div class="exb-metric-val pay">60%</div></div>
+                    <div class="exb-metric"><div class="exb-metric-lab disc">할인</div><div class="exb-metric-val disc">20%</div></div>
+                    <div class="exb-metric"><span class="exb-status on">활성</span></div>
+                    <div class="exb-arrow">›</div>
+                </a>
+                <!-- Gate -->
+                <a class="exb-row" href="https://www.gate.com/share/ONEPROPP" target="_blank" rel="noopener">
+                    <div class="exb-name-cell">
+                        <div class="exb-logo"><img src="https://s2.coinmarketcap.com/static/img/exchanges/64x64/302.png" alt="Gate.io" onerror="this.parentNode.textContent='GT';this.parentNode.style.background='#2354e6'"></div>
+                        <div class="exb-name-text">
+                            <div class="exb-name">Gate.io</div>
+                            <div class="exb-sub">파트너 거래소</div>
+                        </div>
+                    </div>
+                    <div class="exb-metric"><div class="exb-metric-lab pay">페이백</div><div class="exb-metric-val pay">75%</div></div>
+                    <div class="exb-metric"><div class="exb-metric-lab disc">할인</div><div class="exb-metric-val disc">30%</div></div>
+                    <div class="exb-metric"><span class="exb-status on">활성</span></div>
+                    <div class="exb-arrow">›</div>
+                </a>
+                <!-- Bitunix -->
+                <a class="exb-row" href="https://www.bitunix.com/register?vipCode=pkju" target="_blank" rel="noopener">
+                    <div class="exb-name-cell">
+                        <div class="exb-logo"><img src="https://www.bitunix.com/favicon.ico" alt="Bitunix" onerror="this.parentNode.textContent='BU';this.parentNode.style.background='#7c3aed'"></div>
+                        <div class="exb-name-text">
+                            <div class="exb-name">Bitunix <span class="exb-tag hot">최고 혜택</span></div>
+                            <div class="exb-sub">파트너 거래소</div>
+                        </div>
+                    </div>
+                    <div class="exb-metric"><div class="exb-metric-lab pay">페이백</div><div class="exb-metric-val pay">85%</div></div>
+                    <div class="exb-metric"><div class="exb-metric-lab disc">할인</div><div class="exb-metric-val disc">20%</div></div>
+                    <div class="exb-metric"><span class="exb-status on">활성</span></div>
+                    <div class="exb-arrow">›</div>
+                </a>
+                <!-- Binance (준비중) -->
+                <div class="exb-row soon">
+                    <div class="exb-name-cell">
+                        <div class="exb-logo"><img src="https://s2.coinmarketcap.com/static/img/exchanges/64x64/270.png" alt="Binance" onerror="this.parentNode.textContent='BN';this.parentNode.style.background='#f0b90b';this.parentNode.style.color='#1e2329'"></div>
+                        <div class="exb-name-text">
+                            <div class="exb-name">Binance</div>
+                            <div class="exb-sub">파트너 거래소</div>
+                        </div>
+                    </div>
+                    <div class="exb-metric"><div class="exb-metric-lab pay">페이백</div><div class="exb-metric-val mute">—</div></div>
+                    <div class="exb-metric"><div class="exb-metric-lab disc">할인</div><div class="exb-metric-val mute">—</div></div>
+                    <div class="exb-metric"><span class="exb-status off">준비중</span></div>
+                    <div class="exb-arrow">›</div>
+                </div>
+                <!-- MEXC (준비중) -->
+                <div class="exb-row soon">
+                    <div class="exb-name-cell">
+                        <div class="exb-logo"><img src="https://s2.coinmarketcap.com/static/img/exchanges/64x64/544.png" alt="MEXC" onerror="this.parentNode.textContent='MX';this.parentNode.style.background='#1972e2'"></div>
+                        <div class="exb-name-text">
+                            <div class="exb-name">MEXC</div>
+                            <div class="exb-sub">파트너 거래소</div>
+                        </div>
+                    </div>
+                    <div class="exb-metric"><div class="exb-metric-lab pay">페이백</div><div class="exb-metric-val mute">—</div></div>
+                    <div class="exb-metric"><div class="exb-metric-lab disc">할인</div><div class="exb-metric-val mute">—</div></div>
+                    <div class="exb-metric"><span class="exb-status off">준비중</span></div>
+                    <div class="exb-arrow">›</div>
+                </div>
+                <!-- BingX (준비중) -->
+                <div class="exb-row soon">
+                    <div class="exb-name-cell">
+                        <div class="exb-logo"><img src="https://s2.coinmarketcap.com/static/img/exchanges/64x64/1064.png" alt="BingX" onerror="this.parentNode.textContent='BX';this.parentNode.style.background='#2b5aed'"></div>
+                        <div class="exb-name-text">
+                            <div class="exb-name">BingX</div>
+                            <div class="exb-sub">파트너 거래소</div>
+                        </div>
+                    </div>
+                    <div class="exb-metric"><div class="exb-metric-lab pay">페이백</div><div class="exb-metric-val mute">—</div></div>
+                    <div class="exb-metric"><div class="exb-metric-lab disc">할인</div><div class="exb-metric-val mute">—</div></div>
+                    <div class="exb-metric"><span class="exb-status off">준비중</span></div>
+                    <div class="exb-arrow">›</div>
                 </div>
             </div>
         </div>
@@ -451,12 +632,6 @@
             </table>
         </div>
 
-        <!-- ===== 실시간 리워드 피드 ===== -->
-        <div class="section">
-            <div class="section-title">실시간 리워드 현황</div>
-            <div class="feed-list" id="feedList"></div>
-        </div>
-
         <!-- ===== 가이드 ===== -->
         <div class="section">
             <div class="section-title">가이드</div>
@@ -532,6 +707,12 @@
             </div>
         </div>
 
+        <!-- ===== 실시간 리워드 피드 ===== -->
+        <div class="section">
+            <div class="section-title">실시간 리워드 현황</div>
+            <div class="feed-list" id="feedList"></div>
+        </div>
+
         <!-- 푸터 -->
         <footer class="footer">
             <div class="footer-copy">&copy; 2025 1% Trading. All rights reserved.</div>
@@ -552,6 +733,23 @@
     </div>
 
     <script>
+        // 언어 토글
+        function toggleLangDrop(e) {
+            e.stopPropagation();
+            document.getElementById('langDrop').classList.toggle('open');
+        }
+        function setLang(code, label) {
+            document.getElementById('langLabel').textContent = label;
+            document.querySelectorAll('#langDrop div').forEach(d => d.classList.remove('act'));
+            event.currentTarget.classList.add('act');
+            document.getElementById('langDrop').classList.remove('open');
+            try { localStorage.setItem('lang', code); } catch(e){}
+        }
+        document.addEventListener('click', e => {
+            const w = document.querySelector('.lang-wrap');
+            if (w && !w.contains(e.target)) document.getElementById('langDrop')?.classList.remove('open');
+        });
+
         // 거래소 데이터
         const EX = {
             bitget: {maker:.00002, taker:.00004, reward:.85, name:'Bitget', link:'bitget.html'},
