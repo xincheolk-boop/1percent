@@ -806,8 +806,10 @@ function _rssField(xml, tag){
   if (!m) return '';
   return m[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
              .replace(/<[^>]+>/g, '')
-             .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
-             .replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g,' ')
+             .replace(/&#(\d+);/g, (_,n)=>String.fromCharCode(parseInt(n,10)))
+             .replace(/&#x([0-9a-f]+);/gi, (_,h)=>String.fromCharCode(parseInt(h,16)))
+             .replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&nbsp;/g,' ')
+             .replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&')
              .trim();
 }
 
