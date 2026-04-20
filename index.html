@@ -2947,7 +2947,7 @@
                     } else {
                         // CryptoCompare 폴백
                         try {
-                            const ccRes = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=6');
+                            const ccRes = await fetch('/api/news');
                             const ccData = await ccRes.json();
                             if (ccData.Data && ccData.Data.length > 0) {
                                 newsGrid.innerHTML = ccData.Data.slice(0,4).map(n => {
@@ -2966,7 +2966,7 @@
         // ── 핫이슈 (CryptoCompare 뉴스 헤드라인) ──
         async function loadHotIssues() {
             try {
-                const res = await fetch('https://min-api.cryptocompare.com/data/v2/news/?lang=EN&limit=10&sortOrder=popular');
+                const res = await fetch('/api/news');
                 const data = await res.json();
                 const list = document.getElementById('hotList');
                 if (!list || !data.Data) return;

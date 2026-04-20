@@ -145,77 +145,82 @@
             <div class="tab" data-cat="defi" onclick="filterNews(this)">DeFi</div>
         </div>
 
-        <div class="news-list">
-            <div class="news-item">
-                <div class="news-meta">
-                    <span class="news-tag market">시장분석</span>
-                    <span class="news-date">2025.02.15 14:32</span>
-                </div>
-                <div class="news-title">비트코인 $98,000 돌파, 10만 달러 목전</div>
-                <div class="news-desc">비트코인이 강한 매수세에 힘입어 $98,000을 돌파했다. 기관 투자자들의 ETF 유입이 지속되면서 10만 달러 돌파에 대한 기대감이 높아지고 있다.</div>
-            </div>
-            <div class="news-item">
-                <div class="news-meta">
-                    <span class="news-tag exchange">거래소</span>
-                    <span class="news-date">2025.02.15 13:15</span>
-                </div>
-                <div class="news-title">Bitget, 2025년 1분기 거래량 역대 최고 기록</div>
-                <div class="news-desc">글로벌 암호화폐 거래소 Bitget이 2025년 1분기 선물 거래량에서 역대 최고치를 경신했다고 발표했다.</div>
-            </div>
-            <div class="news-item">
-                <div class="news-meta">
-                    <span class="news-tag regulation">규제</span>
-                    <span class="news-date">2025.02.15 11:48</span>
-                </div>
-                <div class="news-title">미 SEC, 암호화폐 규제 프레임워크 초안 공개</div>
-                <div class="news-desc">미국 증권거래위원회(SEC)가 암호화폐 산업에 대한 새로운 규제 프레임워크 초안을 공개했다. 업계는 이를 긍정적 신호로 해석하고 있다.</div>
-            </div>
-            <div class="news-item">
-                <div class="news-meta">
-                    <span class="news-tag defi">DeFi</span>
-                    <span class="news-date">2025.02.15 10:22</span>
-                </div>
-                <div class="news-title">이더리움 L2 TVL $50B 돌파, Arbitrum 선두 유지</div>
-                <div class="news-desc">이더리움 레이어2 솔루션의 총 예치 자산(TVL)이 500억 달러를 돌파했다. Arbitrum이 여전히 선두를 유지하고 있으며, Base가 빠르게 성장 중이다.</div>
-            </div>
-            <div class="news-item">
-                <div class="news-meta">
-                    <span class="news-tag market">시장분석</span>
-                    <span class="news-date">2025.02.15 09:05</span>
-                </div>
-                <div class="news-title">알트코인 시즌 신호? 도미넌스 하락세 지속</div>
-                <div class="news-desc">비트코인 도미넌스가 52%대로 하락하면서 알트코인 시즌에 대한 기대감이 커지고 있다. SOL, AVAX, LINK 등 주요 알트코인이 강세를 보이고 있다.</div>
-            </div>
-            <div class="news-item">
-                <div class="news-meta">
-                    <span class="news-tag exchange">거래소</span>
-                    <span class="news-date">2025.02.14 22:30</span>
-                </div>
-                <div class="news-title">Gate.io, 신규 선물 페어 20종 추가 상장</div>
-                <div class="news-desc">Gate.io가 AI, RWA, GameFi 관련 토큰 20종에 대한 선물 거래를 새롭게 지원한다고 발표했다.</div>
-            </div>
-            <div class="news-item">
-                <div class="news-meta">
-                    <span class="news-tag market">시장분석</span>
-                    <span class="news-date">2025.02.14 18:45</span>
-                </div>
-                <div class="news-title">기관 투자자 BTC 매수 가속화, 주간 $2.1B 유입</div>
-                <div class="news-desc">비트코인 현물 ETF로의 자금 유입이 주간 21억 달러를 기록하며 사상 최고치를 경신했다. BlackRock의 IBIT이 유입을 주도하고 있다.</div>
-            </div>
+        <div class="news-list" id="newsList">
+            <div style="text-align:center;padding:60px 0;color:var(--text-muted);font-size:14px">뉴스 불러오는 중…</div>
         </div>
+        <div id="newsUpdated" style="text-align:center;margin-top:20px;color:var(--text-muted);font-size:11px"></div>
     </div>
     <script>
+        let CURRENT_CAT = 'all';
+        let NEWS_CACHE = [];
+
+        function categorize(item){
+            const cats = ((item.categories||'') + '|' + (item.title||'')).toLowerCase();
+            if (/regulation|sec|cftc|law|government|ban|규제/.test(cats)) return 'regulation';
+            if (/defi|dex|uniswap|aave|curve|lending|yield/.test(cats)) return 'defi';
+            if (/exchange|binance|bitget|bybit|okx|gate|coinbase|kraken|upbit/.test(cats)) return 'exchange';
+            return 'market';
+        }
+        const CAT_LABEL = { market:'시장분석', exchange:'거래소', regulation:'규제', defi:'DeFi' };
+
+        function formatTime(ts){
+            const d = new Date(ts*1000);
+            const y = d.getFullYear(), mo = String(d.getMonth()+1).padStart(2,'0'), da = String(d.getDate()).padStart(2,'0');
+            const h = String(d.getHours()).padStart(2,'0'), mi = String(d.getMinutes()).padStart(2,'0');
+            return `${y}.${mo}.${da} ${h}:${mi}`;
+        }
+
+        function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+        function render(){
+            const list = document.getElementById('newsList');
+            const filtered = CURRENT_CAT==='all' ? NEWS_CACHE : NEWS_CACHE.filter(n=>n._cat===CURRENT_CAT);
+            if (!filtered.length){
+                list.innerHTML = `<div style="text-align:center;padding:60px 0;color:var(--text-muted);font-size:14px">해당 카테고리 뉴스가 없습니다</div>`;
+                return;
+            }
+            list.innerHTML = filtered.map(n => {
+                const cat = n._cat;
+                const title = escapeHtml(n.title||'');
+                const body = escapeHtml((n.body||'').replace(/\s+/g,' ').slice(0,180)) + ((n.body||'').length>180?'…':'');
+                const url = n.url||'#';
+                return `<div class="news-item" onclick="window.open('${url}','_blank')">
+                    <div class="news-meta">
+                        <span class="news-tag ${cat}">${CAT_LABEL[cat]}</span>
+                        <span class="news-date">${formatTime(n.published_on)}</span>
+                    </div>
+                    <div class="news-title">${title}</div>
+                    <div class="news-desc">${body}</div>
+                </div>`;
+            }).join('');
+        }
+
+        async function fetchNews(){
+            try {
+                const res = await fetch('/api/news');
+                const data = await res.json();
+                if (!data || !data.Data) throw new Error('no data');
+                NEWS_CACHE = data.Data.map(n => Object.assign({_cat: categorize(n)}, n));
+                render();
+                const d = new Date();
+                document.getElementById('newsUpdated').textContent =
+                    `마지막 업데이트: ${d.toLocaleString('ko-KR')} · 5분마다 자동 갱신`;
+            } catch(e){
+                console.warn('news fetch fail', e);
+                document.getElementById('newsList').innerHTML =
+                    `<div style="text-align:center;padding:60px 0;color:var(--accent-red);font-size:13px">뉴스 로드 실패. 잠시 후 다시 시도해주세요.</div>`;
+            }
+        }
+
         function filterNews(el) {
-            const cat = el.getAttribute('data-cat');
+            CURRENT_CAT = el.getAttribute('data-cat');
             document.querySelectorAll('.tabs .tab').forEach(t => t.classList.remove('active'));
             el.classList.add('active');
-            document.querySelectorAll('.news-item').forEach(item => {
-                const tagEl = item.querySelector('.news-tag');
-                if (!tagEl) return;
-                const cls = tagEl.className.split(/\s+/).find(c => c !== 'news-tag') || '';
-                item.style.display = (cat === 'all' || cls === cat) ? '' : 'none';
-            });
+            render();
         }
+
+        fetchNews();
+        setInterval(fetchNews, 300000);
     </script>
 </body>
 </html>

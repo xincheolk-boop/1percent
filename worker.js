@@ -101,6 +101,11 @@ export default {
       return handleCalendar(request, env);
     }
 
+    // Crypto News (RSS aggregation proxy)
+    if (url.pathname === '/api/news') {
+      return handleNews(request, env, ctx);
+    }
+
     // Binance Futures API Proxy
     if (url.pathname.startsWith('/api/binance/')) {
       return handleBinanceProxy(request, url);
@@ -778,6 +783,66 @@ async function handleAdminWithdrawals(request, env, url) {
     return ajson({ error: '알 수 없는 경로' }, 404);
   } catch (err) {
     return ajson({ error: err.message }, 500);
+  }
+}
+
+// ── News (RSS → JSON) ────────────────────────────────────────────────────────
+
+const NEWS_CORS = {
+  'Access-Control-Allow-Origin': '*',
+  'Content-Type': 'application/json',
+  'Cache-Control': 'public, max-age=300',
+};
+
+const NEWS_FEEDS = [
+  { src: 'CoinDesk',       url: 'https://www.coindesk.com/arc/outboundfeeds/rss/' },
+  { src: 'Cointelegraph',  url: 'https://cointelegraph.com/rss' },
+  { src: 'Decrypt',        url: 'https://decrypt.co/feed' },
+];
+
+function _rssField(xml, tag){
+  const re = new RegExp('<' + tag + '(?:\\s[^>]*)?>([\\s\\S]*?)</' + tag + '>', 'i');
+  const m = xml.match(re);
+  if (!m) return '';
+  return m[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+             .replace(/<[^>]+>/g, '')
+             .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>')
+             .replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&nbsp;/g,' ')
+             .trim();
+}
+
+function parseRss(xml, source){
+  const items = [];
+  const re = /<item[\s\S]*?<\/item>/g;
+  const matches = xml.match(re) || [];
+  for (const raw of matches.slice(0, 20)){
+    const title = _rssField(raw, 'title');
+    const link  = _rssField(raw, 'link');
+    const pub   = _rssField(raw, 'pubDate');
+    const desc  = _rssField(raw, 'description');
+    const cats  = [...raw.matchAll(/<category(?:\s[^>]*)?>([\s\S]*?)<\/category>/gi)]
+                    .map(m=>m[1].replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g,'$1').replace(/<[^>]+>/g,'').trim())
+                    .filter(Boolean);
+    const ts = pub ? Math.floor(new Date(pub).getTime()/1000) : Math.floor(Date.now()/1000);
+    if (title && link) items.push({ title, url: link, body: desc, published_on: ts, categories: cats.join('|'), source });
+  }
+  return items;
+}
+
+async function handleNews(request, env, ctx){
+  try {
+    const results = await Promise.allSettled(
+      NEWS_FEEDS.map(f => fetch(f.url, {
+        headers: { 'User-Agent': 'Mozilla/5.0 1percentpro-newsbot' },
+        cf: { cacheTtl: 300, cacheEverything: true }
+      }).then(r => r.ok ? r.text().then(t => parseRss(t, f.src)) : []))
+    );
+    const all = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
+    all.sort((a,b) => b.published_on - a.published_on);
+    const data = all.slice(0, 40);
+    return new Response(JSON.stringify({ ok: true, count: data.length, Data: data }), { headers: NEWS_CORS });
+  } catch (err) {
+    return new Response(JSON.stringify({ ok: false, error: err.message, Data: [] }), { headers: NEWS_CORS });
   }
 }
 
