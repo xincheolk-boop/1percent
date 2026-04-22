@@ -302,21 +302,26 @@
             renderCal();
         }
 
-        // API 데이터 로드 시도
+        // API 데이터 로드
         async function loadFromApi() {
             try {
-                const res = await fetch('/api/calendar');
+                const res = await fetch('/api/calendar', { cache: 'no-store' });
                 const data = await res.json();
                 if (data.events && data.events.length > 0) {
+                    // 실데이터로 전면 교체 (더미 제거)
                     allEvents = data.events.map(e => ({
-                        date: e.date.split('T')[0],
+                        date: String(e.date).split('T')[0],
                         title: e.title,
-                        category: e.category,
-                        coins: e.coins || [],
-                        hot: e.hot || false
-                    })).concat(dummyEvents.filter(d => !data.events.some(e => e.date.startsWith(d.date))));
+                        category: e.category || 'default',
+                        coins: Array.isArray(e.coins) ? e.coins : [],
+                        hot: !!e.hot,
+                        source: e.source || ''
+                    }));
+                    // 소스별 건수 로깅 (개발자 도구용)
+                    if (data.sources) console.log('[calendar] sources:', data.sources);
+                    if (data.errors && Object.keys(data.errors).length) console.warn('[calendar] errors:', data.errors);
                 }
-            } catch(e) {}
+            } catch(e) { console.warn('[calendar] load fail:', e); }
             renderList();
             renderCal();
         }

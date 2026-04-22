@@ -98,7 +98,7 @@ export default {
 
     // Calendar API
     if (url.pathname === '/api/calendar') {
-      return handleCalendar(request, env);
+      return handleCalendar(request, env, ctx);
     }
 
     // Crypto News (RSS aggregation proxy)
@@ -856,39 +856,335 @@ const CAL_CORS = {
   'Cache-Control': 'public, max-age=1800',
 };
 
-async function handleCalendar(request, env) {
-  const apiKey = env.COINMARKETCAL_API_KEY || null;
-  if (!apiKey) {
-    return new Response(JSON.stringify({ events: [], source: 'no_api_key' }), { headers: CAL_CORS });
+async function handleCalendar(request, env, ctx) {
+  // Edge cache (30min)
+  const cache = caches.default;
+  const cacheKey = new Request(new URL(request.url).toString(), { method: 'GET' });
+  const cached = await cache.match(cacheKey);
+  if (cached) return cached;
+
+  const today  = new Date();
+  const future = new Date(Date.now() + 45 * 86400000);
+  const from = today.toISOString().split('T')[0];
+  const to   = future.toISOString().split('T')[0];
+
+  const results = await Promise.allSettled([
+    fetchDefiLlamaUnlocks(today, future),         // 유료 전환됨 — fallback
+    fetchFMPEconomic(env.FMP_API_KEY, from, to),  // 유료 전환됨 — fallback
+    fetchCryptoRankEvents(env.CRYPTORANK_API_KEY, from, to), // Basic 미포함 — fallback
+    fetchDbEvents(env.DB, from, to),              // 거래소 공지 크롤러 DB
+    Promise.resolve(computeMacroEvents(today, future)),     // 매크로 프로그래매틱
+  ]);
+  const [unlocks, macro, crEvents, dbEvents, macroCalc] = results;
+
+  const events = [];
+  for (const r of results) if (r.status === 'fulfilled' && Array.isArray(r.value)) events.push(...r.value);
+
+  // Dedup (같은 날짜 + 제목 앞 30자)
+  const seen = new Set();
+  const dedup = events.filter(e => {
+    const k = e.date + '::' + String(e.title || '').substring(0, 30);
+    if (seen.has(k)) return false;
+    seen.add(k); return true;
+  });
+  dedup.sort((a, b) => a.date.localeCompare(b.date));
+
+  const body = {
+    events: dedup,
+    sources: {
+      defillama:   unlocks.status   === 'fulfilled' ? unlocks.value.length   : 0,
+      fmp:         macro.status     === 'fulfilled' ? macro.value.length     : 0,
+      cryptorank:  crEvents.status  === 'fulfilled' ? crEvents.value.length  : 0,
+      db:          dbEvents.status  === 'fulfilled' ? dbEvents.value.length  : 0,
+      macro_calc:  macroCalc.status === 'fulfilled' ? macroCalc.value.length : 0,
+    },
+    errors: (() => {
+      const names = ['defillama','fmp','cryptorank','db','macro_calc'];
+      const out = {};
+      results.forEach((r, i) => { if (r.status === 'rejected') out[names[i]] = r.reason?.message || String(r.reason); });
+      return out;
+    })(),
+    updated_at: new Date().toISOString(),
+  };
+
+  const response = new Response(JSON.stringify(body), { headers: CAL_CORS });
+  if (ctx?.waitUntil) ctx.waitUntil(cache.put(cacheKey, response.clone()));
+  return response;
+}
+
+// ── Source fetchers ───────────────────────────────────────────────────────────
+
+async function fetchDefiLlamaUnlocks(from, to) {
+  const res = await fetch('https://api.llama.fi/emissions', {
+    cf: { cacheTtl: 1800, cacheEverything: true }
+  });
+  if (!res.ok) throw new Error('DefiLlama ' + res.status);
+  const list = await res.json();
+  const fromMs = from.getTime();
+  const toMs   = to.getTime();
+  const out = [];
+  for (const p of Array.isArray(list) ? list : []) {
+    // DefiLlama protocol shape varies; try multiple paths
+    const evList = Array.isArray(p.upcomingEvent) ? p.upcomingEvent
+                 : (p.nextEvent ? [p.nextEvent] : []);
+    for (const ev of evList) {
+      let ts = ev.timestamp ?? ev.date ?? 0;
+      if (!ts) continue;
+      if (ts < 1e12) ts *= 1000; // seconds → ms
+      if (ts < fromMs || ts > toMs) continue;
+      const d = new Date(ts);
+      const amt = Array.isArray(ev.noOfTokens) ? ev.noOfTokens.reduce((a,b)=>a+Number(b||0),0)
+                : Number(ev.toUnlock || ev.amount || 0);
+      const price = Number(p.tPrice || p.price || 0);
+      const usd = amt * price;
+      const sym = p.token || p.symbol || p.gecko_id || '';
+      out.push({
+        date: d.toISOString().split('T')[0],
+        title: `${p.name || sym} 언락 — ${fmtNum(amt)} ${sym}${usd ? ` (${fmtUsd(usd)})` : ''}`,
+        category: 'project',
+        coins: sym ? [sym.toUpperCase()] : [],
+        hot: usd >= 50e6,
+        source: 'defillama',
+      });
+    }
   }
+  return out;
+}
+
+async function fetchFMPEconomic(apiKey, from, to) {
+  if (!apiKey) return [];
+  const url = `https://financialmodelingprep.com/api/v3/economic_calendar?from=${from}&to=${to}&apikey=${apiKey}`;
+  const res = await fetch(url, { cf: { cacheTtl: 1800, cacheEverything: true } });
+  if (!res.ok) throw new Error('FMP ' + res.status);
+  const list = await res.json();
+  if (!Array.isArray(list)) return [];
+  const KEEP_C = new Set(['US','EU','JP','CN','KR','GB','DE']);
+  const KEEP_I = new Set(['High','Medium']);
+  const CTRY = { US:'🇺🇸 미국', EU:'🇪🇺 유로존', JP:'🇯🇵 일본', CN:'🇨🇳 중국', KR:'🇰🇷 한국', GB:'🇬🇧 영국', DE:'🇩🇪 독일' };
+  const MACRO_KO = [
+    [/fomc|fed\s*interest\s*rate/i, 'FOMC 금리결정'],
+    [/core\s*pce/i, '근원 PCE'],
+    [/\bpce\b/i, 'PCE 물가'],
+    [/core\s*cpi/i, '근원 CPI'],
+    [/\bcpi\b/i, '소비자물가 (CPI)'],
+    [/\bppi\b/i, '생산자물가 (PPI)'],
+    [/non[-\s]?farm\s*payrolls?/i, '비농업고용'],
+    [/unemployment\s*rate/i, '실업률'],
+    [/initial\s*jobless/i, '주간 실업수당청구'],
+    [/\bgdp\b/i, 'GDP'],
+    [/retail\s*sales/i, '소매판매'],
+    [/\bism\b/i, 'ISM 지수'],
+    [/consumer\s*confidence/i, '소비자신뢰지수'],
+    [/trade\s*balance/i, '무역수지'],
+    [/manufacturing\s*pmi/i, '제조업 PMI'],
+    [/services\s*pmi/i, '서비스 PMI'],
+    [/housing\s*starts/i, '주택착공'],
+    [/durable\s*goods/i, '내구재 주문'],
+  ];
+  const translate = (name) => {
+    if (!name) return '';
+    for (const [re, ko] of MACRO_KO) if (re.test(name)) return ko;
+    return name;
+  };
+  return list.filter(e => KEEP_C.has(e.country) && KEEP_I.has(e.impact) && e.date).map(e => ({
+    date: String(e.date).split(' ')[0].split('T')[0],
+    title: `${CTRY[e.country] || e.country} ${translate(e.event)}`,
+    category: 'macro',
+    coins: [],
+    hot: e.impact === 'High',
+    source: 'fmp',
+  }));
+}
+
+async function fetchCryptoRankEvents(apiKey, from, to) {
+  if (!apiKey) return [];
+  // Try CryptoRank V2 events endpoint (may require paid plan; skip silently if unavailable)
   try {
-    const today  = new Date().toISOString().split('T')[0];
-    const future = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
-    const res = await fetch(
-      `https://developers.coinmarketcal.com/v1/events?max=8&dateRangeStart=${today}&dateRangeEnd=${future}&showOnly=hot_events`,
-      { headers: { 'x-api-key': apiKey, 'Accept-Encoding': 'deflate, gzip', 'Accept': 'application/json' },
-        cf: { cacheTtl: 1800, cacheEverything: true } }
-    );
-    if (!res.ok) throw new Error(`CoinMarketCal ${res.status}`);
+    const url = `https://api.cryptorank.io/v2/events?dateFrom=${from}&dateTo=${to}&limit=100`;
+    const res = await fetch(url, {
+      headers: { 'X-Api-Key': apiKey },
+      cf: { cacheTtl: 1800, cacheEverything: true }
+    });
+    if (!res.ok) {
+      // Fallback: try v1
+      return await fetchCryptoRankV1(apiKey, from, to);
+    }
     const data = await res.json();
-    const DAYS = ['일','월','화','수','목','금','토'];
-    const events = (data.body || []).map(e => {
-      const d = new Date(e.date_event);
+    const list = data.data || data.body || [];
+    return list.map(e => {
+      const dateStr = e.dateStart || e.date || e.startAt || '';
+      const date = String(dateStr).split('T')[0].split(' ')[0];
+      const catName = e.category?.name || e.type || '';
       return {
-        id: e.id,
-        title: (e.title?.en) ? e.title.en : String(e.title || ''),
-        date: e.date_event,
-        day: d.getDate(),
-        dow: DAYS[d.getDay()],
-        coins: (e.coins || []).slice(0, 2).map(c => c.symbol),
-        category: e.categories?.[0]?.name || '주요이슈',
-        hot: !!e.is_hot,
+        date,
+        title: e.title || e.name || '',
+        category: classifyCRCategory(catName),
+        coins: (e.coins || e.currencies || []).slice(0, 2).map(c => (c.symbol || c.code || '').toUpperCase()).filter(Boolean),
+        hot: !!(e.isHot || e.hot),
+        source: 'cryptorank',
+      };
+    }).filter(e => e.date && e.title);
+  } catch (err) {
+    console.warn('CryptoRank fetch fail:', err.message);
+    return [];
+  }
+}
+
+async function fetchCryptoRankV1(apiKey, from, to) {
+  try {
+    const url = `https://api.cryptorank.io/v1/events?api_key=${apiKey}&dateFrom=${from}&dateTo=${to}`;
+    const res = await fetch(url, { cf: { cacheTtl: 1800, cacheEverything: true } });
+    if (!res.ok) return [];
+    const data = await res.json();
+    const list = data.data || data.body || [];
+    return list.map(e => ({
+      date: String(e.dateStart || e.date || '').split('T')[0].split(' ')[0],
+      title: e.title || e.name || '',
+      category: classifyCRCategory(e.category?.name || e.type),
+      coins: (e.coins || []).slice(0,2).map(c => (c.symbol || '').toUpperCase()).filter(Boolean),
+      hot: !!e.isHot,
+      source: 'cryptorank_v1',
+    })).filter(e => e.date && e.title);
+  } catch { return []; }
+}
+
+function classifyCRCategory(cat) {
+  const c = String(cat || '').toLowerCase();
+  if (c.includes('listing') || c.includes('exchange')) return 'exchange';
+  if (c.includes('release') || c.includes('upgrade') || c.includes('mainnet')
+   || c.includes('airdrop') || c.includes('token')    || c.includes('unlock')
+   || c.includes('burn')    || c.includes('fork')) return 'project';
+  return 'default';
+}
+
+async function fetchDbEvents(db, from, to) {
+  if (!db) return [];
+  try {
+    const rows = await db.prepare(
+      "SELECT title, exchange, type, start_date, link FROM events " +
+      "WHERE status='active' AND start_date IS NOT NULL AND start_date >= ? AND start_date <= ? " +
+      "ORDER BY start_date ASC LIMIT 100"
+    ).bind(from, to).all();
+    return (rows.results || []).map(r => {
+      // type이 'unlock'이면 project 카테고리로, 'macro'면 macro로, 나머지는 exchange
+      const t = String(r.type || '').toLowerCase();
+      const category = t === 'unlock' || t === 'project' ? 'project'
+                     : t === 'macro' ? 'macro'
+                     : 'exchange';
+      const title = category === 'exchange' && r.exchange
+        ? `[${r.exchange}] ${r.title}`
+        : r.title;
+      return {
+        date: String(r.start_date).split('T')[0].split(' ')[0],
+        title,
+        category,
+        coins: [],
+        hot: r.type === 'competition' || category === 'project',
+        source: 'db',
+        link: r.link || '',
       };
     });
-    return new Response(JSON.stringify({ events, source: 'coinmarketcal' }), { headers: CAL_CORS });
-  } catch (err) {
-    return new Response(JSON.stringify({ events: [], error: err.message }), { headers: CAL_CORS });
+  } catch (e) {
+    console.warn('DB events fetch:', e.message);
+    return [];
   }
+}
+
+// ── Macro events (programmatic — 외부 API 의존 0) ────────────────────────────
+// FOMC 2026 schedule (Fed 공식 발표): federalreserve.gov/monetarypolicy/fomccalendars.htm
+// NFP: 매월 첫째 금요일, CPI: 월 중순(~13일), PCE: 월말(~28일)
+function computeMacroEvents(from, to) {
+  const fromMs = from.getTime();
+  const toMs   = to.getTime();
+  const out = [];
+
+  const FOMC_SCHED = [
+    // 2026
+    '2026-01-28','2026-03-18','2026-04-29','2026-06-17',
+    '2026-07-29','2026-09-23','2026-11-04','2026-12-16',
+    // 2027 (예상, Fed 확정 후 업데이트)
+    '2027-01-27','2027-03-17','2027-04-28','2027-06-16',
+  ];
+  for (const d of FOMC_SCHED) {
+    const t = new Date(d + 'T18:00:00Z').getTime();
+    if (t >= fromMs && t <= toMs) {
+      out.push({
+        date: d, title: '🇺🇸 미국 FOMC 금리결정',
+        category: 'macro', coins: [], hot: true, source: 'macro_calc',
+      });
+    }
+  }
+
+  // 월별 반복 이벤트 생성
+  const cur = new Date(from.getTime());
+  cur.setDate(1);
+  cur.setHours(0,0,0,0);
+  const end = new Date(toMs + 45 * 86400000);
+  while (cur.getTime() <= end.getTime()) {
+    const y = cur.getFullYear(), m = cur.getMonth();
+    const pad = n => String(n).padStart(2, '0');
+
+    // NFP: 첫째 금요일 (0일요일~6토요일, 금=5)
+    const firstOfMonth = new Date(y, m, 1);
+    const firstFriDay = 1 + ((5 - firstOfMonth.getDay() + 7) % 7);
+    const nfpStr = `${y}-${pad(m+1)}-${pad(firstFriDay)}`;
+    const nfpMs = new Date(nfpStr + 'T12:30:00Z').getTime();
+    if (nfpMs >= fromMs && nfpMs <= toMs) {
+      out.push({
+        date: nfpStr, title: '🇺🇸 미국 비농업고용 (NFP)',
+        category: 'macro', coins: [], hot: true, source: 'macro_calc',
+      });
+    }
+
+    // CPI: 월 10~13일 (미국 노동통계국 보통 10~15일 사이 발표, 13일로 근사)
+    const cpiStr = `${y}-${pad(m+1)}-13`;
+    const cpiMs = new Date(cpiStr + 'T12:30:00Z').getTime();
+    if (cpiMs >= fromMs && cpiMs <= toMs) {
+      out.push({
+        date: cpiStr, title: '🇺🇸 미국 소비자물가 (CPI)',
+        category: 'macro', coins: [], hot: true, source: 'macro_calc',
+      });
+    }
+
+    // PPI: 월 12일경
+    const ppiStr = `${y}-${pad(m+1)}-12`;
+    const ppiMs = new Date(ppiStr + 'T12:30:00Z').getTime();
+    if (ppiMs >= fromMs && ppiMs <= toMs) {
+      out.push({
+        date: ppiStr, title: '🇺🇸 미국 생산자물가 (PPI)',
+        category: 'macro', coins: [], hot: false, source: 'macro_calc',
+      });
+    }
+
+    // Core PCE: 월 27일경 (Fed 선호 물가지표)
+    const pceStr = `${y}-${pad(m+1)}-27`;
+    const pceMs = new Date(pceStr + 'T12:30:00Z').getTime();
+    if (pceMs >= fromMs && pceMs <= toMs) {
+      out.push({
+        date: pceStr, title: '🇺🇸 미국 근원 PCE 물가',
+        category: 'macro', coins: [], hot: true, source: 'macro_calc',
+      });
+    }
+
+    cur.setMonth(m + 1);
+  }
+
+  return out;
+}
+
+function fmtNum(n) {
+  n = Number(n) || 0;
+  if (n >= 1e9) return (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(0) + 'K';
+  return String(Math.round(n));
+}
+function fmtUsd(n) {
+  n = Number(n) || 0;
+  if (n >= 1e9) return '$' + (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return '$' + (n/1e3).toFixed(0) + 'K';
+  return '$' + Math.round(n);
 }
 
 // ========== Public Events API ==========
