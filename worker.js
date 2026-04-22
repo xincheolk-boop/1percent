@@ -795,9 +795,14 @@ const NEWS_CORS = {
 };
 
 const NEWS_FEEDS = [
-  { src: 'CoinDesk',       url: 'https://www.coindesk.com/arc/outboundfeeds/rss/' },
-  { src: 'Cointelegraph',  url: 'https://cointelegraph.com/rss' },
-  { src: 'Decrypt',        url: 'https://decrypt.co/feed' },
+  // 한국어 우선 (사이트 기본 언어)
+  { src: '토큰포스트',   url: 'https://www.tokenpost.kr/rss' },
+  { src: '블록미디어',   url: 'https://www.blockmedia.co.kr/feed' },
+  { src: '코인리더스',   url: 'https://www.coinreaders.com/rss/allArticle.xml' },
+  { src: '코인니스',     url: 'https://coinness.com/rss' },
+  // 영문 백업 (Phase 2 다국어 대비)
+  { src: 'CoinDesk',     url: 'https://www.coindesk.com/arc/outboundfeeds/rss/' },
+  { src: 'Cointelegraph',url: 'https://cointelegraph.com/rss' },
 ];
 
 function _rssField(xml, tag){
@@ -840,7 +845,14 @@ async function handleNews(request, env, ctx){
       }).then(r => r.ok ? r.text().then(t => parseRss(t, f.src)) : []))
     );
     const all = results.flatMap(r => r.status === 'fulfilled' ? r.value : []);
-    all.sort((a,b) => b.published_on - a.published_on);
+    // 한글 제목 우선 (사이트 기본 언어 KR) — 그 다음 최신순
+    const hasKR = s => /[가-힣]/.test(s || '');
+    all.sort((a,b) => {
+      const ak = hasKR(a.title) ? 1 : 0;
+      const bk = hasKR(b.title) ? 1 : 0;
+      if (ak !== bk) return bk - ak;
+      return (b.published_on||0) - (a.published_on||0);
+    });
     const data = all.slice(0, 40);
     return new Response(JSON.stringify({ ok: true, count: data.length, Data: data }), { headers: NEWS_CORS });
   } catch (err) {

@@ -3021,12 +3021,13 @@
                 const list = document.getElementById('hotList');
                 if (!list || !data.Data) return;
                 list.innerHTML = data.Data.slice(0,7).map((n, i) => {
-                    const cats = (n.categories || '').split('|');
-                    const coin = cats.find(c => c.length <= 6 && c.length >= 2) || cats[0] || 'Crypto';
+                    const cats = (n.categories || '').split('|').filter(Boolean);
+                    // 2~6자 카테고리 우선, 없으면 소스명(토큰포스트 등) 사용
+                    const tag = cats.find(c => c.length <= 6 && c.length >= 2) || n.source || '암호화폐';
                     const title = n.title.length > 38 ? n.title.substring(0,38) + '…' : n.title;
                     return '<div class="hot-item" onclick="window.open(\'' + n.url + '\',\'_blank\')">' +
                         '<span class="hot-rank">' + (i+1) + '</span>' +
-                        '<span class="hot-tag">' + coin.toUpperCase() + '</span>' +
+                        '<span class="hot-tag">' + tag + '</span>' +
                         '<span class="hot-title">' + title + '</span>' +
                     '</div>';
                 }).join('');
