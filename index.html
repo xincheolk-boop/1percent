@@ -1071,34 +1071,84 @@
         }
         .sr-search-text { flex: 1; }
 
-        /* 일정 */
+        /* 일정 (월별 그룹형 레이아웃) */
+        .sr-sch-month {
+            font-size: 12px;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 10px 0 6px;
+            margin-top: 4px;
+        }
+        .sr-sch-month:first-child { margin-top: 0; padding-top: 2px; }
         .sr-sch-item {
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: 48px 1fr auto;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 6px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
         }
-        .sr-sch-item:last-child { border-bottom: none; }
-        .sr-sch-head {
+        .sr-sch-item:hover { background: var(--bg-card-hover); }
+        .sr-sch-datebox {
             display: flex;
-            align-items: baseline;
-            gap: 8px;
-            margin-bottom: 4px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 4px 0;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
         }
+        .sr-sch-datebox.macro    { background: rgba(220,38,38,0.10); border-color: rgba(220,38,38,0.25); }
+        .sr-sch-datebox.project  { background: rgba(147,51,234,0.10); border-color: rgba(147,51,234,0.25); }
+        .sr-sch-datebox.today    { background: rgba(0,212,160,0.12);  border-color: rgba(0,212,160,0.35); }
         .sr-sch-day {
             font-family: 'Orbitron', monospace;
-            font-size: 22px;
+            font-size: 17px;
             font-weight: 700;
             color: #fff;
+            line-height: 1;
         }
+        .sr-sch-datebox.macro .sr-sch-day    { color: #f87171; }
+        .sr-sch-datebox.project .sr-sch-day  { color: #c084fc; }
+        .sr-sch-datebox.today .sr-sch-day    { color: var(--accent-green); }
         .sr-sch-dow {
-            font-size: 11px;
+            font-size: 9px;
             color: var(--text-muted);
+            margin-top: 3px;
+            font-weight: 500;
         }
-        .sr-sch-tag {
-            font-size: 10px;
-            color: var(--accent-purple);
-        }
+        .sr-sch-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
         .sr-sch-title {
+            font-size: 12.5px;
+            color: var(--text-primary);
+            line-height: 1.3;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .sr-sch-title.macro   { color: #f87171; }
+        .sr-sch-arrow {
             font-size: 13px;
+            color: var(--text-muted);
+            opacity: 0.6;
+            transition: all 0.15s;
+        }
+        .sr-sch-item:hover .sr-sch-arrow {
+            color: var(--accent-cyan);
+            opacity: 1;
+            transform: translateX(2px);
+        }
+        .sr-sch-empty {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 12px;
+            padding: 24px 8px;
         }
 
         /* ===== 핫이슈 ===== */
@@ -2983,69 +3033,63 @@
             } catch(e) { console.warn('Hot issues fail:', e); }
         }
 
-        // ── 코인 주요 일정 ──
+        // ── 코인 주요 일정 (월별 그룹 레이아웃) ──
         async function loadCalendar() {
             const container = document.getElementById('calendarContainer');
             if (!container) return;
-            const DAYS = ['일','월','화','수','목','금','토'];
+            const DOW_KR = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
 
-            // 1) Worker API 시도
             try {
-                const res = await fetch('/api/calendar');
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.events && data.events.length > 0) {
-                        const today = new Date();
-                        const todayD = today.getDate();
-                        const tomorrowD = new Date(today.getTime()+86400000).getDate();
-                        container.innerHTML = data.events.slice(0,5).map(e => {
-                            const dayClass = e.day===todayD?'today':(e.day===tomorrowD?'tomorrow':'');
-                            const label = e.day===todayD?' <span style="font-size:10px;color:var(--accent-green);">오늘</span>':(e.day===tomorrowD?' <span style="font-size:10px;color:#fbbf24;">내일</span>':'');
-                            const title = e.title + (e.coins && e.coins.length?' ('+e.coins.join(', ')+')':'');
-                            const c = (e.category||'').toLowerCase();
-                            const cls = c.includes('macro')||c.includes('fomc')||c.includes('cpi')?'macro':c.includes('listing')||c.includes('exchange')?'exchange':c.includes('unlock')||c.includes('project')?'project':'default';
-                            const badge = cls==='macro'?'🔴 #주요이슈':cls==='exchange'?'🟡 #거래소':cls==='project'?'🟢 #프로젝트':'🟣 #이슈';
-                            return '<div class="sr-sch-item" onclick="location.href=\'calendar.html\'"><div class="sr-sch-head"><span class="sr-sch-day '+dayClass+'">'+e.day+'</span><span class="sr-sch-dow">'+e.dow+'요일</span>'+label+'</div><div><span class="cal-badge '+cls+'">'+badge+'</span></div><div class="sr-sch-title">'+(title.length>30?title.slice(0,30)+'…':title)+'</div></div>';
-                        }).join('');
-                        return;
+                const res = await fetch('/api/calendar', { cache: 'no-store' });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                const events = (data.events || []).slice(0, 10);
+                if (!events.length) {
+                    container.innerHTML = '<div class="sr-sch-empty">다가오는 일정이 없습니다</div>';
+                    return;
+                }
+
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const todayMs = today.getTime();
+
+                // 카테고리 → 배지 + 데이트박스 클래스 매핑
+                const cat2badge = { macro:'#주요이슈', exchange:'#거래소', project:'#프로젝트', default:'#이슈' };
+
+                // 월별 그룹핑
+                const byMonth = {};
+                for (const e of events) {
+                    const d = new Date(e.date + 'T00:00:00');
+                    const key = d.getFullYear() + '년 ' + (d.getMonth() + 1) + '월';
+                    (byMonth[key] = byMonth[key] || []).push({ ...e, _d: d });
+                }
+
+                let html = '';
+                for (const month of Object.keys(byMonth)) {
+                    html += '<div class="sr-sch-month">' + month + '</div>';
+                    for (const e of byMonth[month]) {
+                        const day = e._d.getDate();
+                        const dow = DOW_KR[e._d.getDay()];
+                        const isToday = e._d.getTime() === todayMs;
+                        const cat = (e.category || 'default').toLowerCase();
+                        const boxCls = isToday ? 'today' : (cat === 'macro' ? 'macro' : (cat === 'project' ? 'project' : ''));
+                        const titleCls = cat === 'macro' ? 'macro' : '';
+                        const title = (e.title || '').replace(/^🇺🇸 /, '미 ').replace(/🇺🇸/g, '미'); // 이모지 렌더 안되는 환경 대응
+                        html += '<div class="sr-sch-item" onclick="location.href=\'calendar.html\'">';
+                        html += '<div class="sr-sch-datebox ' + boxCls + '"><div class="sr-sch-day">' + day + '</div><div class="sr-sch-dow">' + dow + '</div></div>';
+                        html += '<div class="sr-sch-body">';
+                        html += '<span class="cal-badge ' + cat + '" style="align-self:flex-start">' + (cat2badge[cat] || cat2badge.default) + '</span>';
+                        html += '<div class="sr-sch-title ' + titleCls + '">' + title + '</div>';
+                        html += '</div>';
+                        html += '<div class="sr-sch-arrow">↗</div>';
+                        html += '</div>';
                     }
                 }
-            } catch(e) {}
-
-            // 2) 폴백: CoinGecko 트렌딩 + 동적 날짜
-            try {
-                const tRes = await fetch('https://api.coingecko.com/api/v3/search/trending');
-                const tData = await tRes.json();
-                const tCoins = (tData.coins||[]).map(c => c.item.symbol.toUpperCase());
-                const today = new Date();
-
-                const templates = [
-                    { cat:'macro', badge:'🔴 #주요이슈', items:['미국 PCE 물가지수 발표','FOMC 의사록 공개','미국 고용지표 발표','CPI 소비자물가지수','미국 GDP 속보치'] },
-                    { cat:'exchange', badge:'🟡 #거래소', items:['{C} 선물 상장 예정','{C} 거래 페어 추가','{C} 마진 거래 오픈'] },
-                    { cat:'project', badge:'🟢 #프로젝트', items:['{C} 토큰 언락','{C} 메인넷 업그레이드','{C} 에어드랍 스냅샷','{C} 하드포크'] }
-                ];
-
-                const events = [];
-                const offsets = [0,1,2,4,6];
-                for (let i = 0; i < 5; i++) {
-                    const d = new Date(today.getTime() + offsets[i]*86400000);
-                    const catIdx = i < 2 ? 0 : (i < 4 ? 1 : 2);
-                    const cat = templates[catIdx];
-                    let title = cat.items[i % cat.items.length];
-                    if (title.includes('{C}')) title = title.replace('{C}', tCoins[i] || 'SOL');
-                    events.push({
-                        day: d.getDate(), dow: DAYS[d.getDay()],
-                        isToday: offsets[i]===0, isTmr: offsets[i]===1,
-                        cat: cat.cat, badge: cat.badge, title: title
-                    });
-                }
-
-                container.innerHTML = events.map(e => {
-                    const dayClass = e.isToday?'today':(e.isTmr?'tomorrow':'');
-                    const label = e.isToday?' <span style="font-size:10px;color:var(--accent-green);">오늘</span>':(e.isTmr?' <span style="font-size:10px;color:#fbbf24;">내일</span>':'');
-                    return '<div class="sr-sch-item" onclick="location.href=\'calendar.html\'"><div class="sr-sch-head"><span class="sr-sch-day '+dayClass+'">'+e.day+'</span><span class="sr-sch-dow">'+e.dow+'요일</span>'+label+'</div><div><span class="cal-badge '+e.cat+'">'+e.badge+'</span></div><div class="sr-sch-title">'+e.title+'</div></div>';
-                }).join('');
-            } catch(e) { console.warn('Calendar fallback fail:', e); }
+                container.innerHTML = html;
+            } catch(err) {
+                console.warn('Calendar load fail:', err);
+                container.innerHTML = '<div class="sr-sch-empty">일정을 불러올 수 없습니다</div>';
+            }
         }
 
         // 데이터 로딩 & 자동 갱신
