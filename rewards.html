@@ -175,9 +175,11 @@
         .rtop-card:hover{border-color:rgba(255,255,255,0.15);transform:translateY(-2px)}
         .rtop-card.gold{border-color:rgba(255,215,0,0.35);background:rgba(255,215,0,0.03)}
         .rtop-card.gold:hover{border-color:rgba(255,215,0,0.5)}
-        .rtop-emblem{width:220px;height:220px;margin:0 auto 16px}
-        .rtop-emblem img{width:100%;height:100%;object-fit:contain}
-        .rtop-card.gold .rtop-emblem{width:260px;height:260px}
+        /* 박스 크기 유지 — 엠블럼 이미지만 시각적으로 확대 */
+        .rtop-card{overflow:visible}
+        .rtop-emblem{width:56px;height:56px;margin:0 auto 12px;position:relative;overflow:visible}
+        .rtop-emblem img{width:160px;height:160px;object-fit:contain;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none}
+        .rtop-card.gold .rtop-emblem img{width:180px;height:180px}
         .rtop-card.gold .rtop-emblem img{filter:drop-shadow(0 0 18px rgba(255,215,0,0.35))}
         .rtop-card:nth-child(2) .rtop-emblem img{filter:drop-shadow(0 0 14px rgba(220,50,50,0.28))}
         .rtop-card:nth-child(3) .rtop-emblem img{filter:drop-shadow(0 0 14px rgba(100,160,255,0.28))}
