@@ -42,7 +42,8 @@
         .history-table th { font-size:11px;color:var(--text-muted);font-weight:500;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border-color); }
         .history-table td { font-size:13px;padding:11px 12px;border-bottom:1px solid rgba(255,255,255,0.04); }
         .history-table tr:hover td { background:var(--bg-card-hover); }
-        .table-wrap { background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;margin-bottom:24px; }
+        .table-wrap { background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:24px; }
+        .table-wrap .history-table { min-width:560px; }
         .explain-box { background:rgba(220,38,38,0.04);border:1px solid rgba(220,38,38,0.12);border-radius:12px;padding:20px; }
         .explain-box h3 { font-size:14px;color:var(--accent-red);margin-bottom:12px; }
         .explain-box p { font-size:13px;color:var(--text-secondary);line-height:1.7;margin-bottom:8px; }

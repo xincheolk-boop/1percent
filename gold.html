@@ -155,8 +155,10 @@
         }
 
         /* 국내 시세 테이블 */
+        .price-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 16px; border-radius: 12px; }
         .price-table {
             width: 100%;
+            min-width: 520px;
             border-collapse: separate;
             border-spacing: 0;
             background: var(--bg-card);
@@ -354,6 +356,7 @@
 
         <!-- 제품 시세 (18K, 14K) -->
         <div class="section-title">제품 시세</div>
+        <div class="price-table-wrap">
         <table class="price-table">
             <thead>
                 <tr>
@@ -368,6 +371,7 @@
                 <tr><td colspan="5" class="loading" style="text-align:center;">데이터 로딩 중...</td></tr>
             </tbody>
         </table>
+        </div>
 
         <!-- 국제 시세 (LIVE SPOT PRICES) -->
         <div class="intl-section">
@@ -418,6 +422,7 @@
 
         <!-- 유가증권 판매시세 -->
         <div class="section-title">유가증권 판매시세</div>
+        <div class="price-table-wrap">
         <table class="price-table">
             <thead>
                 <tr>
@@ -432,6 +437,7 @@
                 <tr><td colspan="5" class="loading" style="text-align:center;">데이터 로딩 중...</td></tr>
             </tbody>
         </table>
+        </div>
 
         <!-- 안내 -->
         <div class="info-box">

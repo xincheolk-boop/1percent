@@ -99,6 +99,16 @@
             border-radius: 8px; text-decoration: none; transition: all 0.2s;
         }
         .tg-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        /* 모바일 */
+        @media (max-width: 640px) {
+            .top-bar { padding: 0 14px; }
+            .container { padding: 72px 14px 32px; }
+            .tabs { overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: nowrap; scrollbar-width: none; }
+            .tabs::-webkit-scrollbar { display: none; }
+            .tab { flex-shrink: 0; white-space: nowrap; padding: 8px 12px; font-size: 12px; }
+            .page-header h1 { font-size: 20px; }
+            .post-item { padding: 14px; }
+        }
     </style>
 </head>
 <body>

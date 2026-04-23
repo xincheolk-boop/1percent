@@ -56,7 +56,8 @@
         .info-card ul { padding-left: 16px; }
         .info-card li { font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
 
-        .fee-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; margin-bottom: 40px; }
+        .fee-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 40px; border-radius: 12px; }
+        .fee-table { width: 100%; min-width: 560px; border-collapse: separate; border-spacing: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; }
         .fee-table th { background: var(--bg-secondary); padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--text-muted); text-align: center; }
         .fee-table th:first-child { text-align: left; }
         .fee-table td { padding: 14px 16px; font-size: 13px; text-align: center; border-top: 1px solid var(--border-color); }
@@ -175,6 +176,7 @@
         </div>
 
         <div class="section-title">수수료 구조</div>
+        <div class="fee-table-wrap">
         <table class="fee-table">
             <thead>
                 <tr><th>구분</th><th>일반 수수료</th><th>할인율</th><th>1% Trading 리워드 후</th></tr>
@@ -184,6 +186,7 @@
                 <tr><td>시장가 (Taker)</td><td>0.05%</td><td class="highlight">80%</td><td class="highlight">0.01%</td></tr>
             </tbody>
         </table>
+        </div>
 
         <div class="section-title">이벤트</div>
         <div class="event-cards">

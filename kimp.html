@@ -84,7 +84,8 @@
         .coin-count strong{color:var(--txt2)}
 
         /* 테이블 */
-        .tbl{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+        .tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px}
+        .tbl{width:100%;min-width:720px;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
         .tbl th,.tbl td{padding:12px 14px;text-align:right;white-space:nowrap}
         .tbl th:first-child,.tbl td:first-child{text-align:left}
         .tbl thead{border-bottom:1px solid var(--border)}
@@ -170,6 +171,8 @@
             .tbl th:nth-child(6),.tbl td:nth-child(6),
             .tbl th:nth-child(7),.tbl td:nth-child(7){display:none}
             .chart-wrap{height:350px}
+            .ticker-upd{margin-right:0}
+            .tbl{min-width:0}
         }
         @media(max-width:640px){
             .kimp-val{font-size:28px}
@@ -292,6 +295,7 @@
         <div class="coin-count" id="coinCount"></div>
 
         <!-- 테이블 -->
+        <div class="tbl-wrap">
         <table class="tbl">
             <thead>
                 <tr>
@@ -306,6 +310,7 @@
             </thead>
             <tbody id="tbody"></tbody>
         </table>
+        </div>
 
         <div class="more-wrap" id="moreWrap" style="display:none">
             <button class="more-btn" id="moreBtn" onclick="showMore()">더 보기</button>

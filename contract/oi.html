@@ -35,7 +35,8 @@
         .history-table th { font-size:11px;color:var(--text-muted);font-weight:500;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border-color); }
         .history-table td { font-size:13px;padding:11px 12px;border-bottom:1px solid rgba(255,255,255,0.04); }
         .history-table tr:hover td { background:var(--bg-card-hover); }
-        .table-wrap { background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;overflow:hidden;margin-bottom:24px; }
+        .table-wrap { background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:24px; }
+        .table-wrap .history-table { min-width:560px; }
         /* 미니 차트 */
         .oi-chart { height:80px;display:flex;align-items:flex-end;gap:3px;padding:8px 0; }
         .oi-bar { flex:1;border-radius:3px 3px 0 0;min-height:4px;transition:height 0.4s; }

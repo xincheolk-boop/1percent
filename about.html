@@ -112,6 +112,16 @@
             border-radius: 8px; text-decoration: none; transition: all 0.2s;
         }
         .cta-btn-primary:hover, .cta-btn-secondary:hover { opacity: 0.9; transform: translateY(-1px); }
+        /* 모바일 */
+        @media (max-width: 640px) {
+            .top-bar { padding: 0 14px; }
+            .container { padding: 72px 14px 32px; }
+            .hero-section h1 { font-size: 22px; }
+            .stat-grid { grid-template-columns: 1fr !important; gap: 10px; }
+            .process-flow { flex-direction: column; }
+            .cta-buttons { flex-direction: column; gap: 10px; }
+            .cta-btn-primary, .cta-btn-secondary { width: 100%; text-align: center; }
+        }
     </style>
 </head>
 <body>
